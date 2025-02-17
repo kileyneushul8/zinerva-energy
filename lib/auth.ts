@@ -1,9 +1,7 @@
 import { SignJWT, jwtVerify } from "jose"
 
-// Use a hardcoded secret key (not recommended for production)
-const secretKey = "your-secret-key-here"
-
-// Convert secret to Uint8Array as required by jose
+// Use environment variables for secrets
+const secretKey = process.env.JWT_SECRET_KEY || "your-fallback-secret-key"
 const key = new TextEncoder().encode(secretKey)
 
 export async function createToken(payload: any) {
