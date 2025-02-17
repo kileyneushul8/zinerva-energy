@@ -1,7 +1,7 @@
 "use client"
 
 import { motion, useScroll, useTransform } from "framer-motion"
-import { LinkedinIcon, Mail, Globe, ArrowRight, Award, Target } from "lucide-react"
+import { Mail, Globe, ArrowRight, Award, Target } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
@@ -28,6 +28,8 @@ export default function LeadershipPage() {
             icon: Award
         }
     ]
+
+    const contactEmail = "account.management@zinervacompany.com"
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 via-teal-50/10 to-white">
@@ -173,20 +175,13 @@ export default function LeadershipPage() {
                                                     animate={{ opacity: 1, y: 0 }}
                                                     className="space-y-6 text-center"
                                                 >
-                                                    <div className="flex justify-center space-x-4">
+                                                    <div className="flex justify-center">
                                                         <Button
-                                                            onClick={() => window.location.href = 'mailto:gabriel.hernandez@zinerva.com'}
                                                             className="bg-teal-600 hover:bg-teal-700 text-white"
+                                                            onClick={() => window.location.href = 'mailto:account.management@zinervacompany.com'}
                                                         >
                                                             <Mail className="mr-2 h-5 w-5" />
                                                             Email
-                                                        </Button>
-                                                        <Button
-                                                            onClick={() => window.open('https://linkedin.com/in/gabriel-hernandez', '_blank')}
-                                                            className="bg-blue-600 hover:bg-blue-700 text-white"
-                                                        >
-                                                            <LinkedinIcon className="mr-2 h-5 w-5" />
-                                                            LinkedIn
                                                         </Button>
                                                     </div>
                                                 </motion.div>

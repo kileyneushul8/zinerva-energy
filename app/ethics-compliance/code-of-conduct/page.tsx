@@ -294,7 +294,7 @@ export default function CodeOfConductPage() {
                 >
                     <h2 className="text-2xl font-bold text-teal-900 mb-6">Ethics & Compliance Contact</h2>
                     <Button
-                        onClick={() => window.location.href = 'mailto:ethics@zinerva.com'}
+                        onClick={() => window.location.href = 'mailto:account.management@zinervacompany.com'}
                         className="bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 
               text-white px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group"
                     >

@@ -1083,7 +1083,7 @@ export default function ProductsPage() {
         </AnimatedSection>
       </div>
 
-      {/* New Full-Width Infrastructure Section */}
+      {/* Infrastructure Section */}
       <section className="w-full py-24 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
           <motion.div
@@ -1092,9 +1092,9 @@ export default function ProductsPage() {
             viewport={{ once: true }}
             className="text-center mb-16 space-y-4"
           >
-            <h2 className="text-4xl font-bold text-teal-900">Our Infrastructure</h2>
+            <h2 className="text-4xl md:text-4xl font-bold text-teal-900">Our Infrastructure</h2>
             <div className="w-20 h-1 bg-orange-500 rounded-full mx-auto" />
-            <p className="text-xl text-teal-700 max-w-3xl mx-auto">
+            <p className="text-base md:text-xl text-teal-700 max-w-3xl mx-auto px-4 md:px-0">
               State-of-the-art facilities enabling reliable and efficient energy distribution across the globe
             </p>
           </motion.div>
@@ -1103,7 +1103,7 @@ export default function ProductsPage() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="relative aspect-[16/9] rounded-2xl overflow-hidden shadow-2xl border-2 border-teal-100"
+            className="relative aspect-[4/3] md:aspect-[16/9] rounded-2xl overflow-hidden shadow-2xl border-2 border-teal-100"
           >
             <Image
               src="/oil-tank-view.jpeg"
@@ -1112,6 +1112,7 @@ export default function ProductsPage() {
               className="object-cover hover:scale-105 transition-transform duration-700"
               priority
               quality={100}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
             />
           </motion.div>
         </div>
