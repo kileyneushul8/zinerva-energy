@@ -146,13 +146,13 @@ export function Navigation() {
 
   // Enhanced animation variants
   const menuItemVariants = {
-    initial: { 
-      y: -8, 
+    initial: {
+      y: -8,
       opacity: 0,
       filter: "blur(8px)"
     },
-    animate: { 
-      y: 0, 
+    animate: {
+      y: 0,
       opacity: 1,
       filter: "blur(0px)",
       transition: {
@@ -161,10 +161,10 @@ export function Navigation() {
         damping: 20
       }
     },
-    hover: { 
+    hover: {
       scale: 1.03,
-      transition: { 
-        type: "spring", 
+      transition: {
+        type: "spring",
         stiffness: 400,
         damping: 10
       }
@@ -175,11 +175,11 @@ export function Navigation() {
   }
 
   const submenuVariants = {
-    hidden: { 
+    hidden: {
       opacity: 0,
       y: -15,
       scale: 0.95,
-      transition: { 
+      transition: {
         duration: 0.2,
         ease: "easeOut"
       }
@@ -200,7 +200,7 @@ export function Navigation() {
       opacity: 0,
       y: -10,
       scale: 0.95,
-      transition: { 
+      transition: {
         duration: 0.2,
         ease: "easeIn"
       }
@@ -209,12 +209,12 @@ export function Navigation() {
 
   // Add hover animation for logo
   const logoVariants = {
-    initial: { 
-      x: -20, 
-      opacity: 0 
+    initial: {
+      x: -20,
+      opacity: 0
     },
-    animate: { 
-      x: 0, 
+    animate: {
+      x: 0,
       opacity: 1,
       transition: {
         type: "spring",
@@ -233,12 +233,12 @@ export function Navigation() {
   }
 
   return (
-    <header 
+    <header
       ref={menuRef}
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-500",
-        scrolled 
-          ? "bg-white/95 backdrop-blur-md shadow-lg" 
+        scrolled
+          ? "bg-white/95 backdrop-blur-md shadow-lg"
           : "bg-white"
       )}
     >
@@ -247,7 +247,7 @@ export function Navigation() {
           <div className="flex items-center justify-between h-16">
             {/* Enhanced Logo Animation */}
             <Link href="/" className="group relative">
-              <motion.div 
+              <motion.div
                 className="flex items-center space-x-2 relative z-10"
                 variants={logoVariants}
                 initial="initial"
@@ -291,7 +291,7 @@ export function Navigation() {
                           "relative py-4 px-2 text-sm font-medium transition-all",
                           "flex items-center space-x-1 group",
                           activeMenu === item.title
-                            ? "text-teal-800" 
+                            ? "text-teal-800"
                             : "text-teal-700 hover:text-teal-900"
                         )}
                       >
@@ -320,7 +320,7 @@ export function Navigation() {
                             exit="exit"
                             onMouseLeave={() => setActiveMenu(null)}
                           >
-                            <div 
+                            <div
                               className="bg-white rounded-lg shadow-lg border border-teal-100 overflow-hidden"
                               onClick={(e) => e.stopPropagation()}
                             >
@@ -334,16 +334,16 @@ export function Navigation() {
                                     className={cn(
                                       "block p-4 transition-all",
                                       "hover:bg-teal-50 group",
-                                      pathname === subitem.href 
-                                        ? "bg-teal-50" 
+                                      pathname === subitem.href
+                                        ? "bg-teal-50"
                                         : ""
                                     )}
                                     onClick={() => setActiveMenu(null)}
                                   >
                                     <h3 className={cn(
                                       "font-medium mb-1",
-                                      pathname === subitem.href 
-                                        ? "text-teal-900" 
+                                      pathname === subitem.href
+                                        ? "text-teal-900"
                                         : "text-teal-800 group-hover:text-teal-900"
                                     )}>
                                       {subitem.title}
@@ -363,8 +363,8 @@ export function Navigation() {
                       className={cn(
                         "relative py-4 text-sm font-medium transition-all",
                         "group hover:text-teal-900",
-                        pathname === item.href 
-                          ? "text-teal-900" 
+                        pathname === item.href
+                          ? "text-teal-900"
                           : "text-teal-700"
                       )}
                     >
@@ -400,7 +400,7 @@ export function Navigation() {
             >
               <motion.div
                 initial={false}
-                animate={{ 
+                animate={{
                   rotate: isMobileMenuOpen ? 180 : 0,
                   scale: isMobileMenuOpen ? 0.9 : 1
                 }}
@@ -448,7 +448,7 @@ export function Navigation() {
                           <span className="font-medium text-teal-900">
                             {item.title}
                           </span>
-                          <ChevronDown 
+                          <ChevronDown
                             className={cn(
                               "w-5 h-5 text-teal-500 transition-transform",
                               activeMenu === item.title ? "rotate-180" : ""

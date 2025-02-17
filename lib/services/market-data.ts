@@ -99,25 +99,32 @@ export class MarketDataService {
     }
   }
 
-  subscribeToStream() {
-    // Bloomberg's WebSocket connection for real-time data
-    const ws = new WebSocket('wss://api.bloomberg.com/eap/stream', {
-      headers: {
-        Authorization: `Bearer ${this.authToken}`
-      }
-    })
+  private async connectWebSocket() {
+    if (!this.authToken) await this.authenticate()
+
+    // Create WebSocket with auth token in URL
+    const ws = new WebSocket(
+      `wss://api.bloomberg.com/eap/stream?access_token=${this.authToken}`
+    )
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      this.eventEmitter.emit('data', this.formatStreamData(data))
+      try {
+        const data = JSON.parse(event.data)
+        this.eventEmitter.emit('data', data)
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error)
+      }
     }
 
     ws.onerror = (error) => {
-      console.error('Bloomberg WebSocket error:', error)
-      // Attempt to reconnect
-      setTimeout(() => this.subscribeToStream(), 5000)
+      console.error('WebSocket error:', error)
+      this.eventEmitter.emit('error', error)
     }
 
+    return ws
+  }
+
+  subscribeToStream() {
     return this.eventEmitter
   }
 

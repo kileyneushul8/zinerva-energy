@@ -7,14 +7,18 @@ export default function TestPage() {
   const [result, setResult] = useState<string>("")
   const [error, setError] = useState<string>("")
 
-  const testJWT = async () => {
+  const handleTest = async () => {
     try {
       const response = await fetch("/api/auth/test")
       const data = await response.json()
-      setResult(JSON.stringify(data, null, 2))
+      setResult(data.message)
       setError("")
     } catch (err) {
-      setError(err.message)
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('An unknown error occurred')
+      }
       setResult("")
     }
   }
@@ -23,7 +27,7 @@ export default function TestPage() {
     <div className="min-h-screen bg-black text-white p-8">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">JWT Configuration Test</h1>
-        <Button onClick={testJWT} className="mb-4">
+        <Button onClick={handleTest} className="mb-4">
           Test JWT Configuration
         </Button>
 

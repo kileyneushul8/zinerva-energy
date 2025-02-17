@@ -8,7 +8,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { AnimatedSection } from "@/components/animated-section"
 import { GlobeVisualization } from "@/components/globe-visualization"
 import { GlobalOperationsMap } from "@/components/global-operations-map"
-import { throttle, debounce } from 'lodash'
+import throttle from 'lodash/throttle'
+import debounce from 'lodash/debounce'
 
 // First, update the Location interface to handle readonly arrays
 interface Location {
@@ -224,7 +225,13 @@ interface Arc {
   color: string
 }
 
-export function GlobalNetworkContent() {
+export default function GlobalNetworkContent() {
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
   const { scrollYProgress } = useScroll()
   const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '50%'])
   const globeRef = useRef<any>()
@@ -427,6 +434,10 @@ export function GlobalNetworkContent() {
   const handleMouseOut = useCallback(() => {
     setIsRotating(true)
   }, [])
+
+  if (!isMounted) {
+    return null // or a loading state
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">

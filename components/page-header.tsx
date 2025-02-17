@@ -1,8 +1,3 @@
-/**
- * PageHeader Component
- * Renders a configurable header section with optional image and variant styles
- */
-
 "use client"
 
 import Image, { StaticImageData } from "next/image"

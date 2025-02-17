@@ -6,93 +6,116 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { AnimatedSection } from "@/components/animated-section"
 
+// First, let's define proper types for the specs
+type SpecValue = {
+  value: string
+  color: string
+}
+
+type SpecCategory = {
+  [key: string]: SpecValue
+}
+
+type ProductSpecs = {
+  quality: SpecCategory
+  market: SpecCategory
+  operations: SpecCategory
+  technical: SpecCategory
+}
+
 // Enhanced product data structure
-const products = [
-  {
-    name: "Brent Crude",
-    type: "Crude Oil",
-    unit: "bbl",
-    tradingVenues: ["ICE", "NYMEX"],
-    specs: {
-      quality: {
-        "Quality Grade": { value: "Premium", color: "text-teal-600" },
-        "Purity Level": { value: "High", color: "text-teal-600" },
-        "Consistency": { value: "Excellent", color: "text-teal-600" }
-      },
-      market: {
-        "Coverage": { value: "Global", color: "text-teal-600" },
-        "Supply Chain": { value: "Extensive", color: "text-teal-600" },
-        "Availability": { value: "High", color: "text-teal-600" }
-      },
-      operations: {
-        "Delivery": { value: "Flexible", color: "text-teal-600" },
-        "Storage": { value: "Standard", color: "text-teal-600" },
-        "Handling": { value: "Complex", color: "text-orange-500" }
-      },
-      technical: {
-        "API Gravity": { value: "38.06°", color: "text-teal-600" },
-        "Sulfur Content": { value: "0.45%", color: "text-teal-600" },
-        "Pour Point": { value: "-3°C", color: "text-teal-600" },
-        "Viscosity": { value: "4.3 cSt", color: "text-teal-600" }
+const products: Array<{
+  name: string
+  type: string
+  unit: string
+  specs: ProductSpecs
+  tradingVenues?: string[]
+}> = [
+    {
+      name: "Brent Crude",
+      type: "Crude Oil",
+      unit: "bbl",
+      tradingVenues: ["ICE", "NYMEX"],
+      specs: {
+        quality: {
+          "Quality Grade": { value: "Premium", color: "text-teal-600" },
+          "Purity Level": { value: "High", color: "text-teal-600" },
+          "Consistency": { value: "Excellent", color: "text-teal-600" }
+        },
+        market: {
+          "Coverage": { value: "Global", color: "text-teal-600" },
+          "Supply Chain": { value: "Extensive", color: "text-teal-600" },
+          "Availability": { value: "High", color: "text-teal-600" }
+        },
+        operations: {
+          "Delivery": { value: "Flexible", color: "text-teal-600" },
+          "Storage": { value: "Standard", color: "text-teal-600" },
+          "Handling": { value: "Complex", color: "text-orange-500" }
+        },
+        technical: {
+          "API Gravity": { value: "38.06°", color: "text-teal-600" },
+          "Sulfur Content": { value: "0.45%", color: "text-teal-600" },
+          "Pour Point": { value: "-3°C", color: "text-teal-600" },
+          "Viscosity": { value: "4.3 cSt", color: "text-teal-600" }
+        }
+      }
+    },
+    {
+      name: "WTI Crude",
+      type: "Crude Oil",
+      unit: "bbl",
+      specs: {
+        quality: {
+          "Quality Grade": { value: "Premium", color: "text-teal-600" },
+          "Purity Level": { value: "High", color: "text-teal-600" },
+          "Consistency": { value: "Good", color: "text-teal-600" }
+        },
+        market: {
+          "Coverage": { value: "Regional", color: "text-teal-600" },
+          "Supply Chain": { value: "Good", color: "text-teal-600" }
+        },
+        operations: {
+          "Delivery": { value: "Standard", color: "text-teal-600" },
+          "Storage": { value: "Complex", color: "text-orange-500" },
+          "Handling": { value: "Standard", color: "text-teal-600" }
+        },
+        technical: {
+          "API Gravity": { value: "39.6°", color: "text-teal-600" },
+          "Sulfur Content": { value: "0.24%", color: "text-teal-600" },
+          "Pour Point": { value: "-12°C", color: "text-teal-600" },
+          "Viscosity": { value: "4.1 cSt", color: "text-teal-600" }
+        }
+      }
+    },
+    {
+      name: "Dubai Crude",
+      type: "Crude Oil",
+      unit: "bbl",
+      specs: {
+        quality: {
+          "Quality Grade": { value: "Standard", color: "text-teal-600" },
+          "Purity Level": { value: "Medium", color: "text-teal-600" },
+          "Consistency": { value: "Good", color: "text-teal-600" }
+        },
+        market: {
+          "Coverage": { value: "Regional", color: "text-teal-600" },
+          "Supply Chain": { value: "Good", color: "text-teal-600" }
+        },
+        operations: {
+          "Delivery": { value: "Standard", color: "text-teal-600" },
+          "Storage": { value: "Standard", color: "text-teal-600" },
+          "Handling": { value: "Standard", color: "text-teal-600" }
+        },
+        technical: {
+          "API Gravity": { value: "31°", color: "text-teal-600" },
+          "Sulfur Content": { value: "2%", color: "text-teal-600" },
+          "Pour Point": { value: "-8°C", color: "text-teal-600" },
+          "Viscosity": { value: "5.1 cSt", color: "text-teal-600" }
+        }
       }
     }
-  },
-  {
-    name: "WTI Crude",
-    type: "Crude Oil",
-    unit: "bbl",
-    specs: {
-      quality: {
-        "Quality Grade": { value: "Premium", color: "text-teal-600" },
-        "Purity Level": { value: "High", color: "text-teal-600" },
-        "Consistency": { value: "Good", color: "text-teal-600" }
-      },
-      market: {
-        "Coverage": { value: "Regional", color: "text-teal-600" },
-        "Supply Chain": { value: "Good", color: "text-teal-600" }
-      },
-      operations: {
-        "Delivery": { value: "Standard", color: "text-teal-600" },
-        "Storage": { value: "Complex", color: "text-orange-500" },
-        "Handling": { value: "Standard", color: "text-teal-600" }
-      },
-      technical: {
-        "API Gravity": { value: "39.6°", color: "text-teal-600" },
-        "Sulfur Content": { value: "0.24%", color: "text-teal-600" },
-        "Pour Point": { value: "-12°C", color: "text-teal-600" },
-        "Viscosity": { value: "4.1 cSt", color: "text-teal-600" }
-      }
-    }
-  },
-  {
-    name: "Dubai Crude",
-    type: "Crude Oil",
-    unit: "bbl",
-    specs: {
-      quality: {
-        "Quality Grade": { value: "Standard", color: "text-teal-600" },
-        "Purity Level": { value: "Medium", color: "text-teal-600" },
-        "Consistency": { value: "Good", color: "text-teal-600" }
-      },
-      market: {
-        "Coverage": { value: "Regional", color: "text-teal-600" },
-        "Supply Chain": { value: "Good", color: "text-teal-600" }
-      },
-      operations: {
-        "Delivery": { value: "Standard", color: "text-teal-600" },
-        "Storage": { value: "Standard", color: "text-teal-600" },
-        "Handling": { value: "Standard", color: "text-teal-600" }
-      },
-      technical: {
-        "API Gravity": { value: "31°", color: "text-teal-600" },
-        "Sulfur Content": { value: "2%", color: "text-teal-600" },
-        "Pour Point": { value: "-8°C", color: "text-teal-600" },
-        "Viscosity": { value: "5.1 cSt", color: "text-teal-600" }
-      }
-    }
-  }
-  // ... add other products with similar structure
-]
+    // ... add other products with similar structure
+  ]
 
 const comparisonData = {
   simple: [
@@ -119,8 +142,11 @@ export function ProductComparison({ productName }: { productName: string }) {
 
   const getSpecValue = (product: string, feature: string) => {
     const prod = products.find(p => p.name === product)
-    const category = activeCategory.toLowerCase()
-    return prod?.specs[category as keyof typeof prod.specs]?.[feature]
+    const category = activeCategory.toLowerCase() as keyof ProductSpecs
+
+    if (!prod?.specs[category]) return null
+
+    return prod.specs[category][feature] as SpecValue | undefined
   }
 
   const handleProductChange = (index: number, value: string) => {
@@ -152,21 +178,19 @@ export function ProductComparison({ productName }: { productName: string }) {
                 <div className="flex bg-teal-50 rounded-full p-0.5">
                   <button
                     onClick={() => setView('simple')}
-                    className={`px-4 py-1.5 text-sm rounded-full transition-all ${
-                      view === 'simple'
-                        ? 'bg-teal-600 text-white shadow-sm'
-                        : 'text-teal-700 hover:text-teal-900'
-                    }`}
+                    className={`px-4 py-1.5 text-sm rounded-full transition-all ${view === 'simple'
+                      ? 'bg-teal-600 text-white shadow-sm'
+                      : 'text-teal-700 hover:text-teal-900'
+                      }`}
                   >
                     Simple
                   </button>
                   <button
                     onClick={() => setView('detailed')}
-                    className={`px-4 py-1.5 text-sm rounded-full transition-all ${
-                      view === 'detailed'
-                        ? 'bg-teal-600 text-white shadow-sm'
-                        : 'text-teal-700 hover:text-teal-900'
-                    }`}
+                    className={`px-4 py-1.5 text-sm rounded-full transition-all ${view === 'detailed'
+                      ? 'bg-teal-600 text-white shadow-sm'
+                      : 'text-teal-700 hover:text-teal-900'
+                      }`}
                   >
                     Detailed
                   </button>

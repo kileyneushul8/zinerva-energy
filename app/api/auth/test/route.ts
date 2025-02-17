@@ -11,8 +11,10 @@ export async function GET() {
       message: "JWT configuration is working",
       testToken,
     })
-  } catch (error) {
-    return NextResponse.json({ error: "JWT configuration error", details: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json({ error: "JWT configuration error", details: error.message }, { status: 500 })
+    }
+    return NextResponse.json({ error: "JWT configuration error", details: "Unknown error occurred" }, { status: 500 })
   }
 }
-
