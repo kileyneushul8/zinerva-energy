@@ -19,14 +19,5 @@ const GlobalNetworkContent = dynamic(
 
 // Main page component
 export default function GlobalNetworkPage() {
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <PageHeader
-        title="Global Network"
-        description="Our worldwide energy distribution and trading network"
-        variant="overlay"
-      />
-      <GlobalNetworkContent />
-    </div>
-  )
+  return <GlobalNetworkContent />
 } 
