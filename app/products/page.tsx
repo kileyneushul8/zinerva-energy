@@ -5,13 +5,13 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { 
-  ArrowRight, 
-  Droplet, 
-  Zap, 
-  Wind, 
-  Leaf, 
-  BarChart3, 
+import {
+  ArrowRight,
+  Droplet,
+  Zap,
+  Wind,
+  Leaf,
+  BarChart3,
   Globe2,
   Beaker,
   FlaskConical,
@@ -867,7 +867,7 @@ export default function ProductsPage() {
               </h1>
               <div className="w-20 h-1 bg-orange-500 rounded-full" />
               <p className="text-xl text-teal-50/90 leading-relaxed">
-                Comprehensive portfolio of energy products and trading solutions designed 
+                Comprehensive portfolio of energy products and trading solutions designed
                 to meet the evolving needs of the global market.
               </p>
             </motion.div>
@@ -881,14 +881,15 @@ export default function ProductsPage() {
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-teal-100">
             {/* Tabs and Product Cards */}
             <Tabs defaultValue="Crude Oil" className="w-full">
-              <TabsList className="flex justify-center items-center gap-6 mb-12 p-2 
+              <TabsList className="flex overflow-x-auto md:overflow-visible justify-start md:justify-center items-center 
+                gap-2 md:gap-6 mb-12 p-2 
                 bg-white/50 backdrop-blur-sm rounded-full border border-teal-100 shadow-sm 
-                w-full max-w-4xl mx-auto">
+                w-full max-w-4xl mx-auto scrollbar-hide md:scrollbar-default">
                 {Object.keys(products).map((category) => (
                   <TabsTrigger
                     key={category}
                     value={category}
-                    className="px-6 py-2.5 rounded-full 
+                    className="px-4 md:px-6 py-2.5 rounded-full 
                       data-[state=active]:bg-teal-600 
                       data-[state=active]:text-white 
                       data-[state=active]:shadow-md
@@ -902,9 +903,10 @@ export default function ProductsPage() {
                       hover:border-teal-200 
                       whitespace-nowrap 
                       flex items-center justify-center
-                      min-w-[130px]
+                      min-w-[110px] md:min-w-[130px]
                       data-[state=active]:scale-105
-                      data-[state=active]:hover:bg-teal-600"
+                      data-[state=active]:hover:bg-teal-600
+                      flex-shrink-0 md:flex-shrink"
                   >
                     {category}
                   </TabsTrigger>
@@ -918,8 +920,8 @@ export default function ProductsPage() {
                       <motion.div
                         key={product.name}
                         initial={{ opacity: 0, y: 20 }}
-                        animate={{ 
-                          opacity: 1, 
+                        animate={{
+                          opacity: 1,
                           y: 0,
                           height: expandedProduct === product.name ? "auto" : "min-content"
                         }}
@@ -1096,7 +1098,7 @@ export default function ProductsPage() {
               State-of-the-art facilities enabling reliable and efficient energy distribution across the globe
             </p>
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -1122,8 +1124,8 @@ export default function ProductsPage() {
           <p className="text-lg text-teal-600 max-w-2xl mx-auto mb-8">
             Our team of experts is ready to help you find the perfect energy solutions for your specific needs.
           </p>
-          <Button 
-            size="lg" 
+          <Button
+            size="lg"
             className="bg-orange-500 hover:bg-orange-600 text-white"
             onClick={handleContactNavigation}
           >
@@ -1152,7 +1154,7 @@ export default function ProductsPage() {
                 </div>
               </motion.div>
               <div className="flex-1 space-y-3">
-                <motion.h2 
+                <motion.h2
                   className="text-3xl font-bold bg-gradient-to-r from-teal-950 via-teal-800 to-teal-900 
                     bg-clip-text text-transparent"
                 >
@@ -1199,7 +1201,7 @@ export default function ProductsPage() {
                 </h3>
                 <div className="grid gap-4">
                   {selectedProduct?.specifications.map((spec, idx) => (
-                    <div key={idx} 
+                    <div key={idx}
                       className="flex items-center justify-between p-4 rounded-lg 
                         bg-gradient-to-r from-teal-100/80 to-teal-50/50 
                         hover:from-teal-200/70 hover:to-teal-100/50 
@@ -1253,7 +1255,7 @@ export default function ProductsPage() {
                 </h3>
                 <div className="grid grid-cols-4 gap-2">
                   {selectedProduct?.marketRegions.map((region, idx) => (
-                    <div key={idx} 
+                    <div key={idx}
                       className="flex items-center gap-2 p-3 bg-white rounded-lg shadow-sm 
                         border border-orange-100 hover:border-orange-200 hover:shadow-md
                         transition-all duration-300">
@@ -1272,7 +1274,7 @@ export default function ProductsPage() {
                 </h3>
                 <div className="grid grid-cols-3 gap-2">
                   {selectedProduct?.applications.map((app, idx) => (
-                    <div key={idx} 
+                    <div key={idx}
                       className="p-3 rounded-lg bg-gradient-to-r from-teal-50 to-transparent
                         hover:from-teal-100 transition-colors duration-300">
                       <div className="flex items-center gap-3">
@@ -1292,7 +1294,7 @@ export default function ProductsPage() {
                   <h3 className="text-xl font-bold text-teal-900 mb-4">Quality Standards</h3>
                   <div className="space-y-2">
                     {selectedProduct?.qualityStandards.map((standard, idx) => (
-                      <div key={idx} 
+                      <div key={idx}
                         className="px-4 py-2.5 rounded-lg bg-teal-50 text-teal-800 font-medium
                           hover:bg-teal-100 transition-colors duration-300">
                         {standard}
@@ -1306,7 +1308,7 @@ export default function ProductsPage() {
                   <h3 className="text-xl font-bold text-teal-900 mb-4">Delivery Options</h3>
                   <div className="space-y-2">
                     {selectedProduct?.deliveryOptions.map((option, idx) => (
-                      <div key={idx} 
+                      <div key={idx}
                         className="flex items-center gap-2 px-4 py-2.5 rounded-lg 
                           hover:bg-orange-50 transition-colors duration-300">
                         <ArrowRight className="w-4 h-4 text-orange-500" />
@@ -1316,7 +1318,7 @@ export default function ProductsPage() {
                   </div>
                 </motion.div>
               </div>
-          </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
