@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from "react"
 import Globe from "react-globe.gl"
 import { motion, useScroll, useTransform } from "framer-motion"
-import { Globe2, Truck, Activity, Clock, ArrowRight, Network, BarChart3, Building2, Play, Pause, Shield } from "lucide-react"
+import { Globe2, Truck, Activity, Clock, ArrowRight, Network, BarChart3, Building2, Play, Pause, Shield, X } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { AnimatedSection } from "@/components/animated-section"
 import { GlobeVisualization } from "@/components/globe-visualization"
@@ -225,6 +225,20 @@ interface Arc {
   color: string
 }
 
+function useWindowSize() {
+  const [size, setSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    function updateSize() {
+      setSize({ width: window.innerWidth, height: window.innerHeight });
+    }
+    window.addEventListener('resize', updateSize);
+    updateSize();
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+  return size;
+}
+
 export default function GlobalNetworkContent() {
   const [isMounted, setIsMounted] = useState(false)
 
@@ -241,27 +255,29 @@ export default function GlobalNetworkContent() {
   const lastMouseX = useRef<number>(0)
   const lastMouseY = useRef<number>(0)
   const rotation = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
+  const { width } = useWindowSize();
 
   useEffect(() => {
     if (globeRef.current) {
-      const controls = globeRef.current.controls()
-      controls.autoRotate = isRotating
-      controls.autoRotateSpeed = 0.5
-      controls.enableZoom = true
-      controls.enablePan = true
-      controls.minDistance = 200
-      controls.maxDistance = 300
-      controls.enableDamping = true
-      controls.dampingFactor = 0.15
-      controls.rotateSpeed = 0.5
-      controls.zoomSpeed = 0.5
-      controls.distance = 250
+      const controls = globeRef.current.controls();
+      controls.autoRotate = isRotating;
+      controls.autoRotateSpeed = width < 768 ? 0.7 : 0.5;
+      controls.enableZoom = true;
+      controls.enablePan = true;
+      controls.minDistance = width < 768 ? 150 : 200;
+      controls.maxDistance = width < 768 ? 400 : 500;
+      controls.rotateSpeed = width < 768 ? 0.7 : 0.5;
 
-      const renderer = globeRef.current.renderer()
-      renderer.setPixelRatio(window.devicePixelRatio)
-      renderer.setSize(800, 800)
+      // Adjust initial position for mobile
+      if (width < 768) {
+        globeRef.current.pointOfView({
+          lat: 20,
+          lng: 0,
+          altitude: 2.5
+        }, 0);
+      }
     }
-  }, [isRotating])
+  }, [isRotating, width]);
 
   const markerData: MarkerData[] = locations.map(location => ({
     ...location,
@@ -536,13 +552,13 @@ export default function GlobalNetworkContent() {
               whileHover={{ borderColor: "rgb(20 184 166 / 0.4)" }}
             >
               {/* Globe Container */}
-              <div className="aspect-square max-w-4xl mx-auto relative">
+              <div className="relative w-full aspect-square max-w-[90vw] mx-auto md:max-w-4xl">
                 <Globe
                   ref={globeRef}
                   globeImageUrl="/earth-blue-marble.jpg"
                   backgroundColor="rgba(0,0,0,0)"
-                  width={window.innerWidth < 768 ? window.innerWidth * 0.9 : 800}
-                  height={window.innerWidth < 768 ? window.innerWidth * 0.9 : 800}
+                  width={width < 768 ? width * 0.9 : 800}
+                  height={width < 768 ? width * 0.9 : 800}
                   atmosphereColor="#14b8a6"
                   atmosphereAltitude={0.25}
                   pointsData={markerData}
@@ -550,16 +566,20 @@ export default function GlobalNetworkContent() {
                   pointLng="lng"
                   pointColor="color"
                   pointRadius={d => {
-                    const size = window.innerWidth < 768 ?
-                      (hoveredLocation?.id === (d as Location).id ? 3 : 2) :
-                      (hoveredLocation?.id === (d as Location).id ? 2 : 1.4)
-                    return size
+                    const size = width < 768 ?
+                      (hoveredLocation?.id === (d as Location).id ? 4 : 3) :
+                      (hoveredLocation?.id === (d as Location).id ? 2 : 1.4);
+                    return size;
                   }}
+                  pointAltitude={0.01}
+                  pointResolution={width < 768 ? 32 : 64}
+                  pointsMerge={false}
+                  enablePointerInteraction={true}
                   onPointClick={handleLocationSelect}
                   onPointHover={(point: object | null) => {
-                    setHoveredLocation(point as Location | null)
+                    setHoveredLocation(point as Location | null);
                     if (globeRef.current) {
-                      document.body.style.cursor = point ? 'pointer' : 'default'
+                      document.body.style.cursor = point ? 'pointer' : 'default';
                     }
                   }}
                   pointLabel={(obj: object) => {
@@ -580,6 +600,18 @@ export default function GlobalNetworkContent() {
                   arcDashGap={2}
                   arcDashAnimateTime={3000}
                   arcAltitude={0.1}
+                  onGlobeReady={() => {
+                    if (globeRef.current) {
+                      const controls = globeRef.current.controls();
+                      controls.enableZoom = true;
+                      controls.enablePan = true;
+                      controls.enableRotate = true;
+                      controls.minDistance = width < 768 ? 150 : 200;
+                      controls.maxDistance = width < 768 ? 400 : 500;
+                      controls.rotateSpeed = width < 768 ? 0.7 : 0.5;
+                      controls.autoRotateSpeed = width < 768 ? 0.7 : 0.5;
+                    }
+                  }}
                 />
                 <GlobeLegend />
               </div>
@@ -607,41 +639,53 @@ export default function GlobalNetworkContent() {
               {/* Location Details Panel */}
               {selectedLocation && (
                 <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  className="absolute top-8 right-8 w-96 max-w-[90vw] bg-white/95 backdrop-blur-sm p-6 
-                    rounded-lg border border-teal-200 shadow-lg z-10 
-                    md:w-96 md:right-8 md:top-8
-                    sm:w-full sm:right-0 sm:top-0 sm:m-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  className="fixed bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-sm p-4 
+                    rounded-t-xl border-t border-teal-200 shadow-lg z-50
+                    md:absolute md:bottom-auto md:top-8 md:right-8 md:left-auto md:w-96 md:rounded-xl 
+                    md:border md:p-6"
                 >
-                  <h3 className="text-xl font-bold text-teal-900 mb-2">{selectedLocation.name}</h3>
-                  <p className="text-teal-700 mb-4">{selectedLocation.details.overview}</p>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="text-sm font-medium text-teal-900">Specializations</div>
-                      <div className="mt-1 flex flex-wrap gap-2">
-                        {selectedLocation.details.specializations.map((spec, index) => (
-                          <span
-                            key={index}
-                            className="px-2 py-1 text-xs rounded-full bg-teal-50 text-teal-700"
-                          >
-                            {spec}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 pt-2 border-t border-teal-100">
+                  {/* Add a mobile close button */}
+                  <button
+                    className="absolute top-2 right-2 p-2 rounded-full bg-teal-50 text-teal-600 
+                      hover:bg-teal-100 md:hidden"
+                    onClick={() => setSelectedLocation(null)}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+
+                  {/* Make content scrollable on mobile */}
+                  <div className="max-h-[50vh] overflow-y-auto md:max-h-none md:overflow-visible">
+                    <h3 className="text-xl font-bold text-teal-900 mb-2">{selectedLocation.name}</h3>
+                    <p className="text-teal-700 mb-4">{selectedLocation.details.overview}</p>
+                    <div className="space-y-4">
                       <div>
-                        <div className="text-xs text-teal-600">Capacity</div>
-                        <div className="text-sm text-teal-800 font-medium">
-                          {selectedLocation.details.capacity}
+                        <div className="text-sm font-medium text-teal-900">Specializations</div>
+                        <div className="mt-1 flex flex-wrap gap-2">
+                          {selectedLocation.details.specializations.map((spec, index) => (
+                            <span
+                              key={index}
+                              className="px-2 py-1 text-xs rounded-full bg-teal-50 text-teal-700"
+                            >
+                              {spec}
+                            </span>
+                          ))}
                         </div>
                       </div>
-                      <div>
-                        <div className="text-xs text-teal-600">Team</div>
-                        <div className="text-sm text-teal-800 font-medium">
-                          {selectedLocation.details.employees}
+                      <div className="grid grid-cols-2 gap-4 pt-2 border-t border-teal-100">
+                        <div>
+                          <div className="text-xs text-teal-600">Capacity</div>
+                          <div className="text-sm text-teal-800 font-medium">
+                            {selectedLocation.details.capacity}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-teal-600">Team</div>
+                          <div className="text-sm text-teal-800 font-medium">
+                            {selectedLocation.details.employees}
+                          </div>
                         </div>
                       </div>
                     </div>
