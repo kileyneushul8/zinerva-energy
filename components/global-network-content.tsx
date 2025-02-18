@@ -435,6 +435,29 @@ export default function GlobalNetworkContent() {
     setIsRotating(true)
   }, [])
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (globeRef.current) {
+        const width = window.innerWidth < 768 ? window.innerWidth * 0.9 : 800
+        const height = window.innerWidth < 768 ? window.innerWidth * 0.9 : 800
+        globeRef.current.camera().aspect = width / height
+        globeRef.current.camera().updateProjectionMatrix()
+        globeRef.current.renderer().setSize(width, height)
+
+        // Adjust controls for mobile
+        const controls = globeRef.current.controls()
+        controls.minDistance = window.innerWidth < 768 ? 150 : 200
+        controls.maxDistance = window.innerWidth < 768 ? 250 : 300
+        controls.rotateSpeed = window.innerWidth < 768 ? 0.7 : 0.5
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    handleResize() // Initial setup
+
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   if (!isMounted) {
     return null // or a loading state
   }
@@ -518,16 +541,20 @@ export default function GlobalNetworkContent() {
                   ref={globeRef}
                   globeImageUrl="/earth-blue-marble.jpg"
                   backgroundColor="rgba(0,0,0,0)"
-                  width={800}
-                  height={800}
+                  width={window.innerWidth < 768 ? window.innerWidth * 0.9 : 800}
+                  height={window.innerWidth < 768 ? window.innerWidth * 0.9 : 800}
                   atmosphereColor="#14b8a6"
                   atmosphereAltitude={0.25}
                   pointsData={markerData}
                   pointLat="lat"
                   pointLng="lng"
                   pointColor="color"
-                  pointRadius="size"
-                  pointAltitude={0.01}
+                  pointRadius={d => {
+                    const size = window.innerWidth < 768 ?
+                      (hoveredLocation?.id === (d as Location).id ? 3 : 2) :
+                      (hoveredLocation?.id === (d as Location).id ? 2 : 1.4)
+                    return size
+                  }}
                   onPointClick={handleLocationSelect}
                   onPointHover={(point: object | null) => {
                     setHoveredLocation(point as Location | null)
@@ -583,8 +610,10 @@ export default function GlobalNetworkContent() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
-                  className="absolute top-8 right-8 w-96 bg-white/95 backdrop-blur-sm p-6 
-                    rounded-lg border border-teal-200 shadow-lg z-10"
+                  className="absolute top-8 right-8 w-96 max-w-[90vw] bg-white/95 backdrop-blur-sm p-6 
+                    rounded-lg border border-teal-200 shadow-lg z-10 
+                    md:w-96 md:right-8 md:top-8
+                    sm:w-full sm:right-0 sm:top-0 sm:m-4"
                 >
                   <h3 className="text-xl font-bold text-teal-900 mb-2">{selectedLocation.name}</h3>
                   <p className="text-teal-700 mb-4">{selectedLocation.details.overview}</p>
@@ -701,7 +730,8 @@ export default function GlobalNetworkContent() {
 
 const GlobeLegend = () => (
   <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1.5">
-    <div className="flex items-center gap-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full border border-teal-200 shadow-sm text-xs">
+    <div className="flex flex-wrap justify-center items-center gap-2 bg-white/95 backdrop-blur-sm 
+      px-3 py-1.5 rounded-full border border-teal-200 shadow-sm text-xs">
       <div className="flex items-center gap-1.5">
         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: "#14b8a6" }} />
         <span className="text-teal-900 whitespace-nowrap">Trading Hub</span>
