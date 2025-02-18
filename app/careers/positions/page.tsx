@@ -1,28 +1,14 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Briefcase, Building2, Users } from "lucide-react"
+import { Briefcase, Building2, Users, ArrowRight } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-
-const positions = [
-    {
-        title: "Energy Trader",
-        department: "Trading",
-        location: "London",
-        type: "Full-time",
-        description: "Experienced trader for global energy markets"
-    },
-    {
-        title: "Risk Analyst",
-        department: "Risk Management",
-        location: "Singapore",
-        type: "Full-time",
-        description: "Risk assessment and portfolio management"
-    }
-]
+import { useRouter } from "next/navigation"
 
 export default function OpenPositionsPage() {
+    const router = useRouter()
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 via-teal-50/10 to-white">
             <div className="container mx-auto px-4 py-16">
@@ -33,40 +19,37 @@ export default function OpenPositionsPage() {
                 >
                     <h1 className="text-4xl font-bold text-teal-900 mb-8">Open Positions</h1>
 
-                    <div className="grid gap-6">
-                        {positions.map((position, index) => (
-                            <motion.div
-                                key={position.title}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                            >
-                                <Card className="border-2 border-teal-100 hover:border-orange-200 transition-colors">
-                                    <CardContent className="p-6">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <h3 className="text-xl font-semibold text-teal-900 mb-2">{position.title}</h3>
-                                                <div className="flex gap-4 text-teal-600 mb-4">
-                                                    <span className="flex items-center gap-1">
-                                                        <Building2 className="h-4 w-4" />
-                                                        {position.department}
-                                                    </span>
-                                                    <span className="flex items-center gap-1">
-                                                        <Users className="h-4 w-4" />
-                                                        {position.location}
-                                                    </span>
-                                                </div>
-                                                <p className="text-teal-700">{position.description}</p>
-                                            </div>
-                                            <Button className="bg-teal-600 hover:bg-teal-700">
-                                                Apply Now
-                                            </Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        ))}
-                    </div>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                    >
+                        <Card className="border-2 border-teal-100 bg-white/80 backdrop-blur-sm">
+                            <CardContent className="p-8 text-center">
+                                <div className="mb-6 mx-auto w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center">
+                                    <Briefcase className="w-6 h-6 text-teal-600" />
+                                </div>
+                                <h3 className="text-xl font-semibold text-teal-900 mb-3">
+                                    No Current Open Positions
+                                </h3>
+                                <p className="text-teal-700 mb-6 max-w-lg mx-auto">
+                                    While we don't have any open positions at the moment, we're always interested
+                                    in connecting with talented individuals who are passionate about energy trading
+                                    and sustainability.
+                                </p>
+                                <Button
+                                    onClick={() => router.push('/contact')}
+                                    className="bg-gradient-to-r from-teal-600 to-teal-500 
+                                        hover:from-teal-500 hover:to-teal-400 text-white px-6 py-3 
+                                        rounded-lg shadow-md hover:shadow-lg transition-all duration-300 
+                                        group flex items-center gap-2 mx-auto"
+                                >
+                                    Contact Us
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
                 </motion.div>
             </div>
         </div>

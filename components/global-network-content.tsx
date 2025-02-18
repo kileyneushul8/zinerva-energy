@@ -256,6 +256,7 @@ export default function GlobalNetworkContent() {
   const lastMouseY = useRef<number>(0)
   const rotation = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
   const { width } = useWindowSize();
+  const [showFullSpecs, setShowFullSpecs] = useState(false);
 
   useEffect(() => {
     if (globeRef.current) {
@@ -647,7 +648,7 @@ export default function GlobalNetworkContent() {
                     md:absolute md:bottom-auto md:top-8 md:right-8 md:left-auto md:w-96 md:rounded-xl 
                     md:border md:p-6"
                 >
-                  {/* Add a mobile close button */}
+                  {/* Close button */}
                   <button
                     className="absolute top-2 right-2 p-2 rounded-full bg-teal-50 text-teal-600 
                       hover:bg-teal-100 md:hidden"
@@ -656,39 +657,37 @@ export default function GlobalNetworkContent() {
                     <X className="w-4 h-4" />
                   </button>
 
-                  {/* Make content scrollable on mobile */}
-                  <div className="max-h-[50vh] overflow-y-auto md:max-h-none md:overflow-visible">
+                  {/* Preview content */}
+                  <div className="max-h-[30vh] overflow-y-auto md:max-h-none md:overflow-visible">
                     <h3 className="text-xl font-bold text-teal-900 mb-2">{selectedLocation.name}</h3>
                     <p className="text-teal-700 mb-4">{selectedLocation.details.overview}</p>
-                    <div className="space-y-4">
+
+                    {/* Key metrics in preview */}
+                    <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
-                        <div className="text-sm font-medium text-teal-900">Specializations</div>
-                        <div className="mt-1 flex flex-wrap gap-2">
-                          {selectedLocation.details.specializations.map((spec, index) => (
-                            <span
-                              key={index}
-                              className="px-2 py-1 text-xs rounded-full bg-teal-50 text-teal-700"
-                            >
-                              {spec}
-                            </span>
-                          ))}
+                        <div className="text-xs text-teal-600">Capacity</div>
+                        <div className="text-sm text-teal-800 font-medium">
+                          {selectedLocation.details.capacity}
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-4 pt-2 border-t border-teal-100">
-                        <div>
-                          <div className="text-xs text-teal-600">Capacity</div>
-                          <div className="text-sm text-teal-800 font-medium">
-                            {selectedLocation.details.capacity}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-teal-600">Team</div>
-                          <div className="text-sm text-teal-800 font-medium">
-                            {selectedLocation.details.employees}
-                          </div>
+                      <div>
+                        <div className="text-xs text-teal-600">Team</div>
+                        <div className="text-sm text-teal-800 font-medium">
+                          {selectedLocation.details.employees}
                         </div>
                       </div>
                     </div>
+
+                    {/* View Full Specifications button */}
+                    <button
+                      onClick={() => setShowFullSpecs(true)}
+                      className="w-full mt-2 p-3 flex items-center justify-center gap-2 
+                        bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700
+                        text-white rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                    >
+                      View Full Specifications
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
                   </div>
                 </motion.div>
               )}
@@ -696,6 +695,69 @@ export default function GlobalNetworkContent() {
           </AnimatedSection>
         </div>
       </div>
+
+      {/* Full Specifications Modal */}
+      {selectedLocation && showFullSpecs && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowFullSpecs(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <h2 className="text-2xl font-bold text-teal-900">{selectedLocation.name}</h2>
+                <button
+                  onClick={() => setShowFullSpecs(false)}
+                  className="p-2 rounded-full hover:bg-teal-50 text-teal-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-teal-800 mb-2">Overview</h3>
+                  <p className="text-teal-700">{selectedLocation.details.overview}</p>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-teal-800 mb-2">Specializations</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedLocation.details.specializations.map((spec, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1.5 text-sm rounded-full bg-teal-50 text-teal-700"
+                      >
+                        {spec}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-teal-800 mb-2">Capacity</h3>
+                    <p className="text-teal-700">{selectedLocation.details.capacity}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-teal-800 mb-2">Team</h3>
+                    <p className="text-teal-700">{selectedLocation.details.employees}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
 
       {/* Enhanced Network Features */}
       <div className="container mx-auto px-4 py-32">
