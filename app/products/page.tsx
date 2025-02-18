@@ -17,6 +17,7 @@ import {
   FlaskConical,
   Sparkles,
   TestTubes,
+  Truck,
 } from "lucide-react"
 import { AnimatedSection } from "@/components/animated-section"
 import {
@@ -46,6 +47,21 @@ type Product = {
   applications: string[]
   qualityStandards: string[]
   deliveryOptions: string[]
+  sustainability: {
+    carbonFootprint: string
+    renewableContent?: string
+    environmentalCertifications: string[]
+  }
+  marketInsights: {
+    priceHistory: string
+    demandTrend: string
+    seasonalFactors: string[]
+  }
+  logistics: {
+    storageRequirements: string
+    transportationModes: string[]
+    handlingPrecautions: string[]
+  }
 }
 
 const products = {
@@ -91,7 +107,22 @@ const products = {
         "CIF Mediterranean",
         "Dated Brent contracts",
         "Forward month contracts"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "High",
+        renewableContent: "20%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Pipeline", "Tanker"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     },
     {
       name: "West Texas Intermediate (WTI)",
@@ -134,7 +165,22 @@ const products = {
         "Pipeline transport",
         "Gulf Coast delivery",
         "Futures contracts"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Moderate",
+        renewableContent: "10%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Pipeline", "Tanker"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     },
     {
       name: "Dubai Crude",
@@ -177,7 +223,22 @@ const products = {
         "CIF Asian ports",
         "Futures contracts",
         "Physical delivery"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Moderate",
+        renewableContent: "10%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Pipeline", "Tanker"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     }
   ],
   "Natural Gas": [
@@ -222,7 +283,22 @@ const products = {
         "DES contracts",
         "Spot trading",
         "Long-term contracts"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Moderate",
+        renewableContent: "20%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Pipeline", "Tanker"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     },
     {
       name: "Pipeline Gas",
@@ -265,7 +341,22 @@ const products = {
         "Distribution network",
         "City gate stations",
         "Direct industrial lines"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Low",
+        renewableContent: "10%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Pipeline"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     },
     {
       name: "Gas Storage",
@@ -308,7 +399,22 @@ const products = {
         "Seasonal storage",
         "Strategic reserves",
         "Market balancing"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Low",
+        renewableContent: "0%",
+        environmentalCertifications: []
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Pipeline"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     }
   ],
   "Renewables": [
@@ -353,7 +459,22 @@ const products = {
         "Direct supply",
         "Virtual PPA",
         "Capacity contracts"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Low",
+        renewableContent: "100%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in summer", "Lower in winter"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Pipeline"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     },
     {
       name: "Wind Energy Solutions",
@@ -396,7 +517,22 @@ const products = {
         "Grid connection services",
         "Balancing services",
         "Storage integration"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Low",
+        renewableContent: "100%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Pipeline"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     },
     {
       name: "Biomass Energy",
@@ -439,7 +575,22 @@ const products = {
         "Container delivery",
         "Local collection",
         "Storage solutions"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Low",
+        renewableContent: "100%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Bulk shipping"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     }
   ],
   "Refined Products": [
@@ -484,7 +635,22 @@ const products = {
         "Pipeline transfer",
         "Marine delivery",
         "Truck transport"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Moderate",
+        renewableContent: "10%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Pipeline"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     },
     {
       name: "Diesel",
@@ -527,7 +693,22 @@ const products = {
         "Pipeline transport",
         "Marine bunkering",
         "Terminal pickup"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Moderate",
+        renewableContent: "0%",
+        environmentalCertifications: []
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Pipeline"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     },
     {
       name: "Jet Fuel",
@@ -570,7 +751,22 @@ const products = {
         "Tanker truck",
         "Storage facilities",
         "Emergency supply"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Moderate",
+        renewableContent: "0%",
+        environmentalCertifications: []
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Pipeline"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     }
   ],
   "Petrochemicals": [
@@ -615,7 +811,22 @@ const products = {
         "ISO containers",
         "Pipeline transfer",
         "Specialized tankers"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Moderate",
+        renewableContent: "10%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Pipeline"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     },
     {
       name: "Polymers",
@@ -658,7 +869,22 @@ const products = {
         "Bulk containers",
         "Custom packaging",
         "Direct delivery"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Moderate",
+        renewableContent: "10%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Pipeline"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     },
     {
       name: "Specialty Chemicals",
@@ -701,7 +927,22 @@ const products = {
         "Custom packaging",
         "Temperature controlled",
         "Secure transport"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Moderate",
+        renewableContent: "10%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Pipeline"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     }
   ],
   "Biofuels": [
@@ -746,7 +987,22 @@ const products = {
         "Blending facilities",
         "Direct delivery",
         "Storage solutions"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Low",
+        renewableContent: "100%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Bulk shipping"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     },
     {
       name: "Ethanol",
@@ -789,7 +1045,22 @@ const products = {
         "Truck delivery",
         "Marine shipment",
         "Pipeline transfer"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Low",
+        renewableContent: "100%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Bulk shipping"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     },
     {
       name: "Advanced Biofuels",
@@ -832,7 +1103,22 @@ const products = {
         "Custom blending",
         "Direct supply",
         "Research quantities"
-      ]
+      ],
+      sustainability: {
+        carbonFootprint: "Low",
+        renewableContent: "100%",
+        environmentalCertifications: ["ISO 14064", "REACH"]
+      },
+      marketInsights: {
+        priceHistory: "Stable",
+        demandTrend: "Slightly increasing",
+        seasonalFactors: ["Higher in winter", "Lower in summer"]
+      },
+      logistics: {
+        storageRequirements: "Underground/Surface",
+        transportationModes: ["Bulk shipping"],
+        handlingPrecautions: ["Use gloves", "Avoid direct contact"]
+      }
     }
   ]
 }
@@ -854,24 +1140,53 @@ export default function ProductsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Simple Header */}
-      <div className="bg-gradient-to-br from-teal-900 to-teal-800 py-24">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl">
+      <div className="relative h-[60vh] overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-teal-900/95 to-teal-900/80 z-10" />
+          <Image
+            src="/oil-tank-view.jpeg"
+            alt="Zinerva Products"
+            fill
+            className="object-cover"
+            priority
+            quality={100}
+          />
+        </div>
+        <div className="relative z-20 container mx-auto px-4 h-full flex items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6 max-w-3xl"
+          >
+            <h1 className="text-6xl font-bold text-white leading-tight">
+              Our Products
+            </h1>
+            <div className="w-20 h-1 bg-orange-500 rounded-full" />
+            <p className="text-xl text-teal-50/90 leading-relaxed">
+              Comprehensive portfolio of energy products and trading solutions designed
+              to meet the evolving needs of the global market.
+            </p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
+              transition={{ delay: 0.3 }}
+              className="flex flex-wrap gap-3 mt-8"
             >
-              <h1 className="text-6xl font-bold text-white leading-tight">
-                Our Products
-              </h1>
-              <div className="w-20 h-1 bg-orange-500 rounded-full" />
-              <p className="text-xl text-teal-50/90 leading-relaxed">
-                Comprehensive portfolio of energy products and trading solutions designed
-                to meet the evolving needs of the global market.
-              </p>
+              {["Energy Trading", "Global Distribution", "Sustainable Solutions"].map((tag, index) => (
+                <motion.span
+                  key={tag}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4 + index * 0.1 }}
+                  className="px-4 py-2 rounded-full bg-orange-500/20 backdrop-blur-sm 
+                    border border-orange-300/30 text-white font-medium text-sm
+                    hover:bg-orange-500/30 transition-colors duration-300"
+                >
+                  {tag}
+                </motion.span>
+              ))}
             </motion.div>
-          </div>
+          </motion.div>
         </div>
       </div>
 
@@ -1137,81 +1452,76 @@ export default function ProductsPage() {
       </AnimatedSection>
 
       <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
-        <DialogContent className="max-w-[98vw] w-[2000px] h-[80vh] bg-gradient-to-br 
-          from-white via-teal-50/30 to-orange-50/30 border-2 border-teal-200 shadow-2xl backdrop-blur-md">
-          <DialogHeader className="border-b-2 border-teal-200/50 pb-3 pt-2">
-            <DialogTitle className="flex items-center gap-8">
+        <DialogContent className="max-w-[95vw] w-full h-[90vh] md:h-[80vh] md:max-w-[90vw] lg:max-w-[85vw] 
+          bg-gradient-to-br from-white via-teal-50/30 to-orange-50/30 border-2 border-teal-200 
+          shadow-2xl backdrop-blur-md p-4 md:p-6">
+          <DialogHeader className="border-b-2 border-teal-200/50 pb-3">
+            <DialogTitle className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
               <motion.div
                 initial={{ scale: 0.9, rotate: -5 }}
                 animate={{ scale: 1, rotate: 0 }}
-                className="p-6 rounded-2xl bg-gradient-to-br from-teal-600 via-teal-700 to-teal-800 
+                className="p-4 md:p-6 rounded-2xl bg-gradient-to-br from-teal-600 via-teal-700 to-teal-800 
                   text-white shadow-xl hover:shadow-2xl transform hover:scale-105 hover:rotate-3 
-                  transition-all duration-300 relative group"
+                  transition-all duration-300 relative group w-fit"
               >
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/30 to-transparent 
-                  opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative w-8 h-8">
+                <div className="relative w-6 h-6 md:w-8 md:h-8">
                   {selectedProduct?.icon}
                 </div>
               </motion.div>
-              <div className="flex-1 space-y-3">
-                <motion.h2
-                  className="text-3xl font-bold bg-gradient-to-r from-teal-950 via-teal-800 to-teal-900 
-                    bg-clip-text text-transparent"
-                >
+              <div className="flex-1 space-y-2 md:space-y-3">
+                <motion.h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-teal-950 
+                  via-teal-800 to-teal-900 bg-clip-text text-transparent">
                   {selectedProduct?.name}
                 </motion.h2>
-                <motion.p className="text-teal-700 text-lg font-medium">
+                <motion.p className="text-teal-700 text-base md:text-lg font-medium">
                   {selectedProduct?.description}
                 </motion.p>
-                <motion.div className="flex items-center gap-4 mt-4">
-                  <div className="px-5 py-2 bg-gradient-to-r from-orange-200 via-orange-100 to-orange-200 
-                    rounded-full border-2 border-orange-300 shadow-md hover:shadow-lg 
-                    hover:scale-105 transition-all duration-300">
+                <motion.div className="flex items-center gap-4 mt-2">
+                  <div className="px-4 py-1.5 bg-gradient-to-r from-orange-200 via-orange-100 to-orange-200 
+                    rounded-full border border-orange-300 shadow-sm">
                     <span className="text-sm font-bold text-orange-800">
                       {selectedProduct?.tradingVolume}
                     </span>
                   </div>
-                  <span className="text-sm font-medium text-teal-700">Annual Trading Volume</span>
+                  <span className="text-sm font-medium text-teal-600">Annual Trading Volume</span>
                 </motion.div>
               </div>
             </DialogTitle>
           </DialogHeader>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
-            <div className="space-y-5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 p-2 md:p-6 
+            overflow-y-auto max-h-[calc(90vh-120px)] md:max-h-[calc(80vh-120px)]">
+            {/* First Column */}
+            <div className="space-y-4">
+              {/* Product Overview */}
               <motion.div className="group bg-gradient-to-br from-teal-100 via-white to-teal-50 
                 rounded-xl p-4 shadow-lg hover:shadow-xl border-2 border-teal-200">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent
-                  translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                <div className="relative">
-                  <h3 className="text-xl font-semibold text-teal-800 mb-4 flex items-center gap-3
-                    group-hover:text-teal-700 transition-colors">
-                    <BarChart3 className="w-6 h-6 text-teal-600 group-hover:scale-110 transition-transform" />
-                    Product Overview
-                  </h3>
-                  <p className="text-teal-700 leading-relaxed text-base">{selectedProduct?.details}</p>
-                </div>
+                <h3 className="text-lg md:text-xl font-semibold text-teal-800 mb-3 flex items-center gap-3">
+                  <BarChart3 className="w-5 h-5 md:w-6 md:h-6 text-teal-600" />
+                  Product Overview
+                </h3>
+                <p className="text-teal-700 leading-relaxed text-sm md:text-base">
+                  {selectedProduct?.details}
+                </p>
               </motion.div>
 
-              <motion.div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl 
-                border-2 border-teal-200">
-                <h3 className="text-xl font-bold text-teal-900 mb-4 flex items-center gap-3">
-                  <Beaker className="w-6 h-6 text-teal-700" />
+              {/* Technical Specifications */}
+              <motion.div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl border-2 border-teal-200">
+                <h3 className="text-lg md:text-xl font-semibold text-teal-800 mb-3 flex items-center gap-3">
+                  <Beaker className="w-5 h-5 md:w-6 md:h-6 text-teal-700" />
                   Technical Specifications
                 </h3>
-                <div className="grid gap-4">
+                <div className="grid gap-3">
                   {selectedProduct?.specifications.map((spec, idx) => (
-                    <div key={idx}
-                      className="flex items-center justify-between p-4 rounded-lg 
-                        bg-gradient-to-r from-teal-100/80 to-teal-50/50 
-                        hover:from-teal-200/70 hover:to-teal-100/50 
-                        transition-colors duration-300 group border border-teal-200">
-                      <span className="text-teal-800 font-medium group-hover:text-teal-900">
+                    <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between 
+                      p-3 rounded-lg bg-gradient-to-r from-teal-100/80 to-teal-50/50 
+                      hover:from-teal-200/70 hover:to-teal-100/50 transition-colors duration-300 
+                      group border border-teal-200">
+                      <span className="text-teal-800 font-medium text-sm md:text-base mb-2 md:mb-0">
                         {spec.category}
                       </span>
-                      <span className="font-bold text-teal-900 px-4 py-2 bg-white rounded-md 
-                        shadow-md border border-teal-300">
+                      <span className="font-bold text-teal-900 px-3 py-1.5 bg-white rounded-md 
+                        shadow-md border border-teal-300 text-sm md:text-base">
                         {spec.value}
                       </span>
                     </div>
@@ -1219,24 +1529,25 @@ export default function ProductsPage() {
                 </div>
               </motion.div>
 
+              {/* Features & Benefits */}
               <motion.div className="bg-gradient-to-br from-orange-50 to-white rounded-xl p-4 
                 shadow-lg hover:shadow-xl border-2 border-orange-200">
-                <h3 className="text-xl font-bold text-teal-900 mb-4 flex items-center gap-3">
-                  <Sparkles className="w-6 h-6 text-orange-600" />
+                <h3 className="text-lg md:text-xl font-semibold text-teal-800 mb-3 flex items-center gap-3">
+                  <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />
                   Features & Benefits
                 </h3>
-                <div className="grid gap-4">
-                  {selectedProduct?.features?.map((feature: string, idx: number) => (
+                <div className="grid gap-3">
+                  {selectedProduct?.features?.map((feature, idx) => (
                     <div key={idx} className="group">
-                      <div className="flex items-start gap-4 p-4 rounded-lg 
+                      <div className="flex items-start gap-3 p-3 rounded-lg 
                         hover:bg-gradient-to-r hover:from-orange-100 hover:to-orange-50/70 
                         border border-orange-100 hover:border-orange-200
                         transition-all duration-300">
-                        <div className="w-2 h-2 rounded-full bg-orange-500 mt-2.5 
-                          group-hover:scale-125 group-hover:shadow-md transition-transform" />
+                        <div className="w-2 h-2 rounded-full bg-orange-500 mt-2 
+                          group-hover:scale-125 transition-transform" />
                         <div>
-                          <span className="text-teal-900 font-bold block">{feature}</span>
-                          <p className="text-teal-700 mt-1.5 font-medium">
+                          <span className="text-teal-900 font-medium block text-sm md:text-base">{feature}</span>
+                          <p className="text-teal-700 mt-1 text-sm md:text-base">
                             {selectedProduct?.keyBenefits[idx]}
                           </p>
                         </div>
@@ -1247,78 +1558,170 @@ export default function ProductsPage() {
               </motion.div>
             </div>
 
-            <div className="space-y-5">
+            {/* Second Column */}
+            <div className="space-y-4">
+              {/* Market Coverage */}
               <motion.div className="bg-gradient-to-br from-orange-100 via-white to-orange-50 
                 rounded-xl p-4 shadow-lg hover:shadow-xl border-2 border-orange-200">
-                <h3 className="text-xl font-bold text-teal-900 mb-4 flex items-center gap-3">
-                  <Globe2 className="w-6 h-6 text-orange-600" />
+                <h3 className="text-lg md:text-xl font-semibold text-teal-800 mb-3 flex items-center gap-3">
+                  <Globe2 className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />
                   Market Coverage
                 </h3>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {selectedProduct?.marketRegions.map((region, idx) => (
-                    <div key={idx}
-                      className="flex items-center gap-2 p-3 bg-white rounded-lg shadow-sm 
-                        border border-orange-100 hover:border-orange-200 hover:shadow-md
-                        transition-all duration-300">
+                    <div key={idx} className="flex items-center gap-2 p-2 bg-white rounded-lg 
+                      shadow-sm border border-orange-100 hover:border-orange-200 
+                      hover:shadow-md transition-all duration-300">
                       <div className="w-2 h-2 rounded-full bg-orange-500" />
-                      <span className="text-teal-700">{region}</span>
+                      <span className="text-teal-700 text-sm md:text-base">{region}</span>
                     </div>
                   ))}
                 </div>
               </motion.div>
 
-              <motion.div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl 
-                border-2 border-teal-200">
-                <h3 className="text-xl font-bold text-teal-900 mb-4 flex items-center gap-3">
-                  <ArrowRight className="w-6 h-6 text-teal-700" />
+              {/* Applications */}
+              <motion.div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl border-2 border-teal-200">
+                <h3 className="text-lg md:text-xl font-semibold text-teal-800 mb-3 flex items-center gap-3">
+                  <ArrowRight className="w-5 h-5 md:w-6 md:h-6 text-teal-700" />
                   Applications
                 </h3>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {selectedProduct?.applications.map((app, idx) => (
-                    <div key={idx}
-                      className="p-3 rounded-lg bg-gradient-to-r from-teal-50 to-transparent
-                        hover:from-teal-100 transition-colors duration-300">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white rounded-md shadow-sm">
+                    <div key={idx} className="p-2 rounded-lg bg-gradient-to-r from-teal-50 to-transparent
+                      hover:from-teal-100 transition-colors duration-300">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-white rounded-md shadow-sm">
                           <ArrowRight className="w-4 h-4 text-orange-500" />
                         </div>
-                        <span className="text-teal-800 font-medium">{app}</span>
+                        <span className="text-teal-800 font-medium text-sm md:text-base">{app}</span>
                       </div>
                     </div>
                   ))}
                 </div>
               </motion.div>
 
+              {/* Quality & Delivery */}
               <div className="grid grid-cols-2 gap-4">
-                <motion.div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl 
-                  border-2 border-teal-200">
-                  <h3 className="text-xl font-bold text-teal-900 mb-4">Quality Standards</h3>
+                <motion.div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl border-2 border-teal-200">
+                  <h3 className="text-lg font-semibold text-teal-800 mb-3">Quality Standards</h3>
                   <div className="space-y-2">
                     {selectedProduct?.qualityStandards.map((standard, idx) => (
-                      <div key={idx}
-                        className="px-4 py-2.5 rounded-lg bg-teal-50 text-teal-800 font-medium
-                          hover:bg-teal-100 transition-colors duration-300">
+                      <div key={idx} className="px-3 py-2 rounded-lg bg-teal-50 text-teal-800 
+                        font-medium text-sm md:text-base hover:bg-teal-100 transition-colors duration-300">
                         {standard}
                       </div>
                     ))}
                   </div>
                 </motion.div>
 
-                <motion.div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl 
-                  border-2 border-teal-200">
-                  <h3 className="text-xl font-bold text-teal-900 mb-4">Delivery Options</h3>
+                <motion.div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl border-2 border-teal-200">
+                  <h3 className="text-lg font-semibold text-teal-800 mb-3">Delivery Options</h3>
                   <div className="space-y-2">
                     {selectedProduct?.deliveryOptions.map((option, idx) => (
-                      <div key={idx}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-lg 
-                          hover:bg-orange-50 transition-colors duration-300">
+                      <div key={idx} className="flex items-center gap-2 px-3 py-2 rounded-lg 
+                        hover:bg-orange-50 transition-colors duration-300">
                         <ArrowRight className="w-4 h-4 text-orange-500" />
-                        <span className="text-teal-800 font-medium">{option}</span>
+                        <span className="text-teal-800 font-medium text-sm md:text-base">{option}</span>
                       </div>
                     ))}
                   </div>
                 </motion.div>
               </div>
+            </div>
+          </div>
+
+          {/* Additional Information Section */}
+          <div className="mt-6 border-t-2 border-teal-200/50 pt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Sustainability Section */}
+              <motion.div className="bg-gradient-to-br from-green-50 to-white rounded-xl p-4 
+                shadow-lg hover:shadow-xl border-2 border-green-200">
+                <h3 className="text-lg font-semibold text-teal-800 mb-3 flex items-center gap-2">
+                  <Leaf className="w-5 h-5 text-green-600" />
+                  Sustainability
+                </h3>
+                <div className="space-y-3">
+                  <div className="p-3 rounded-lg bg-white/80 border border-green-100">
+                    <span className="text-sm font-medium text-teal-600 block mb-1">Carbon Footprint</span>
+                    <span className="text-teal-900">{selectedProduct?.sustainability.carbonFootprint}</span>
+                  </div>
+                  {selectedProduct?.sustainability.renewableContent && (
+                    <div className="p-3 rounded-lg bg-white/80 border border-green-100">
+                      <span className="text-sm font-medium text-teal-600 block mb-1">Renewable Content</span>
+                      <span className="text-teal-900">{selectedProduct?.sustainability.renewableContent}</span>
+                    </div>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {selectedProduct?.sustainability.environmentalCertifications.map((cert, idx) => (
+                      <span key={idx} className="px-3 py-1 text-sm bg-green-100 text-green-800 rounded-full">
+                        {cert}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Market Insights */}
+              <motion.div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-4 
+                shadow-lg hover:shadow-xl border-2 border-blue-200">
+                <h3 className="text-lg font-semibold text-teal-800 mb-3 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-blue-600" />
+                  Market Insights
+                </h3>
+                <div className="space-y-3">
+                  <div className="p-3 rounded-lg bg-white/80 border border-blue-100">
+                    <span className="text-sm font-medium text-teal-600 block mb-1">Price Trend</span>
+                    <span className="text-teal-900">{selectedProduct?.marketInsights.priceHistory}</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-white/80 border border-blue-100">
+                    <span className="text-sm font-medium text-teal-600 block mb-1">Demand Outlook</span>
+                    <span className="text-teal-900">{selectedProduct?.marketInsights.demandTrend}</span>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-sm font-medium text-teal-600">Seasonal Factors</span>
+                    {selectedProduct?.marketInsights.seasonalFactors.map((factor, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm text-teal-800">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                        {factor}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Logistics Information */}
+              <motion.div className="bg-gradient-to-br from-purple-50 to-white rounded-xl p-4 
+                shadow-lg hover:shadow-xl border-2 border-purple-200">
+                <h3 className="text-lg font-semibold text-teal-800 mb-3 flex items-center gap-2">
+                  <Truck className="w-5 h-5 text-purple-600" />
+                  Logistics
+                </h3>
+                <div className="space-y-3">
+                  <div className="p-3 rounded-lg bg-white/80 border border-purple-100">
+                    <span className="text-sm font-medium text-teal-600 block mb-1">Storage Requirements</span>
+                    <span className="text-teal-900">{selectedProduct?.logistics.storageRequirements}</span>
+                  </div>
+                  <div className="space-y-2">
+                    <span className="text-sm font-medium text-teal-600">Transportation Modes</span>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedProduct?.logistics.transportationModes.map((mode, idx) => (
+                        <span key={idx} className="px-3 py-1 text-sm bg-purple-100 text-purple-800 rounded-full">
+                          {mode}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-sm font-medium text-teal-600">Handling Precautions</span>
+                    {selectedProduct?.logistics.handlingPrecautions.map((precaution, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm text-teal-800">
+                        <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                        {precaution}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         </DialogContent>

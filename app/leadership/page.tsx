@@ -34,17 +34,29 @@ export default function LeadershipPage() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 via-teal-50/10 to-white">
             {/* Header Section */}
-            <div className="relative bg-gradient-to-r from-teal-900 to-teal-800 py-24">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(20,184,166,0.2),transparent_70%)]" />
-                <div className="container mx-auto px-4">
+            <div className="relative h-[60vh] overflow-hidden">
+                <div className="absolute inset-0">
+                    <div className="absolute inset-0 bg-gradient-to-r from-teal-900/95 to-teal-900/80 z-10" />
+                    <Image
+                        src="/gabriel-hernandez.jpg"
+                        alt="Zinerva Leadership"
+                        fill
+                        className="object-cover object-top"
+                        priority
+                        quality={100}
+                    />
+                </div>
+                <div className="relative z-20 container mx-auto px-4 h-full flex items-center">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
-                        className="max-w-4xl mx-auto text-center"
+                        className="space-y-6 max-w-3xl"
                     >
-                        <h1 className="text-5xl font-bold text-white mb-6">Leadership Team</h1>
-                        <p className="text-xl text-teal-50 leading-relaxed">
+                        <h1 className="text-6xl font-bold text-white leading-tight">
+                            Leadership Team
+                        </h1>
+                        <div className="w-20 h-1 bg-orange-500 rounded-full" />
+                        <p className="text-xl text-teal-50/90 leading-relaxed">
                             Driving innovation and excellence in global energy trading
                         </p>
                     </motion.div>
