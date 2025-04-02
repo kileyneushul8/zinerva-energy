@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePathname } from "next/navigation"
-import { Menu, X, ChevronDown, ChevronUp, Globe2, LineChart, Shield, BarChart3 } from "lucide-react"
+import { Menu, X, ChevronDown, ChevronUp, Globe2, LineChart, Shield, BarChart3, Leaf, Users, Target, Award } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { NavigationMenu, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu"
 
@@ -40,7 +40,32 @@ const mainNav = [
   },
   {
     title: "About Us",
-    href: "/about",
+    items: [
+      {
+        title: "Our Story",
+        href: "/about#story",
+        description: "The journey of Zinerva's growth and innovation",
+        icon: Users,
+      },
+      {
+        title: "Environmental Impact",
+        href: "/about#environmental",
+        description: "Our commitment to sustainability and environmental stewardship",
+        icon: Leaf,
+      },
+      {
+        title: "Mission & Vision",
+        href: "/about#mission",
+        description: "Our goals and aspirations for the future",
+        icon: Target,
+      },
+      {
+        title: "Awards & Recognition",
+        href: "/about#awards",
+        description: "Industry recognition and achievements",
+        icon: Award,
+      },
+    ],
   },
   {
     title: "Ethics & Compliance",
@@ -132,7 +157,9 @@ export function Navigation() {
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        scrolled ? "bg-white/95 backdrop-blur-sm shadow-sm" : "bg-transparent"
+        scrolled
+          ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-teal-100"
+          : "bg-gradient-to-b from-black/20 to-transparent"
       )}
       ref={menuRef}
     >
@@ -140,8 +167,8 @@ export function Navigation() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold text-teal-900">
-              Zinerva <span className="text-orange-500">LLC</span>
+            <span className="text-2xl font-bold text-white">
+              Zinerva <span className="text-orange-400">LLC</span>
             </span>
           </Link>
 
@@ -154,7 +181,10 @@ export function Navigation() {
                     onClick={() => setActiveMenu(activeMenu === item.title ? null : item.title)}
                     className={cn(
                       "flex items-center space-x-1 text-sm font-medium",
-                      activeMenu === item.title ? "text-orange-500" : "text-teal-700 hover:text-orange-500"
+                      scrolled
+                        ? "text-teal-700 hover:text-orange-500"
+                        : "text-white/90 hover:text-white",
+                      activeMenu === item.title && "text-orange-500"
                     )}
                   >
                     <span>{item.title}</span>
@@ -167,7 +197,12 @@ export function Navigation() {
                 ) : (
                   <Link
                     href={item.href}
-                    className="text-sm font-medium text-teal-700 hover:text-orange-500"
+                    className={cn(
+                      "text-sm font-medium",
+                      scrolled
+                        ? "text-teal-700 hover:text-orange-500"
+                        : "text-white/90 hover:text-white"
+                    )}
                   >
                     {item.title}
                   </Link>
@@ -175,13 +210,13 @@ export function Navigation() {
 
                 {/* Dropdown Menu */}
                 {item.items && activeMenu === item.title && (
-                  <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-teal-100">
+                  <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-lg shadow-xl border border-teal-100">
                     <div className="p-4 grid gap-4">
                       {item.items.map((subitem) => (
                         <Link
                           key={subitem.title}
                           href={subitem.href}
-                          className="flex items-start space-x-3 p-2 rounded-lg hover:bg-teal-50 transition-colors"
+                          className="flex items-start space-x-3 p-3 rounded-lg hover:bg-teal-50 transition-colors"
                         >
                           <div className="p-2 rounded-lg bg-teal-100">
                             <subitem.icon className="h-5 w-5 text-teal-600" />
@@ -202,7 +237,10 @@ export function Navigation() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 text-teal-700 hover:text-orange-500"
+            className={cn(
+              "md:hidden p-2",
+              scrolled ? "text-teal-700 hover:text-orange-500" : "text-white/90 hover:text-white"
+            )}
           >
             {isMobileMenuOpen ? (
               <X className="h-6 w-6" />
