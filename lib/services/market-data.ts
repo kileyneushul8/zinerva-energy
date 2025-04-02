@@ -1,192 +1,159 @@
 import axios from 'axios'
 import { EventEmitter } from 'events'
+import { CategoryId, MarketData, MarketDataResponse } from '@/types/market'
+import { WebSocketProvider } from '../providers/web-socket'
+import { BloombergWebSocket } from '../providers/bloomberg-web-socket'
+import { MockWebSocket } from '../providers/mock-web-socket'
 
 interface MarketDataConfig {
   apiKey: string
-  baseUrl: string
-  bloombergId: string
-  bloombergSecret: string
+  baseUrl?: string
 }
 
 export class MarketDataService {
   private config: MarketDataConfig
-  private authToken: string | null = null
   private eventEmitter: EventEmitter
+  private static instance: MarketDataService | null = null
+  private cache: Map<CategoryId, MarketData[]>
+  private ws: WebSocketProvider
+  private updateInterval: NodeJS.Timeout | null = null
 
-  constructor(config: MarketDataConfig) {
+  private constructor(config: MarketDataConfig) {
     this.config = config
     this.eventEmitter = new EventEmitter()
+    this.cache = new Map()
+    this.ws = process.env.NODE_ENV === 'production'
+      ? new BloombergWebSocket(config.apiKey)
+      : new MockWebSocket(config.apiKey)
   }
 
-  private async authenticate() {
-    try {
-      const response = await axios.post(
-        'https://api.bloomberg.com/auth/oauth2/token',
-        {
-          grant_type: 'client_credentials',
-          client_id: this.config.bloombergId,
-          client_secret: this.config.bloombergSecret,
-        }
-      )
-      this.authToken = response.data.access_token
-    } catch (error) {
-      console.error('Bloomberg authentication failed:', error)
-      throw error
+  static getInstance(config?: MarketDataConfig): MarketDataService {
+    if (!MarketDataService.instance && config) {
+      MarketDataService.instance = new MarketDataService(config)
     }
+    if (!MarketDataService.instance) {
+      throw new Error('MarketDataService not initialized')
+    }
+    return MarketDataService.instance
   }
 
-  async getCommodityPrices() {
-    if (!this.authToken) await this.authenticate()
-
+  async getMarketData(category: CategoryId): Promise<MarketDataResponse> {
     try {
-      // Bloomberg API endpoints for commodity data
-      const crude = await axios.get(
-        'https://api.bloomberg.com/eap/catalogs/bbg/datasets/DOESCRUD/data',
+      // Check cache first
+      const cachedData = this.cache.get(category)
+      if (cachedData) {
+        return { success: true, data: cachedData }
+      }
+
+      const symbol = this.getCategorySymbol(category)
+      const response = await axios.get(
+        `https://www.alphavantage.co/query`,
         {
-          headers: {
-            Authorization: `Bearer ${this.authToken}`,
-          },
           params: {
-            interval: '1d',
-            limit: 2,
-          },
+            function: 'TIME_SERIES_INTRADAY',
+            symbol,
+            interval: '5min',
+            apikey: this.config.apiKey
+          }
         }
       )
 
-      const gas = await axios.get(
-        'https://api.bloomberg.com/eap/catalogs/bbg/datasets/DOENGASD/data',
-        {
-          headers: {
-            Authorization: `Bearer ${this.authToken}`,
-          },
-          params: {
-            interval: '1d',
-            limit: 2,
-          },
-        }
-      )
+      if (response.data['Error Message']) {
+        throw new Error(response.data['Error Message'])
+      }
 
-      const power = await axios.get(
-        'https://api.bloomberg.com/eap/catalogs/bbg/datasets/DOEPOWER/data',
-        {
-          headers: {
-            Authorization: `Bearer ${this.authToken}`,
-          },
-          params: {
-            interval: '1d',
-            limit: 2,
-          },
-        }
-      )
+      const timeSeries = response.data['Time Series (5min)']
+      const marketData: MarketData[] = Object.entries(timeSeries)
+        .slice(0, 12) // Last hour of data
+        .map(([timestamp, values]: [string, any]) => ({
+          name: new Date(timestamp).toISOString(),
+          value: parseFloat(values['4. close']),
+          volume: parseFloat(values['5. volume']),
+          change: this.calculateChange(
+            parseFloat(values['4. close']),
+            parseFloat(values['1. open'])
+          ),
+          trend: this.determineTrend(
+            parseFloat(values['4. close']),
+            parseFloat(values['1. open'])
+          )
+        }))
 
+      // Update cache
+      this.cache.set(category, marketData)
+
+      return { success: true, data: marketData }
+    } catch (error) {
+      console.error('Error fetching market data:', error)
       return {
-        crudeOil: this.formatBloombergData(crude.data),
-        naturalGas: this.formatBloombergData(gas.data),
-        electricity: this.formatBloombergData(power.data)
-      }
-    } catch (error) {
-      console.error('Error fetching Bloomberg market data:', error)
-      return null
-    }
-  }
-
-  private formatBloombergData(data: any) {
-    const latest = data.data[0]
-    const previous = data.data[1]
-    return {
-      price: latest.price,
-      change: ((latest.price - previous.price) / previous.price * 100).toFixed(2)
-    }
-  }
-
-  private async connectWebSocket() {
-    if (!this.authToken) await this.authenticate()
-
-    // Create WebSocket with auth token in URL
-    const ws = new WebSocket(
-      `wss://api.bloomberg.com/eap/stream?access_token=${this.authToken}`
-    )
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
-        this.eventEmitter.emit('data', data)
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error)
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
       }
     }
-
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error)
-      this.eventEmitter.emit('error', error)
-    }
-
-    return ws
   }
 
-  subscribeToStream() {
-    return this.eventEmitter
-  }
-
-  private formatStreamData(data: any) {
-    return {
-      timestamp: new Date().toISOString(),
-      commodities: {
-        crudeOil: {
-          price: data.DOESCRUD.price,
-          change: data.DOESCRUD.change
-        },
-        naturalGas: {
-          price: data.DOENGASD.price,
-          change: data.DOENGASD.change
-        },
-        electricity: {
-          price: data.DOEPOWER.price,
-          change: data.DOEPOWER.change
-        }
-      },
-      trends: this.analyzeTrends(data)
+  private getCategorySymbol(category: CategoryId): string {
+    switch (category) {
+      case 'crude-oil':
+        return 'USO' // United States Oil Fund
+      case 'natural-gas':
+        return 'UNG' // United States Natural Gas Fund
+      case 'renewable':
+        return 'TAN' // Invesco Solar ETF
+      case 'industrial':
+        return 'XLI' // Industrial Select Sector SPDR Fund
+      default:
+        throw new Error(`Invalid category: ${category}`)
     }
   }
 
-  private analyzeTrends(data: any) {
-    // Analyze Bloomberg data to determine market trends
-    return [
-      {
-        name: "Supply Chain Impact",
-        trend: data.DOESCRUD.trend,
-        impact: this.calculateImpact(data.DOESCRUD.volatility)
-      },
-      {
-        name: "Market Volatility",
-        trend: this.calculateVolatilityTrend(data),
-        impact: "Medium"
-      },
-      {
-        name: "Global Demand",
-        trend: this.analyzeDemandTrend(data),
-        impact: "High"
+  private calculateChange(current: number, previous: number): number {
+    return Number(((current - previous) / previous * 100).toFixed(2))
+  }
+
+  private determineTrend(current: number, previous: number): 'up' | 'down' | 'stable' {
+    const change = this.calculateChange(current, previous)
+    if (change > 0.1) return 'up'
+    if (change < -0.1) return 'down'
+    return 'stable'
+  }
+
+  subscribe(callback: (data: MarketData) => void) {
+    // Update data every 24 hours instead of every 5 minutes
+    this.updateInterval = setInterval(() => {
+      const now = new Date()
+      const mockData: MarketData = {
+        name: now.toISOString(),
+        value: Math.random() * 100,
+        volume: Math.floor(Math.random() * 1000000),
+        change: (Math.random() - 0.5) * 2,
+        trend: Math.random() > 0.5 ? 'up' : 'down'
       }
-    ]
+      callback(mockData)
+    }, 24 * 60 * 60 * 1000) // 24 hours
+
+    return () => {
+      if (this.updateInterval) {
+        clearInterval(this.updateInterval)
+        this.updateInterval = null
+      }
+    }
   }
 
-  private calculateImpact(volatility: number) {
-    if (volatility > 0.5) return "High"
-    if (volatility > 0.2) return "Medium"
-    return "Low"
+  disconnect() {
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval)
+      this.updateInterval = null
+    }
+    this.ws.disconnect()
   }
 
-  private calculateVolatilityTrend(data: any) {
-    const volatility = (data.DOESCRUD.volatility + data.DOENGASD.volatility) / 2
-    if (volatility > 0.4) return "Increasing"
-    if (volatility < 0.2) return "Decreasing"
-    return "Stable"
+  subscribeToUpdates(callback: (data: MarketData[]) => void) {
+    this.eventEmitter.on('data', callback)
+    return () => this.eventEmitter.off('data', callback)
   }
 
-  private analyzeDemandTrend(data: any) {
-    const demand = data.DOESCRUD.volume + data.DOENGASD.volume
-    if (demand > data.previous_demand * 1.1) return "Increasing"
-    if (demand < data.previous_demand * 0.9) return "Decreasing"
-    return "Stable"
+  clearCache() {
+    this.cache.clear()
   }
 } 

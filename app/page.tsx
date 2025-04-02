@@ -107,9 +107,9 @@ const itemVariants = {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Combined Hero Section */}
-      <section className="relative h-[85vh] overflow-hidden">
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative h-[85vh] w-full overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-r from-teal-900/90 via-transparent to-orange-900/80 z-10" />
           <Image
@@ -121,7 +121,7 @@ export default function HomePage() {
             quality={100}
           />
         </div>
-        <AnimatedSection className="relative z-20 container mx-auto h-full flex items-center px-4">
+        <div className="relative z-20 container mx-auto h-full flex items-center px-6">
           <div className="max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -129,7 +129,7 @@ export default function HomePage() {
               transition={{ delay: 0.2 }}
               className="space-y-8"
             >
-              <h1 className="text-5xl font-bold text-white leading-tight">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
                 Bridging Global Energy Markets with{" "}
                 <span className="text-orange-400">Sustainable Solutions</span>
               </h1>
@@ -164,7 +164,7 @@ export default function HomePage() {
               </div>
             </motion.div>
           </div>
-        </AnimatedSection>
+        </div>
       </section>
 
       {/* Enhanced Why Choose Zinerva section */}

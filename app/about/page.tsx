@@ -31,8 +31,9 @@ export default function AboutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="relative h-[60vh] overflow-hidden">
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative h-[60vh] w-full overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-r from-teal-900/95 to-teal-900/80 z-10" />
           <Image
@@ -44,13 +45,13 @@ export default function AboutPage() {
             quality={100}
           />
         </div>
-        <div className="relative z-20 container mx-auto px-4 h-full flex items-center">
+        <div className="relative z-20 container mx-auto px-6 h-full flex items-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6 max-w-3xl"
           >
-            <h1 className="text-6xl font-bold text-white leading-tight">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
               About Zinerva
             </h1>
             <div className="w-20 h-1 bg-orange-500 rounded-full" />
@@ -59,11 +60,34 @@ export default function AboutPage() {
             </p>
           </motion.div>
         </div>
-      </div>
+      </section>
 
-      <div className="container mx-auto px-4 py-16">
+      {/* Main Content */}
+      <div className="container mx-auto px-6">
+        {/* Our Story Section */}
+        <section className="py-24">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold text-teal-900 mb-6">Our Story</h2>
+            <div className="space-y-6 text-lg text-teal-700">
+              <p>
+                Zinerva LLC, established in 2023, is an American trading company at the
+                forefront of global energy distribution. Based in Dover, Delaware, with
+                operations in Miami Beach, Florida, we've quickly become a pivotal player in
+                the international energy market.
+              </p>
+              <p>
+                Our rapid growth and success stem from our commitment to excellence, deep
+                understanding of global energy dynamics, and our ability to navigate complex
+                international markets. We pride ourselves on our American values of
+                innovation, integrity, and exceptional service, which guide every aspect of our
+                operations.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Vision & Mission with offset layout */}
-        <AnimatedSection className="mb-32">
+        <AnimatedSection className="py-24">
           <div className="max-w-6xl mx-auto">
             <motion.div
               variants={fadeUpVariant}
@@ -132,7 +156,7 @@ export default function AboutPage() {
         </AnimatedSection>
 
         {/* Core Values Section */}
-        <AnimatedSection className="mb-32">
+        <AnimatedSection className="py-24">
           <div className="max-w-6xl mx-auto">
             <motion.div
               variants={fadeUpVariant}
@@ -182,7 +206,7 @@ export default function AboutPage() {
         </AnimatedSection>
 
         {/* Bridge Widget Section */}
-        <AnimatedSection className="mb-32">
+        <AnimatedSection className="py-24">
           <motion.div
             variants={scaleInVariant}
             initial="hidden"
@@ -216,7 +240,7 @@ export default function AboutPage() {
         </AnimatedSection>
 
         {/* Leadership Section */}
-        <AnimatedSection>
+        <AnimatedSection className="py-24">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-2 gap-16 items-center">
               <div className="space-y-8">

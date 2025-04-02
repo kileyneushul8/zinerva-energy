@@ -34,29 +34,41 @@ export default function LeadershipPage() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 via-teal-50/10 to-white">
             {/* Header Section */}
-            <div className="relative h-[60vh] overflow-hidden">
+            <div className="relative h-[40vh] overflow-hidden bg-gradient-to-br from-teal-900 to-teal-800">
                 <div className="absolute inset-0">
-                    <div className="absolute inset-0 bg-gradient-to-r from-teal-900/95 to-teal-900/80 z-10" />
-                    <Image
-                        src="/gabriel-hernandez.jpg"
-                        alt="Zinerva Leadership"
-                        fill
-                        className="object-cover object-top"
-                        priority
-                        quality={100}
-                    />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(20,184,166,0.2),transparent_70%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(251,146,60,0.1),transparent_70%)]" />
                 </div>
                 <div className="relative z-20 container mx-auto px-4 h-full flex items-center">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-6 max-w-3xl"
+                        className="space-y-4 max-w-3xl"
                     >
-                        <h1 className="text-6xl font-bold text-white leading-tight">
-                            Leadership Team
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.2 }}
+                            className="inline-block"
+                        >
+                            <span className="px-4 py-2 bg-orange-500/20 text-orange-100 rounded-full text-sm font-medium">
+                                Our Team
+                            </span>
+                        </motion.div>
+                        <h1 className="text-5xl font-bold text-white leading-tight">
+                            Leadership{" "}
+                            <span className="text-orange-400 relative">
+                                Team
+                                <motion.div
+                                    className="absolute -bottom-2 left-0 h-1 bg-orange-500 rounded-full"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: "100%" }}
+                                    transition={{ delay: 0.5, duration: 0.8 }}
+                                />
+                            </span>
                         </h1>
                         <div className="w-20 h-1 bg-orange-500 rounded-full" />
-                        <p className="text-xl text-teal-50/90 leading-relaxed">
+                        <p className="text-lg text-teal-50/90 leading-relaxed">
                             Driving innovation and excellence in global energy trading
                         </p>
                     </motion.div>
@@ -64,7 +76,7 @@ export default function LeadershipPage() {
             </div>
 
             {/* Executive Profile */}
-            <div className="container mx-auto px-4 py-16">
+            <div className="container mx-auto px-4 py-12">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}

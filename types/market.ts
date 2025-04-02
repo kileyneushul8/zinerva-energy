@@ -1,33 +1,21 @@
+export type CategoryId = 'crude-oil' | 'natural-gas' | 'renewable' | 'industrial'
+
 export interface MarketData {
-  time: string
-  crude: number
-  crudeOHLC: {
-    open: number
-    high: number
-    low: number
-    close: number
-  }
-  volume: number
-  volatility: number
-  momentum: number
-  macd: number
-  signal: number
-  rsi: number
-  bollingerUpper: number
-  bollingerLower: number
-  ema8: number
-  ema21: number
-  stochK: number | null
-  ichimoku: {
-    tenkanSen: number
-    kijunSen: number
-  } | null
-  sma20: number
-  volumeMA: number
-  marketCondition: 'bullish' | 'bearish'
-  trendStrength: number
-  volatilityRegime: 'high' | 'normal'
-  signals?: TradingSignal[]
+  name: string
+  value: number
+  change: number
+  trend: 'up' | 'down' | 'stable'
+  volume?: number
+}
+
+export interface MarketDataResponse {
+  success: boolean
+  data?: MarketData[]
+  error?: string
+}
+
+export interface MarketDataCache {
+  [key: string]: MarketData[]
 }
 
 export interface TradingSignal {

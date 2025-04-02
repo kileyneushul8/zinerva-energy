@@ -14,7 +14,7 @@ export function Footer() {
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-white font-semibold mb-4">About Zinerva</h3>
+            <h3 className="text-sm text-teal-50 font-semibold mb-4">About Zinerva</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/about" className="hover:text-orange-300 transition-colors">
@@ -35,7 +35,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4">Our Services</h3>
+            <h3 className="text-sm text-teal-50 font-semibold mb-4">Our Services</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/energy-trading" className="hover:text-orange-300 transition-colors">
@@ -61,7 +61,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4">Legal</h3>
+            <h3 className="text-sm text-teal-50 font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
               {legalLinks.map((link) => (
                 <li key={link.href}>
@@ -74,7 +74,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4">Contact Us</h3>
+            <h3 className="text-sm text-teal-50 font-semibold mb-4">Contact Us</h3>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-orange-300 shrink-0" />

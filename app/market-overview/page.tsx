@@ -1,5 +1,6 @@
 "use client"
 
+import React from 'react'
 import { motion, useScroll, useTransform, animate } from "framer-motion"
 import { useState, useEffect, useId, useRef, useMemo } from "react"
 import {
@@ -11,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Activity, Droplet, Flame, Factory, Leaf,
   ArrowUpRight, ArrowDownRight, Clock,
-  Newspaper, TrendingUp, TrendingDown, Globe,
+  TrendingUp, TrendingDown, Globe,
   BarChart2, Zap, AlertCircle,
   LineChart as LineChartIcon, BarChart2 as ChartBar, GitGraph, Minimize2, Maximize2,
   Calendar, Download, Share2, RefreshCw,
@@ -19,7 +20,8 @@ import {
   Calendar as CalendarIcon, ArrowLeft, ArrowRight,
   ChevronUp, ChevronDown, Filter,
   FileText, Briefcase, Scale, Lightbulb,
-  Info, AlertTriangle, BarChart3, PieChart
+  Info, AlertTriangle, BarChart3, PieChart, Settings,
+  Newspaper as NewsIcon, Sun, Wind
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -51,72 +53,15 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { Suspense } from "react"
 
-interface Headline {
-  id: number
-  title: string
-  source: string
-  time: string
-  category: string
-  impact: 'high' | 'medium' | 'low'
-  summary: string
-}
+// Add import for HeadlinesService
+import { HeadlinesService, Headline } from '@/lib/services/headlines.service'
 
-const latestHeadlines: Headline[] = [
-  {
-    id: 1,
-    title: "Global Energy Markets Show Strong Recovery in Q1",
-    source: "Energy Weekly",
-    time: "1 hour ago",
-    category: "market-analysis",
-    impact: "high",
-    summary: "Markets demonstrate resilience with a 15% increase in trading volume..."
-  },
-  {
-    id: 2,
-    title: "Renewable Energy Investment Hits New Record of $500B",
-    source: "Green Energy Report",
-    time: "2 hours ago",
-    category: "investment",
-    impact: "high",
-    summary: "Global investments in renewable energy reached unprecedented levels..."
-  },
-  {
-    id: 3,
-    title: "Natural Gas Prices Stabilize After Recent Volatility",
-    source: "Commodity Insights",
-    time: "3 hours ago",
-    category: "market-analysis",
-    impact: "medium",
-    summary: "Natural gas markets show signs of stabilization following..."
-  },
-  {
-    id: 4,
-    title: "New Energy Policy Framework Announced for 2024",
-    source: "Policy Watch",
-    time: "4 hours ago",
-    category: "regulation",
-    impact: "high",
-    summary: "Regulatory bodies introduce comprehensive framework..."
-  },
-  {
-    id: 5,
-    title: "Breakthrough in Energy Storage Technology",
-    source: "Tech Review",
-    time: "5 hours ago",
-    category: "innovation",
-    impact: "medium",
-    summary: "Scientists develop new energy storage solution..."
-  },
-  {
-    id: 6,
-    title: "Major Merger in Renewable Energy Sector",
-    source: "Industry News",
-    time: "6 hours ago",
-    category: "investment",
-    impact: "high",
-    summary: "Leading renewable energy companies announce strategic merger..."
-  }
-]
+// Add these type definitions at the top of the file after imports
+type TimeRange = '1D' | '1W' | '1M' | '3M' | '6M' | '1Y'
+type ChartType = 'line' | 'bar' | 'area' | 'composed'
+
+// Update CategoryId type to include all categories
+type CategoryId = 'crude-oil' | 'natural-gas' | 'renewable' | 'nuclear' | 'coal' | 'solar' | 'wind' | 'hydrogen'
 
 const LiveTimeDisplay = () => {
   const [time, setTime] = useState(() =>
@@ -155,7 +100,8 @@ const productCategories = [
       price: "$78.35",
       change: "+2.5%",
       volume: "1.2M",
-      trend: "Bullish"
+      trend: "Bullish",
+      depth: 2.4
     }
   },
   {
@@ -166,29 +112,80 @@ const productCategories = [
       price: "$3.42",
       change: "-1.2%",
       volume: "850K",
-      trend: "Bearish"
+      trend: "Bearish",
+      depth: 1.8
     }
   },
   {
     id: "renewable",
-    name: "Renewable",
+    name: "Renewable Energy",
     icon: Leaf,
     metrics: {
       price: "$62.18",
       change: "+4.2%",
       volume: "2.1M",
-      trend: "Bullish"
+      trend: "Bullish",
+      depth: 3.2
     }
   },
   {
-    id: "industrial",
-    name: "Industrial",
-    icon: Factory,
+    id: "nuclear",
+    name: "Nuclear Power",
+    icon: Zap,
     metrics: {
       price: "$45.90",
       change: "+1.8%",
       volume: "950K",
-      trend: "Neutral"
+      trend: "Neutral",
+      depth: 1.5
+    }
+  },
+  {
+    id: "coal",
+    name: "Coal",
+    icon: Factory,
+    metrics: {
+      price: "$120.50",
+      change: "-0.8%",
+      volume: "750K",
+      trend: "Bearish",
+      depth: 1.2
+    }
+  },
+  {
+    id: "solar",
+    name: "Solar Energy",
+    icon: Sun,
+    metrics: {
+      price: "$35.75",
+      change: "+3.1%",
+      volume: "1.5M",
+      trend: "Bullish",
+      depth: 2.8
+    }
+  },
+  {
+    id: "wind",
+    name: "Wind Power",
+    icon: Wind,
+    metrics: {
+      price: "$42.30",
+      change: "+2.8%",
+      volume: "1.3M",
+      trend: "Bullish",
+      depth: 2.1
+    }
+  },
+  {
+    id: "hydrogen",
+    name: "Hydrogen",
+    icon: Droplet,
+    metrics: {
+      price: "$15.20",
+      change: "+5.4%",
+      volume: "450K",
+      trend: "Bullish",
+      depth: 1.6
     }
   }
 ]
@@ -222,94 +219,153 @@ const marketAlerts = [
   }
 ]
 
-const marketStats = [
-  {
-    id: 1,
-    title: 'Trading Volume',
-    value: '2.4M',
-    subtext: 'Daily Average',
-    icon: BarChart2,
-    trend: 'up',
-    change: '+12%'
-  },
-  {
-    id: 2,
-    title: 'Market Cap',
-    value: '$1.2T',
-    subtext: 'Total Value',
-    icon: Globe,
-    trend: 'up',
-    change: '+2.8%'
-  },
-  {
-    id: 3,
-    title: 'Top Gainer',
-    value: 'Renewable',
-    subtext: '+4.2% Today',
-    icon: TrendingUp,
-    trend: 'up',
-    change: '+4.2%'
-  },
-  {
-    id: 4,
-    title: 'Top Decliner',
-    value: 'Natural Gas',
-    subtext: '-1.2% Today',
-    icon: TrendingDown,
-    trend: 'down',
-    change: '-1.2%'
-  }
-]
-
-const ChartTypes = {
-  AREA: 'area',
-  LINE: 'line',
-  BAR: 'bar',
-  COMPOSED: 'composed'
-} as const
-
-type ChartType = typeof ChartTypes[keyof typeof ChartTypes]
-
 const chartTypeIcons = [
-  { type: ChartTypes.AREA, icon: TrendingUp, label: 'Area' },
-  { type: ChartTypes.LINE, icon: GitGraph, label: 'Line' },
-  { type: ChartTypes.BAR, icon: BarChart2, label: 'Bar' },
-  { type: ChartTypes.COMPOSED, icon: Activity, label: 'Composed' }
+  { type: 'area' as ChartType, icon: TrendingUp, label: 'Area' },
+  { type: 'line' as ChartType, icon: GitGraph, label: 'Line' },
+  { type: 'bar' as ChartType, icon: BarChart2, label: 'Bar' },
+  { type: 'composed' as ChartType, icon: Activity, label: 'Composed' }
 ]
 
-// Type for chart color schemes
-type CategoryId = 'crude-oil' | 'natural-gas' | 'renewable' | 'industrial'
-
-const chartColorSchemes: Record<CategoryId, {
-  primary: string
-  secondary: string
-  gradient: string[]
-  accent: string
-}> = {
+// Update the category colors
+const categoryColors: Record<CategoryId, { primary: string; secondary: string; gradient: string[]; accent: string }> = {
   'crude-oil': {
-    primary: '#0d9488',
-    secondary: '#14b8a6',
-    gradient: ['rgba(13, 148, 136, 0.2)', 'rgba(13, 148, 136, 0.05)'],
-    accent: '#0f766e'
-  },
-  'natural-gas': {
     primary: '#2563eb',
-    secondary: '#3b82f6',
-    gradient: ['rgba(37, 99, 235, 0.2)', 'rgba(37, 99, 235, 0.05)'],
+    secondary: '#60a5fa',
+    gradient: ['#dbeafe', '#bfdbfe', '#93c5fd', '#60a5fa'],
     accent: '#1d4ed8'
   },
-  'renewable': {
+  'natural-gas': {
     primary: '#16a34a',
-    secondary: '#22c55e',
-    gradient: ['rgba(22, 163, 74, 0.2)', 'rgba(22, 163, 74, 0.05)'],
+    secondary: '#4ade80',
+    gradient: ['#dcfce7', '#bbf7d0', '#86efac', '#4ade80'],
     accent: '#15803d'
   },
-  'industrial': {
+  'renewable': {
+    primary: '#ca8a04',
+    secondary: '#facc15',
+    gradient: ['#fef9c3', '#fef08a', '#fde047', '#facc15'],
+    accent: '#a16207'
+  },
+  'nuclear': {
     primary: '#9333ea',
-    secondary: '#a855f7',
-    gradient: ['rgba(147, 51, 234, 0.2)', 'rgba(147, 51, 234, 0.05)'],
+    secondary: '#c084fc',
+    gradient: ['#f3e8ff', '#e9d5ff', '#d8b4fe', '#c084fc'],
     accent: '#7e22ce'
+  },
+  'coal': {
+    primary: '#dc2626',
+    secondary: '#f87171',
+    gradient: ['#fee2e2', '#fecaca', '#fca5a5', '#f87171'],
+    accent: '#b91c1c'
+  },
+  'solar': {
+    primary: '#ea580c',
+    secondary: '#fb923c',
+    gradient: ['#fff7ed', '#ffedd5', '#fed7aa', '#fb923c'],
+    accent: '#c2410c'
+  },
+  'wind': {
+    primary: '#0891b2',
+    secondary: '#22d3ee',
+    gradient: ['#ecfeff', '#cffafe', '#a5f3fc', '#22d3ee'],
+    accent: '#0e7490'
+  },
+  'hydrogen': {
+    primary: '#7c3aed',
+    secondary: '#a78bfa',
+    gradient: ['#f5f3ff', '#ede9fe', '#ddd6fe', '#a78bfa'],
+    accent: '#6d28d9'
   }
+}
+
+// Update MarketParams interface
+interface MarketParams {
+  baseValue: number
+  volatility: number
+  trend: number
+  seasonality: number
+  volumeBase: number
+  volumeVariance: number
+}
+
+// Update market parameters
+const marketParams: Record<CategoryId, MarketParams> = {
+  'crude-oil': {
+    baseValue: 75,
+    volatility: 0.02,
+    trend: 0.001,
+    seasonality: 0.1,
+    volumeBase: 1000000,
+    volumeVariance: 500000
+  },
+  'natural-gas': {
+    baseValue: 3.5,
+    volatility: 0.025,
+    trend: -0.0005,
+    seasonality: 0.3,
+    volumeBase: 800000,
+    volumeVariance: 400000
+  },
+  'renewable': {
+    baseValue: 100,
+    volatility: 0.015,
+    trend: 0.002,
+    seasonality: 0.05,
+    volumeBase: 1200000,
+    volumeVariance: 600000
+  },
+  'nuclear': {
+    baseValue: 60,
+    volatility: 0.01,
+    trend: 0.0008,
+    seasonality: 0.15,
+    volumeBase: 900000,
+    volumeVariance: 450000
+  },
+  'coal': {
+    baseValue: 150,
+    volatility: 0.018,
+    trend: -0.001,
+    seasonality: 0.2,
+    volumeBase: 700000,
+    volumeVariance: 350000
+  },
+  'solar': {
+    baseValue: 30,
+    volatility: 0.01,
+    trend: 0.0005,
+    seasonality: 0.05,
+    volumeBase: 1500000,
+    volumeVariance: 750000
+  },
+  'wind': {
+    baseValue: 40,
+    volatility: 0.01,
+    trend: 0.0005,
+    seasonality: 0.05,
+    volumeBase: 1300000,
+    volumeVariance: 650000
+  },
+  'hydrogen': {
+    baseValue: 10,
+    volatility: 0.005,
+    trend: 0.0002,
+    seasonality: 0.02,
+    volumeBase: 500000,
+    volumeVariance: 250000
+  }
+}
+
+// Update category labels
+const categoryLabels: Record<CategoryId, string> = {
+  'crude-oil': 'Crude Oil',
+  'natural-gas': 'Natural Gas',
+  'renewable': 'Renewable Energy',
+  'nuclear': 'Nuclear Power',
+  'coal': 'Coal',
+  'solar': 'Solar Energy',
+  'wind': 'Wind Power',
+  'hydrogen': 'Hydrogen'
 }
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -348,7 +404,6 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 }
 
 // Type definitions
-type ChartTimeRange = '1D' | '1W' | '1M' | '3M' | '1Y'
 type AxisInterval = number | 'preserveStart' | 'preserveEnd' | 'preserveStartEnd'
 
 interface MarketData {
@@ -362,50 +417,6 @@ interface MarketData {
   ma20?: number
 }
 
-interface MarketParams {
-  baseValue: number
-  volatility: number
-  trendBias: number
-  seasonality: number
-  volumeBase: number
-  volumeVariance: number
-}
-
-const MARKET_PARAMETERS: Record<CategoryId, MarketParams> = {
-  'crude-oil': {
-    baseValue: 75,
-    volatility: 0.15,
-    trendBias: 0.2,
-    seasonality: 0.1,
-    volumeBase: 1000000,
-    volumeVariance: 500000
-  },
-  'natural-gas': {
-    baseValue: 3.2,
-    volatility: 0.25,
-    trendBias: 0.15,
-    seasonality: 0.3,
-    volumeBase: 800000,
-    volumeVariance: 400000
-  },
-  'renewable': {
-    baseValue: 62,
-    volatility: 0.1,
-    trendBias: 0.3,
-    seasonality: 0.05,
-    volumeBase: 1200000,
-    volumeVariance: 600000
-  },
-  'industrial': {
-    baseValue: 45,
-    volatility: 0.2,
-    trendBias: 0.25,
-    seasonality: 0.15,
-    volumeBase: 900000,
-    volumeVariance: 450000
-  }
-}
-
 const calculateMovingAverage = (data: MarketData[], period: number): number[] => {
   return data.map((_, index) => {
     const start = Math.max(0, index - period + 1)
@@ -417,7 +428,7 @@ const calculateMovingAverage = (data: MarketData[], period: number): number[] =>
 const generateChartData = (category: CategoryId, timeRange: TimeRange): MarketData[] => {
   const data: MarketData[] = []
   const now = new Date()
-  const params = MARKET_PARAMETERS[category]
+  const params = marketParams[category]
 
   if (!params) {
     throw new Error(`Invalid category: ${category}`)
@@ -428,6 +439,7 @@ const generateChartData = (category: CategoryId, timeRange: TimeRange): MarketDa
     '1W': { points: 7 * 8, interval: 3 * 60 * 60 * 1000, volatilityMult: 1.2 },
     '1M': { points: 30, interval: 24 * 60 * 60 * 1000, volatilityMult: 1.5 },
     '3M': { points: 90, interval: 24 * 60 * 60 * 1000, volatilityMult: 1.8 },
+    '6M': { points: 26, interval: 24 * 60 * 60 * 1000, volatilityMult: 2 },
     '1Y': { points: 52, interval: 7 * 24 * 60 * 60 * 1000, volatilityMult: 2 }
   }[timeRange]
 
@@ -446,7 +458,7 @@ const generateChartData = (category: CategoryId, timeRange: TimeRange): MarketDa
     const progress = i / points
 
     // Long-term trend
-    trend += (Math.random() - 0.5) * params.trendBias
+    trend += (Math.random() - 0.5) * params.trend
     trend = Math.max(Math.min(trend, 0.1), -0.1)
 
     // Seasonality component
@@ -491,73 +503,128 @@ const generateChartData = (category: CategoryId, timeRange: TimeRange): MarketDa
   }))
 }
 
-// Type-safe event handlers for Radix UI components
-const handleCategoryChange = (value: string, setter: (value: CategoryId) => void) => {
-  if (isValidCategory(value)) {
-    setter(value)
+// Update the time range and chart type handlers
+const handleTimeRangeChange = (value: string) => {
+  if (isValidTimeRange(value)) {
+    setTimeRange(value)
   }
 }
 
-const handleTimeRangeChange = (value: string, setter: (value: TimeRange) => void) => {
-  if (isValidTimeRange(value)) {
-    setter(value)
+const handleChartTypeChange = (value: string) => {
+  if (isValidChartType(value)) {
+    setChartType(value)
   }
 }
 
 // Type guards
 const isValidCategory = (value: string): value is CategoryId => {
-  return Object.keys(MARKET_PARAMETERS).includes(value)
+  return Object.keys(marketParams).includes(value)
 }
 
 const isValidTimeRange = (value: string): value is TimeRange => {
-  return ['1D', '1W', '1M', '3M', '1Y'].includes(value)
+  return timeRangeOptions.map(t => t.value).includes(value as TimeRange)
 }
 
-// Add back the formatXAxis function
-const formatXAxisTime = (tickItem: string, timeRange: TimeRange) => {
-  const date = new Date(tickItem)
-
-  switch (timeRange) {
-    case '1D':
-      return date.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        hour12: true
-      })
-
-    case '1W':
-      return date.toLocaleDateString('en-US', {
-        weekday: 'short',
-        hour: 'numeric'
-      })
-
-    case '1M':
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric'
-      })
-
-    case '3M':
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric'
-      })
-
-    case '1Y':
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        year: '2-digit'
-      })
-
-    default:
-      return tickItem
-  }
+const isValidChartType = (value: string): value is ChartType => {
+  return ['line', 'bar', 'area', 'composed'].includes(value)
 }
 
-const ChartContainer = ({ data, chartType, category, timeRange }: {
-  data: any[]
+// Update the InteractiveChart component props
+interface InteractiveChartProps {
+  data: MarketData[]
+  type: ChartType
+  category: CategoryId
+  timeRange: TimeRange
+  isPaused: boolean
+  onPauseToggle: () => void
+}
+
+const ProductTypeFilter = ({ activeCategory, onCategoryChange }: {
+  activeCategory: CategoryId,
+  onCategoryChange: (category: CategoryId) => void
+}) => {
+  return (
+    <div className="flex items-center gap-2 overflow-x-auto pb-2">
+      {productCategories.map((category) => (
+        <Button
+          key={category.id}
+          variant={activeCategory === category.id ? "default" : "outline"}
+          size="sm"
+          className={cn(
+            "flex items-center gap-2 whitespace-nowrap",
+            activeCategory === category.id && "bg-teal-600 hover:bg-teal-700"
+          )}
+          onClick={() => onCategoryChange(category.id as CategoryId)}
+        >
+          <category.icon className="w-4 h-4" />
+          {category.name}
+        </Button>
+      ))}
+    </div>
+  )
+}
+
+const InteractiveChart = ({ type, data, category, timeRange, isPaused, onPauseToggle }: InteractiveChartProps) => {
+  const [isZoomed, setIsZoomed] = useState(false)
+  const [showVolume, setShowVolume] = useState(true)
+  const [showMA, setShowMA] = useState(true)
+
+  return (
+    <div className="relative" style={{ height: isZoomed ? 600 : 400 }}>
+      <div className="absolute top-2 right-2 z-10 flex gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowVolume(!showVolume)}
+          className="bg-white/80 backdrop-blur-sm hover:bg-white"
+        >
+          {showVolume ? <BarChart2 className="w-4 h-4" /> : <BarChart2 className="w-4 h-4 opacity-50" />}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowMA(!showMA)}
+          className="bg-white/80 backdrop-blur-sm hover:bg-white"
+        >
+          {showMA ? <LineChartIcon className="w-4 h-4" /> : <LineChartIcon className="w-4 h-4 opacity-50" />}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsZoomed(!isZoomed)}
+          className="bg-white/80 backdrop-blur-sm hover:bg-white"
+        >
+          {isZoomed ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+        </Button>
+      </div>
+      <div className="w-full h-full">
+        <ChartContainer
+          data={data}
+          chartType={type}
+          category={category}
+          timeRange={timeRange}
+          showVolume={showVolume}
+          showMA={showMA}
+        />
+      </div>
+    </div>
+  )
+}
+
+const ChartContainer = ({
+  data,
+  chartType,
+  category,
+  timeRange,
+  showVolume,
+  showMA
+}: {
+  data: MarketData[]
   chartType: ChartType
   category: CategoryId
   timeRange: TimeRange
+  showVolume: boolean
+  showMA: boolean
 }) => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const [isHovered, setIsHovered] = useState(false)
@@ -572,18 +639,41 @@ const ChartContainer = ({ data, chartType, category, timeRange }: {
     return value.toFixed(1)
   }
 
+  const formatXAxisTime = (tickItem: string, timeRange: TimeRange) => {
+    const date = new Date(tickItem)
+
+    switch (timeRange) {
+      case '1D':
+        return date.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          hour12: true
+        })
+      case '1W':
+        return date.toLocaleDateString('en-US', {
+          weekday: 'short',
+          hour: 'numeric'
+        })
+      case '1M':
+      case '3M':
+        return date.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric'
+        })
+      case '6M':
+      case '1Y':
+        return date.toLocaleDateString('en-US', {
+          month: 'short',
+          year: '2-digit'
+        })
+      default:
+        return tickItem
+    }
+  }
+
   const getAxisInterval = (timeRange: TimeRange): AxisInterval => {
     switch (timeRange) {
       case '1D':
         return 3
-      case '1W':
-        return 'preserveStartEnd'
-      case '1M':
-        return 'preserveStartEnd'
-      case '3M':
-        return 'preserveStartEnd'
-      case '1Y':
-        return 'preserveStartEnd'
       default:
         return 'preserveStartEnd'
     }
@@ -617,12 +707,9 @@ const ChartContainer = ({ data, chartType, category, timeRange }: {
     width: 60,
     tickFormatter: formatYAxis,
     domain: ['auto', 'auto'] as ['auto', 'auto'],
-    padding: { top: 10, bottom: 10 },
-    ticks: [0, 25, 50, 75, 100], // Custom tick values
-    allowDecimals: false
+    padding: { top: 10, bottom: 10 }
   }
 
-  // For volume axis in composed chart
   const volumeYAxisProps = {
     ...commonYAxisProps,
     yAxisId: "volume",
@@ -651,17 +738,17 @@ const ChartContainer = ({ data, chartType, category, timeRange }: {
     setIsHovered(true)
   }
 
-  const renderChart = () => {
-    if (!data || data.length === 0) {
-      return (
-        <div className="flex items-center justify-center h-full">
-          <p>No data available</p>
-        </div>
-      )
-    }
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p>No data available</p>
+      </div>
+    )
+  }
 
+  const renderChart = () => {
     switch (chartType) {
-      case ChartTypes.AREA:
+      case 'area':
         return (
           <AreaChart {...commonProps}
             onMouseMove={handleMouseMove}
@@ -670,9 +757,21 @@ const ChartContainer = ({ data, chartType, category, timeRange }: {
           >
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="rgb(13 148 136)" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="rgb(13 148 136)" stopOpacity={0.05} />
+                <stop offset="5%" stopColor={categoryColors[category].primary} stopOpacity={0.3} />
+                <stop offset="95%" stopColor={categoryColors[category].secondary} stopOpacity={0.05} />
               </linearGradient>
+              {showMA && (
+                <>
+                  <linearGradient id="colorMA5" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={categoryColors[category].accent} stopOpacity={0.2} />
+                    <stop offset="95%" stopColor={categoryColors[category].accent} stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorMA20" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={categoryColors[category].secondary} stopOpacity={0.2} />
+                    <stop offset="95%" stopColor={categoryColors[category].secondary} stopOpacity={0} />
+                  </linearGradient>
+                </>
+              )}
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" strokeOpacity={0.4} />
             <XAxis {...commonXAxisProps} />
@@ -681,14 +780,34 @@ const ChartContainer = ({ data, chartType, category, timeRange }: {
             <Area
               type="monotone"
               dataKey="value"
-              stroke="#0d9488"
+              stroke={categoryColors[category].primary}
               strokeWidth={2}
               fill="url(#colorValue)"
             />
+            {showMA && (
+              <>
+                <Area
+                  type="monotone"
+                  dataKey="ma5"
+                  stroke={categoryColors[category].accent}
+                  strokeWidth={1}
+                  fill="url(#colorMA5)"
+                  dot={false}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="ma20"
+                  stroke={categoryColors[category].secondary}
+                  strokeWidth={1}
+                  fill="url(#colorMA20)"
+                  dot={false}
+                />
+              </>
+            )}
           </AreaChart>
         )
 
-      case ChartTypes.LINE:
+      case 'line':
         return (
           <LineChart {...commonProps}
             onMouseMove={handleMouseMove}
@@ -702,14 +821,14 @@ const ChartContainer = ({ data, chartType, category, timeRange }: {
             <Line
               type="monotone"
               dataKey="value"
-              stroke="#0d9488"
+              stroke={categoryColors[category].primary}
               strokeWidth={2}
               dot={false}
             />
           </LineChart>
         )
 
-      case ChartTypes.BAR:
+      case 'bar':
         return (
           <BarChart {...commonProps}
             onMouseMove={handleMouseMove}
@@ -722,21 +841,21 @@ const ChartContainer = ({ data, chartType, category, timeRange }: {
             <Tooltip content={<CustomTooltip />} />
             <Bar
               dataKey="value"
-              fill="#0d9488"
+              fill={categoryColors[category].primary}
               opacity={0.8}
               radius={[4, 4, 0, 0]}
             >
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={entry.change >= 0 ? '#0d9488' : '#ef4444'}
+                  fill={entry.change >= 0 ? categoryColors[category].primary : '#ef4444'}
                 />
               ))}
             </Bar>
           </BarChart>
         )
 
-      case ChartTypes.COMPOSED:
+      case 'composed':
         return (
           <ComposedChart {...commonProps}
             onMouseMove={handleMouseMove}
@@ -745,8 +864,8 @@ const ChartContainer = ({ data, chartType, category, timeRange }: {
           >
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="rgb(13 148 136)" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="rgb(13 148 136)" stopOpacity={0.05} />
+                <stop offset="5%" stopColor={categoryColors[category].primary} stopOpacity={0.3} />
+                <stop offset="95%" stopColor={categoryColors[category].secondary} stopOpacity={0.05} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" strokeOpacity={0.4} />
@@ -755,26 +874,26 @@ const ChartContainer = ({ data, chartType, category, timeRange }: {
             <YAxis {...volumeYAxisProps} />
             <Tooltip
               content={<CustomTooltip />}
-              cursor={{ stroke: '#0d9488', strokeWidth: 1, strokeDasharray: '4 4' }}
+              cursor={{ stroke: categoryColors[category].primary, strokeWidth: 1, strokeDasharray: '4 4' }}
             />
             <Area
               type="monotone"
               dataKey="value"
               fill="url(#colorValue)"
-              stroke="#0d9488"
+              stroke={categoryColors[category].primary}
               fillOpacity={0.3}
             />
             <Bar
               dataKey="volume"
               yAxisId="volume"
-              fill="#0d9488"
+              fill={categoryColors[category].primary}
               opacity={0.2}
               radius={[4, 4, 0, 0]}
             >
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={entry.change >= 0 ? '#0d9488' : '#ef4444'}
+                  fill={entry.change >= 0 ? categoryColors[category].primary : '#ef4444'}
                   opacity={0.2}
                 />
               ))}
@@ -782,12 +901,12 @@ const ChartContainer = ({ data, chartType, category, timeRange }: {
             <Line
               type="monotone"
               dataKey="value"
-              stroke="#0d9488"
+              stroke={categoryColors[category].primary}
               strokeWidth={2}
               dot={false}
               activeDot={{
                 r: 6,
-                fill: "#0d9488",
+                fill: categoryColors[category].primary,
                 stroke: "#fff",
                 strokeWidth: 2
               }}
@@ -813,80 +932,15 @@ const ChartContainer = ({ data, chartType, category, timeRange }: {
   )
 }
 
-const InteractiveChart = ({ type, data, category, timeRange }: {
-  type: ChartType
-  data: any[]
-  category: CategoryId
-  timeRange: TimeRange
-}) => {
-  const [isZoomed, setIsZoomed] = useState(false)
-
-  return (
-    <div className="relative" style={{ height: isZoomed ? 600 : 400 }}>
-      <div className="absolute top-2 right-2 z-10">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsZoomed(!isZoomed)}
-          className="bg-white/80 backdrop-blur-sm hover:bg-white"
-        >
-          {isZoomed ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-        </Button>
-      </div>
-      <div className="w-full h-full">
-        <ChartContainer
-          data={data}
-          chartType={type}
-          category={category}
-          timeRange={timeRange}
-        />
-      </div>
-    </div>
-  )
-}
-
-const ChartTypeMenu = ({ chartType, setChartType }: {
-  chartType: ChartType,
-  setChartType: (type: ChartType) => void
-}) => {
-  return (
-    <div className="flex items-center gap-2 bg-white/50 backdrop-blur-sm p-1 rounded-lg border border-teal-100">
-      {chartTypeIcons.map(({ type, icon: Icon, label }) => (
-        <motion.button
-          key={type}
-          onClick={() => setChartType(type)}
-          className={cn(
-            "flex items-center gap-2 px-3 py-2 rounded-md transition-all duration-200",
-            "hover:bg-teal-50 focus:outline-none focus:ring-2 focus:ring-teal-500/20",
-            chartType === type ? "bg-teal-600 text-white shadow-md" : "text-teal-700"
-          )}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <Icon className="w-4 h-4" />
-          <span className="text-sm font-medium">{label}</span>
-        </motion.button>
-      ))}
-    </div>
-  )
-}
-// TimeRange type
-export type TimeRange = '1D' | '1W' | '1M' | '3M' | '1Y'
-
-// TimeRangeOption interface 
-export interface TimeRangeOption {
-  value: TimeRange
-  label: string
-}
-
-// Update timeRanges to be an array of TimeRangeOption
-const timeRanges: TimeRangeOption[] = [
-  { value: '1D', label: '1D' },
-  { value: '1W', label: '1W' },
-  { value: '1M', label: '1M' },
-  { value: '3M', label: '3M' },
-  { value: '1Y', label: '1Y' }
-]
+// Define time range options once
+const timeRangeOptions = [
+  { value: '1D' as TimeRange, label: '1D' },
+  { value: '1W' as TimeRange, label: '1W' },
+  { value: '1M' as TimeRange, label: '1M' },
+  { value: '3M' as TimeRange, label: '3M' },
+  { value: '6M' as TimeRange, label: '6M' },
+  { value: '1Y' as TimeRange, label: '1Y' }
+] as const
 
 const generateTimeLabels = (range: string) => {
   const now = new Date()
@@ -910,6 +964,10 @@ const generateTimeLabels = (range: string) => {
     case '3M':
       interval = 24 * 60 * 7 // 1 week
       steps = 12
+      break
+    case '6M':
+      interval = 24 * 60 * 30 // 1 month
+      steps = 6
       break
     default: // 1Y
       interval = 24 * 60 * 30 // 1 month
@@ -951,18 +1009,18 @@ const TimeNavigation = ({
       <div className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-teal-100">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 bg-white/50 backdrop-blur-sm p-1 rounded-lg border border-teal-100">
-            {timeRanges.map((range) => (
+            {timeRangeOptions.map((range) => (
               <motion.button
-                key={range}
-                onClick={() => setTimeRange(range)}
+                key={range.value}
+                onClick={() => setTimeRange(range.value)}
                 className={cn(
                   "px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200",
-                  timeRange === range ? "bg-teal-600 text-white shadow-md" : "text-teal-700"
+                  timeRange === range.value ? "bg-teal-600 text-white shadow-md" : "text-teal-700"
                 )}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                {range}
+                {range.label}
               </motion.button>
             ))}
           </div>
@@ -1028,7 +1086,7 @@ const TimeNavigation = ({
                 </div>
                 <motion.div
                   className="h-1 w-full bg-teal-100 mt-2 rounded-full"
-                  whileHover={{ backgroundColor: "rgb(13 148 136)" }}
+                  whileHover={{ backgroundColor: categoryColors[category].primary }}
                 />
               </motion.div>
             ))}
@@ -1615,26 +1673,143 @@ const validateMarketData = (data: MarketData[]): boolean => {
   })
 }
 
+// Update the marketStats to be a function that returns stats based on the selected category
+const getMarketStats = (selectedCategory: CategoryId, productCategories: typeof productCategories) => {
+  const selectedProduct = productCategories.find(p => p.id === selectedCategory)
+  if (!selectedProduct) return []
+
+  const metrics = selectedProduct.metrics
+  const numericVolume = parseFloat(metrics.volume.replace(/[KM]/g, '')) * (metrics.volume.includes('M') ? 1000000 : 1000)
+
+  return [
+    {
+      id: 1,
+      title: 'Trading Volume',
+      value: metrics.volume,
+      subtext: 'Daily Average',
+      icon: BarChart2,
+      trend: metrics.trend.toLowerCase(),
+      change: metrics.change
+    },
+    {
+      id: 2,
+      title: 'Market Cap',
+      value: `$${(numericVolume * parseFloat(metrics.price.replace('$', ''))).toLocaleString('en-US', {
+        notation: "compact",
+        maximumFractionDigits: 1
+      })}`,
+      subtext: 'Total Value',
+      icon: Globe,
+      trend: metrics.trend.toLowerCase(),
+      change: metrics.change
+    },
+    {
+      id: 3,
+      title: 'Current Price',
+      value: metrics.price,
+      subtext: metrics.trend,
+      icon: metrics.trend === 'Bullish' ? TrendingUp : metrics.trend === 'Bearish' ? TrendingDown : Activity,
+      trend: metrics.trend.toLowerCase(),
+      change: metrics.change
+    },
+    {
+      id: 4,
+      title: 'Market Depth',
+      value: `${metrics.depth}M`,
+      subtext: 'Order Book',
+      icon: BarChart3,
+      trend: metrics.depth > 2 ? 'up' : 'down',
+      change: `${metrics.depth > 2 ? '+' : '-'}${Math.abs(metrics.depth - 2).toFixed(1)}%`
+    }
+  ]
+}
+
+// Add this component near the top, after other component definitions
+const PageHeader = () => {
+  return (
+    <div className="border-b border-teal-100 bg-white/50 backdrop-blur-sm">
+      <div className="max-w-7xl mx-auto py-4 px-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <BarChart2 className="w-6 h-6 text-teal-600" />
+              <h1 className="text-xl font-semibold text-teal-800">Energy Markets</h1>
+            </div>
+            <div className="hidden md:flex items-center gap-4 text-sm">
+              <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
+                <LineChartIcon className="w-4 h-4 mr-2" />
+                Charts
+              </Button>
+              <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
+                <NewsIcon className="w-4 h-4 mr-2" />
+                News
+              </Button>
+              <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
+                <Globe className="w-4 h-4 mr-2" />
+                Markets
+              </Button>
+              <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
+                <Activity className="w-4 h-4 mr-2" />
+                Analysis
+              </Button>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:block">
+              <LiveTimeDisplay />
+            </div>
+            <Separator orientation="vertical" className="h-6 hidden sm:block" />
+            <Button variant="outline" size="sm" className="text-teal-600">
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+            <Button variant="outline" size="sm" className="text-teal-600">
+              <Share2 className="w-4 h-4 mr-2" />
+              Share
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function MarketOverviewPage() {
   const { scrollYProgress } = useScroll()
   const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '50%'])
   const [activeCategory, setActiveCategory] = useState<CategoryId>('crude-oil')
   const [timeRange, setTimeRange] = useState<TimeRange>('1D')
   const [chartData, setChartData] = useState<MarketData[]>([])
-  const [chartType, setChartType] = useState<ChartType>(ChartTypes.AREA)
+  const [chartType, setChartType] = useState<ChartType>('line')
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [zoomLevel, setZoomLevel] = useState(1)
   const timeLabels = generateTimeLabels(timeRange)
   const [activeHeadlineCategory, setActiveHeadlineCategory] = useState<string>('all')
   const [expandedHeadline, setExpandedHeadline] = useState<number | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isPaused, setIsPaused] = useState(false)
+  const marketDataServiceRef = useRef<MarketDataService | null>(null)
+  const marketDataCacheRef = useRef<MarketDataCache>(new MarketDataCache())
+  const [latestHeadlines, setLatestHeadlines] = useState<Headline[]>([])
+  const headlinesService = useRef<HeadlinesService | null>(null)
 
-  // Create refs for persistent instances
-  const cacheRef = useRef(new MarketDataCache())
-  const wsRef = useRef<MarketDataService | null>(null)
+  useEffect(() => {
+    // Initialize the service only on the client side
+    if (typeof window !== 'undefined') {
+      headlinesService.current = HeadlinesService.getInstance()
+      fetchHeadlines()
+    }
+  }, [])
 
-  // Add back the filtered headlines
+  const fetchHeadlines = async () => {
+    if (headlinesService.current) {
+      const headlines = await headlinesService.current.getHeadlines()
+      setLatestHeadlines(headlines)
+    }
+  }
+
+  // Update the filtered headlines to use the new headlines state
   const filteredHeadlines = useMemo(() => {
     return activeHeadlineCategory === 'all'
       ? latestHeadlines
@@ -1643,23 +1818,25 @@ export default function MarketOverviewPage() {
 
   // Update WebSocket handler
   const handleWebSocketUpdate = (data: MarketData) => {
-    setChartData(currentData => {
-      const updatedData = [...currentData]
-      const lastIndex = updatedData.length - 1
-      if (lastIndex >= 0) {
-        updatedData[lastIndex] = data
-      }
-      return updatedData
-    })
+    if (!isPaused) {
+      setChartData(currentData => {
+        const updatedData = [...currentData]
+        const lastIndex = updatedData.length - 1
+        if (lastIndex >= 0) {
+          updatedData[lastIndex] = data
+        }
+        return updatedData
+      })
+    }
   }
 
   useEffect(() => {
-    wsRef.current = new MarketDataService(activeCategory)
-    const unsubscribe = wsRef.current.subscribe(handleWebSocketUpdate)
+    marketDataServiceRef.current = new MarketDataService(activeCategory)
+    const unsubscribe = marketDataServiceRef.current.subscribe(handleWebSocketUpdate)
 
     return () => {
       unsubscribe()
-      wsRef.current?.disconnect()
+      marketDataServiceRef.current?.disconnect()
     }
   }, [activeCategory])
 
@@ -1672,7 +1849,7 @@ export default function MarketOverviewPage() {
         const response = await fetchMarketData(
           activeCategory,
           timeRange,
-          cacheRef.current
+          marketDataCacheRef.current
         )
 
         if (!response.success || !response.data) {
@@ -1701,6 +1878,16 @@ export default function MarketOverviewPage() {
     loadMarketData()
   }, [activeCategory, timeRange])
 
+  const handlePauseToggle = () => {
+    setIsPaused(!isPaused)
+  }
+
+  // Get dynamic market stats based on selected category
+  const currentMarketStats = useMemo(() =>
+    getMarketStats(activeCategory, productCategories),
+    [activeCategory]
+  )
+
   if (error) {
     return (
       <div className="p-6 text-center">
@@ -1715,271 +1902,264 @@ export default function MarketOverviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-teal-50/10 to-white">
-      {/* Header Section - Left Aligned */}
-      <div className="relative bg-gradient-to-r from-teal-900 to-teal-800 py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(20,184,166,0.2),transparent_70%)]" />
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl relative z-20">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="space-y-8"
-            >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="inline-block"
-              >
-                <span className="px-4 py-2 bg-orange-500/20 text-orange-300 rounded-full text-sm font-medium">
-                  Market Intelligence
-                </span>
-              </motion.div>
-              <h1 className="text-7xl font-bold text-white leading-tight">
-                Market{" "}
-                <span className="text-orange-400 relative">
-                  Overview
-                  <motion.div
-                    className="absolute -bottom-2 left-0 h-1 bg-orange-500 rounded-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: "100%" }}
-                    transition={{ delay: 0.5, duration: 0.8 }}
-                  />
-                </span>
-              </h1>
-              <p className="text-xl text-teal-50 leading-relaxed max-w-2xl">
-                Stay informed with our comprehensive market analysis and insights
-              </p>
-            </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-teal-50">
+      {/* Main Header */}
+      <div className="bg-white border-b border-teal-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <BarChart2 className="h-8 w-8 text-teal-600" />
+              </div>
+              <div className="hidden md:block">
+                <div className="ml-10 flex items-baseline space-x-4">
+                  <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
+                    <LineChartIcon className="w-4 h-4 mr-2" />
+                    Charts
+                  </Button>
+                  <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
+                    <NewsIcon className="w-4 h-4 mr-2" />
+                    News
+                  </Button>
+                  <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
+                    <Globe className="w-4 h-4 mr-2" />
+                    Markets
+                  </Button>
+                  <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
+                    <Activity className="w-4 h-4 mr-2" />
+                    Analysis
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:block">
+                <LiveTimeDisplay />
+              </div>
+              <Separator orientation="vertical" className="h-6 hidden sm:block" />
+              <Button variant="outline" size="sm" className="text-teal-600">
+                <Download className="w-4 h-4 mr-2" />
+                Export
+              </Button>
+              <Button variant="outline" size="sm" className="text-teal-600">
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Content Section */}
-      <div className="max-w-[1400px] mx-auto px-6 pt-8 pb-12">
-        <div className="grid gap-6">
-          {/* Market Summary and Alerts Grid */}
-          <div className="grid grid-cols-2 gap-6">
-            {/* Market Summary - Updated styling */}
-            <Card className="bg-white border-2 border-teal-100">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Zap className="w-5 h-5 text-teal-600" />
-                  <h2 className="text-lg font-semibold text-teal-800">Market Summary</h2>
-                </div>
-                <div className="grid grid-cols-2 gap-8">
-                  <div>
-                    <div className="text-teal-600 text-sm mb-1">Total Market Value</div>
-                    <div className="text-3xl font-bold text-teal-900 mb-2">$3.2T</div>
-                    <div className="flex items-center gap-1 text-emerald-600">
-                      <ArrowUpRight className="w-4 h-4" />
-                      <span className="text-sm">+2.8% (24h)</span>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-teal-600 text-sm mb-1">Global Trading Volume</div>
-                    <div className="text-3xl font-bold text-teal-900 mb-2">5.6M</div>
-                    <div className="flex items-center gap-1 text-emerald-600">
-                      <ArrowUpRight className="w-4 h-4" />
-                      <span className="text-sm">+12% (24h)</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+      {/* Teal Header Section */}
+      <div className="relative bg-gradient-to-r from-teal-900 to-teal-800 py-12 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(20,184,166,0.2),transparent_70%)]" />
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-4xl mx-auto text-center"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="inline-block mb-4"
+            >
+              <span className="px-4 py-2 bg-orange-500/20 text-orange-100 rounded-full text-sm font-medium">
+                Real-Time Market Data
+              </span>
+            </motion.div>
+            <h1 className="text-4xl font-bold text-white mb-4">
+              Energy Market{" "}
+              <span className="text-orange-400 relative">
+                Overview
+                <motion.div
+                  className="absolute -bottom-2 left-0 h-1 bg-orange-500 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ delay: 0.5, duration: 0.8 }}
+                />
+              </span>
+            </h1>
+            <p className="text-lg text-teal-50/90 leading-relaxed">
+              Track real-time energy market trends, prices, and trading volumes across different sectors
+            </p>
+          </motion.div>
+        </div>
+      </div>
 
-            {/* Market Alerts */}
-            <Card className="bg-white/90 backdrop-blur-sm border-2 border-teal-100">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <AlertCircle className="w-5 h-5 text-teal-600" />
-                    <h2 className="text-lg font-semibold text-teal-800">Market Alerts</h2>
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Energy Source Title Section */}
+          <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm border border-teal-100 rounded-lg p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-teal-50 rounded-lg">
+                {productCategories.find(p => p.id === activeCategory)?.icon && (
+                  <div className="w-6 h-6 text-teal-600">
+                    {React.createElement(productCategories.find(p => p.id === activeCategory)?.icon as any)}
                   </div>
-                  <Badge className="bg-teal-100 text-teal-700 hover:bg-teal-200">
-                    3 New Alerts
-                  </Badge>
+                )}
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-teal-900">
+                  {productCategories.find(p => p.id === activeCategory)?.name}
+                </h2>
+                <p className="text-sm text-teal-600">
+                  Real-time market data and analysis
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-2xl font-bold text-teal-900">
+                  {productCategories.find(p => p.id === activeCategory)?.metrics.price}
                 </div>
-                <div className="space-y-3">
-                  {marketAlerts.map((alert) => (
-                    <div
-                      key={alert.id}
-                      className={`flex items-center gap-3 p-3 rounded-lg ${alert.type === 'warning'
-                        ? 'bg-amber-50 text-amber-800'
-                        : alert.type === 'success'
-                          ? 'bg-emerald-50 text-emerald-800'
-                          : 'bg-blue-50 text-blue-800'
-                        }`}
-                    >
-                      <div className={`w-2 h-2 rounded-full ${alert.type === 'warning'
-                        ? 'bg-amber-500'
-                        : alert.type === 'success'
-                          ? 'bg-emerald-500'
-                          : 'bg-blue-500'
-                        }`} />
-                      <span className="flex-1">{alert.message}</span>
-                      <span className="text-xs opacity-60">{alert.time}</span>
-                    </div>
-                  ))}
+                <div className={cn(
+                  "flex items-center gap-1 text-sm font-medium",
+                  productCategories.find(p => p.id === activeCategory)?.metrics.change.startsWith('+')
+                    ? "text-emerald-600"
+                    : "text-red-600"
+                )}>
+                  {productCategories.find(p => p.id === activeCategory)?.metrics.change.startsWith('+') ? (
+                    <ArrowUpRight className="w-4 h-4" />
+                  ) : (
+                    <ArrowDownRight className="w-4 h-4" />
+                  )}
+                  {productCategories.find(p => p.id === activeCategory)?.metrics.change}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="h-8 w-px bg-teal-100" />
+              <div className="text-right">
+                <div className="text-sm text-teal-600">24h Volume</div>
+                <div className="text-base font-semibold text-teal-900">
+                  {productCategories.find(p => p.id === activeCategory)?.metrics.volume}
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Main Chart */}
-          <Card className="bg-white/90 backdrop-blur-sm border-2 border-teal-100 shadow-xl">
-            <CardContent className="p-6">
-              <Tabs defaultValue={activeCategory} onValueChange={(value) => handleCategoryChange(value, setActiveCategory)}>
-                {/* Product Categories */}
-                <div className="flex items-center justify-between mb-6">
-                  <TabsList className="grid grid-cols-4 gap-4 bg-teal-50/50 p-1 rounded-lg">
-                    {productCategories.map((category) => (
-                      <TabsTrigger
-                        key={category.id}
-                        value={category.id}
-                        className="flex items-center gap-2 px-4 py-2 data-[state=active]:bg-white 
-                          data-[state=active]:text-teal-700 data-[state=active]:shadow-md"
-                      >
-                        <category.icon className="w-4 h-4" />
-                        <span>{category.name}</span>
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                </div>
-
-                {/* Chart Controls */}
-                <div className="flex items-center justify-between mb-6 bg-teal-50/30 p-2 rounded-lg">
-                  <div className="flex items-center gap-4">
-                    {chartTypeIcons.map(({ type, icon: Icon, label }) => (
-                      <Button
-                        key={type}
-                        variant={chartType === type ? "secondary" : "ghost"}
-                        size="sm"
-                        onClick={() => setChartType(type)}
-                        className={`flex items-center gap-2 ${chartType === type
-                          ? 'bg-white shadow-sm'
-                          : 'hover:bg-white/50'
-                          }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span>{label}</span>
-                      </Button>
-                    ))}
+          {/* Market Overview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {currentMarketStats.map((item) => (
+              <Card key={item.id} className="bg-white/90 backdrop-blur-sm border-2 border-teal-100">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <item.icon className={cn(
+                        "w-6 h-6",
+                        item.trend === 'up' ? "text-emerald-600" :
+                          item.trend === 'down' ? "text-red-600" :
+                            item.trend === 'neutral' ? "text-blue-600" : "text-teal-600"
+                      )} />
+                      <h3 className="text-lg font-semibold text-teal-800">{item.title}</h3>
+                    </div>
+                    <Badge variant="secondary" className={cn(
+                      "text-base",
+                      item.trend === 'up' ? "bg-emerald-50 text-emerald-700" :
+                        item.trend === 'down' ? "bg-red-50 text-red-700" :
+                          "bg-blue-50 text-blue-700"
+                    )}>
+                      {item.change.startsWith('+') ? '↑' : '↓'} {item.change.replace(/[+-]/, '')}
+                    </Badge>
                   </div>
+                  <div className="text-3xl font-bold text-teal-900">{item.value}</div>
+                  <div className="text-base text-teal-600">{item.subtext}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
-                  <div className="flex items-center gap-4">
-                    <Select value={timeRange} onValueChange={(value) => handleTimeRangeChange(value, setTimeRange)}>
-                      <SelectTrigger className="w-[120px] bg-white">
-                        <SelectValue placeholder="Select Range" />
+          {/* Interactive Chart */}
+          <Card className="bg-white/90 backdrop-blur-sm border-2 border-teal-100">
+            <CardContent className="p-6">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <LineChartIcon className="w-6 h-6 text-teal-600" />
+                    <h2 className="text-xl font-semibold text-teal-800">Market Trends</h2>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Select value={timeRange} onValueChange={(value) => setTimeRange(value as TimeRange)}>
+                      <SelectTrigger className="w-[120px] text-base">
+                        <SelectValue placeholder="Time Range" />
                       </SelectTrigger>
                       <SelectContent>
-                        {timeRanges.map((range) => (
-                          <SelectItem
-                            key={range.value}
-                            value={range.value}
-                            className="cursor-pointer"
-                          >
+                        {timeRangeOptions.map((range) => (
+                          <SelectItem key={range.value} value={range.value} className="text-base">
                             {range.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-
-                    <div className="flex items-center gap-2 text-sm text-teal-600 bg-white px-3 py-1.5 rounded-md">
-                      <Clock className="w-4 h-4" />
-                      <span>Live</span>
-                    </div>
+                    <Select value={chartType} onValueChange={(value) => setChartType(value as ChartType)}>
+                      <SelectTrigger className="w-[140px] text-base">
+                        <SelectValue placeholder="Chart Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {chartTypeIcons.map((type) => (
+                          <SelectItem key={type.type} value={type.type} className="text-base">
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-
-                {productCategories.map((category) => (
-                  <TabsContent key={category.id} value={category.id}>
-                    <ProductMetrics category={category} />
-                    <div className="relative">
-                      <motion.div
-                        className="h-[400px] w-full mb-6 bg-white/50 rounded-xl border border-teal-50 p-4"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-4">
-                            <h3 className="text-lg font-semibold text-teal-800">
-                              {category.name} Price Chart
-                            </h3>
-                            <Badge
-                              variant="secondary"
-                              className="bg-teal-50 text-teal-700"
-                            >
-                              Live
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setZoomLevel(Math.max(1, zoomLevel - 0.5))}
-                              className="text-teal-600"
-                            >
-                              <ZoomOut className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setZoomLevel(Math.min(2, zoomLevel + 0.5))}
-                              className="text-teal-600"
-                            >
-                              <ZoomIn className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                        <ResponsiveContainer>
-                          <InteractiveChart
-                            type={chartType}
-                            data={chartData}
-                            category={category.id as CategoryId}
-                            timeRange={timeRange}
-                          />
-                        </ResponsiveContainer>
-                      </motion.div>
-                    </div>
-                  </TabsContent>
-                ))}
-              </Tabs>
+                <ProductTypeFilter activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
+                <div className="h-[400px]">
+                  <InteractiveChart
+                    data={chartData}
+                    type={chartType}
+                    category={activeCategory}
+                    timeRange={timeRange}
+                    isPaused={isPaused}
+                    onPauseToggle={handlePauseToggle}
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
 
           {/* Enhanced Latest Headlines */}
           <Card className="bg-white/90 backdrop-blur-sm border-2 border-teal-100">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <Newspaper className="w-5 h-5 text-teal-600" />
-                  <h2 className="text-lg font-semibold text-teal-800">Latest Headlines</h2>
-                </div>
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  {headlineCategories.map((category) => (
-                    <Button
-                      key={category.id}
-                      variant={activeHeadlineCategory === category.id ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => setActiveHeadlineCategory(category.id)}
-                      className="flex items-center gap-2 transition-all duration-200"
-                    >
-                      <category.icon className="w-4 h-4" />
-                      <span>{category.label}</span>
-                    </Button>
-                  ))}
+                  <NewsIcon className="w-6 h-6 text-teal-600" />
+                  <h2 className="text-xl font-semibold text-teal-800">Latest Headlines</h2>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    {headlineCategories.map((category) => (
+                      <Button
+                        key={category.id}
+                        variant={activeHeadlineCategory === category.id ? "secondary" : "ghost"}
+                        size="sm"
+                        onClick={() => setActiveHeadlineCategory(category.id)}
+                        className="flex items-center gap-1 transition-all duration-200 text-base px-3 py-1"
+                      >
+                        <category.icon className="w-5 h-5" />
+                        <span>{category.label}</span>
+                      </Button>
+                    ))}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-base"
+                    onClick={() => window.location.href = '/news'}
+                  >
+                    View All News
+                  </Button>
                 </div>
               </div>
               <motion.div
-                className="grid grid-cols-2 gap-6"
+                className="grid grid-cols-1 gap-4"
                 layout
               >
                 <AnimatePresence mode="popLayout">
-                  {filteredHeadlines.map((headline: Headline) => (
+                  {filteredHeadlines.slice(0, 3).map((headline: Headline) => (
                     <motion.div
                       key={headline.id}
                       layout
@@ -1988,31 +2168,31 @@ export default function MarketOverviewPage() {
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
                       className={`group p-4 rounded-lg border border-teal-50 hover:border-teal-100 
-                        bg-white/50 hover:bg-white transition-all duration-200 cursor-pointer
-                        ${expandedHeadline === headline.id ? 'col-span-2' : ''}`}
+                        bg-white/50 hover:bg-white transition-all duration-200 cursor-pointer`}
                       onClick={() => setExpandedHeadline(
                         expandedHeadline === headline.id ? null : headline.id
                       )}
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex items-center gap-2 mb-2">
                             <Badge
                               variant="secondary"
                               className={`
                                 ${headline.impact === 'high'
                                   ? 'bg-amber-50 text-amber-700'
                                   : 'bg-teal-50 text-teal-700'}
+                                text-base
                               `}
                             >
                               {headline.impact === 'high' ? 'High Impact' : 'Medium Impact'}
                             </Badge>
-                            <Badge variant="outline" className="bg-white/50">
+                            <Badge variant="outline" className="bg-white/50 text-base">
                               {headlineCategories.find(c => c.id === headline.category)?.label}
                             </Badge>
                           </div>
-                          <h3 className="text-teal-900 font-medium group-hover:text-teal-700 
-                            transition-colors duration-200"
+                          <h3 className="text-xl text-teal-900 font-medium group-hover:text-teal-700 
+                            transition-colors duration-200 leading-snug"
                           >
                             {headline.title}
                           </h3>
@@ -2024,9 +2204,20 @@ export default function MarketOverviewPage() {
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        <p className="text-teal-600 mt-2 mb-4">{headline.summary}</p>
+                        <p className="text-teal-600 mt-2 mb-4 text-lg">{headline.summary}</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-base"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            window.open(headline.url, '_blank')
+                          }}
+                        >
+                          Read More
+                        </Button>
                       </motion.div>
-                      <div className="flex items-center gap-2 text-sm text-teal-600">
+                      <div className="flex items-center gap-2 text-base text-teal-600">
                         <span className="font-medium">{headline.source}</span>
                         <span>•</span>
                         <span>{headline.time}</span>

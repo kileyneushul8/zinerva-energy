@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { usePathname } from "next/navigation"
 import { Menu, X, ChevronDown, ChevronUp } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { NavigationMenu, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu"
 
 const topNavItems = [
   {
@@ -16,17 +17,17 @@ const topNavItems = [
       {
         title: "Company Overview",
         href: "/about",
-        description: "Learn about our mission and values",
+        description: "Our mission and values",
       },
       {
         title: "Products",
         href: "/products",
-        description: "Explore our innovative solutions",
+        description: "Energy solutions",
       },
       {
         title: "Sustainability",
         href: "/sustainability",
-        description: "Our commitment to sustainable practices",
+        description: "Environmental commitment",
       },
     ],
   },
@@ -38,22 +39,22 @@ const topNavItems = [
       {
         title: "Global Network",
         href: "/global-network",
-        description: "Our worldwide operational network",
+        description: "Worldwide operations",
       },
       {
         title: "Energy Trading",
         href: "/energy-trading",
-        description: "Strategic energy trading solutions",
+        description: "Trading solutions",
       },
       {
         title: "Risk Management",
         href: "/risk-management",
-        description: "Advanced risk assessment and mitigation",
+        description: "Risk assessment",
       },
       {
         title: "Market Overview",
         href: "/market-overview",
-        description: "Comprehensive analysis of global energy markets",
+        description: "Market analysis",
       },
     ],
   },
@@ -234,192 +235,94 @@ export function Navigation() {
 
   return (
     <header
-      ref={menuRef}
       className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-500",
-        scrolled
-          ? "bg-white/95 backdrop-blur-md shadow-lg"
-          : "bg-white"
+        "sticky top-0 z-50 w-full transition-all duration-300",
+        scrolled ? "bg-white/95 backdrop-blur-md shadow-sm" : "bg-transparent"
       )}
+      ref={menuRef}
     >
-      <nav className="border-b border-teal-100">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Enhanced Logo Animation */}
-            <Link href="/" className="group relative">
-              <motion.div
-                className="flex items-center space-x-2 relative z-10"
-                variants={logoVariants}
-                initial="initial"
-                animate="animate"
-                whileHover="hover"
-                whileTap={{ scale: 0.97 }}
-              >
-                <motion.span className="text-2xl font-bold">
-                  <span className="text-teal-900">Zinerva</span>{" "}
-                  <span className="text-orange-500">LLC</span>
-                </motion.span>
-              </motion.div>
-              <motion.div
-                className="absolute -inset-x-4 -inset-y-2 bg-gradient-to-r from-teal-50 to-orange-50/30 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300"
-                layoutId="logo-hover"
-              />
+      <div className="container mx-auto px-6">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <motion.div
+            variants={logoVariants}
+            initial="initial"
+            animate="animate"
+            whileHover="hover"
+          >
+            <Link href="/" className="flex items-center space-x-2">
+              <span className="text-xl font-semibold text-teal-900">
+                Zinerva <span className="text-orange-500">LLC</span>
+              </span>
             </Link>
+          </motion.div>
 
-            {/* Enhanced Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-8">
-              {topNavItems.map((item, index) => (
-                <motion.div
-                  key={item.title}
-                  variants={menuItemVariants}
-                  initial="initial"
-                  animate="animate"
-                  whileHover="hover"
-                  whileTap="tap"
-                  custom={index}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  {item.isMenu ? (
-                    <div className="relative">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setActiveMenu(activeMenu === item.title ? null : item.title)
-                        }}
-                        onMouseEnter={() => setActiveMenu(item.title)}
-                        className={cn(
-                          "relative py-4 px-2 text-sm font-medium transition-all",
-                          "flex items-center space-x-1 group",
-                          activeMenu === item.title
-                            ? "text-teal-800"
-                            : "text-teal-700 hover:text-teal-900"
-                        )}
-                      >
-                        <span>{item.title}</span>
-                        <motion.span
-                          animate={{ rotate: activeMenu === item.title ? 180 : 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <ChevronDown className="w-4 h-4" />
-                        </motion.span>
-                        <motion.div
-                          className="absolute inset-0 bg-teal-50 rounded-lg -z-10"
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          whileHover={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.2 }}
-                        />
-                      </button>
-
-                      <AnimatePresence>
-                        {activeMenu === item.title && (
-                          <motion.div
-                            className="absolute top-full left-0 w-72 pt-2 z-50"
-                            variants={submenuVariants}
-                            initial="hidden"
-                            animate="visible"
-                            exit="exit"
-                            onMouseLeave={() => setActiveMenu(null)}
-                          >
-                            <div
-                              className="bg-white rounded-lg shadow-lg border border-teal-100 overflow-hidden"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              {item.submenu?.map((subitem) => (
-                                <motion.div
-                                  key={subitem.href}
-                                  variants={menuItemVariants}
-                                >
-                                  <Link
-                                    href={subitem.href}
-                                    className={cn(
-                                      "block p-4 transition-all",
-                                      "hover:bg-teal-50 group",
-                                      pathname === subitem.href
-                                        ? "bg-teal-50"
-                                        : ""
-                                    )}
-                                    onClick={() => setActiveMenu(null)}
-                                  >
-                                    <h3 className={cn(
-                                      "font-medium mb-1",
-                                      pathname === subitem.href
-                                        ? "text-teal-900"
-                                        : "text-teal-800 group-hover:text-teal-900"
-                                    )}>
-                                      {subitem.title}
-                                    </h3>
-                                    <p className="text-sm text-teal-600">{subitem.description}</p>
-                                  </Link>
-                                </motion.div>
-                              ))}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        "relative py-4 text-sm font-medium transition-all",
-                        "group hover:text-teal-900",
-                        pathname === item.href
-                          ? "text-teal-900"
-                          : "text-teal-700"
-                      )}
-                    >
-                      <span className="relative z-10">{item.title}</span>
-                      <motion.span
-                        className="absolute inset-0 bg-teal-50 rounded-lg -z-0"
-                        initial={{ scale: 0, opacity: 0 }}
-                        whileHover={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.2 }}
-                      />
-                      {pathname === item.href && (
-                        <motion.div
-                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-900"
-                          layoutId="underline"
-                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                        />
-                      )}
-                    </Link>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Enhanced Mobile Menu Button */}
-            <motion.button
-              onClick={(e) => {
-                e.stopPropagation()
-                setIsMobileMenuOpen(!isMobileMenuOpen)
-              }}
-              className="md:hidden p-2 rounded-lg hover:bg-teal-50 transition-all duration-300"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <motion.div
-                initial={false}
-                animate={{
-                  rotate: isMobileMenuOpen ? 180 : 0,
-                  scale: isMobileMenuOpen ? 0.9 : 1
-                }}
-                transition={{
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 20
-                }}
-              >
-                {isMobileMenuOpen ? (
-                  <X className="w-6 h-6 text-teal-900" />
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-1">
+            {topNavItems.map((item) => (
+              <div key={item.title} className="relative">
+                {item.isMenu ? (
+                  <button
+                    onClick={() => setActiveMenu(activeMenu === item.title ? null : item.title)}
+                    className={cn(
+                      "px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                      activeMenu === item.title
+                        ? "text-teal-900 bg-teal-50"
+                        : "text-teal-600 hover:text-teal-800 hover:bg-teal-50/50"
+                    )}
+                  >
+                    <span className="flex items-center">
+                      {item.title}
+                      <ChevronDown className="ml-1 h-4 w-4" />
+                    </span>
+                  </button>
                 ) : (
-                  <Menu className="w-6 h-6 text-teal-900" />
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                      pathname === item.href
+                        ? "text-teal-900 bg-teal-50"
+                        : "text-teal-600 hover:text-teal-800 hover:bg-teal-50/50"
+                    )}
+                  >
+                    {item.title}
+                  </Link>
                 )}
-              </motion.div>
-            </motion.button>
+
+                {/* Dropdown Menu */}
+                {item.isMenu && activeMenu === item.title && (
+                  <div className="absolute top-full left-0 mt-1 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 p-2">
+                    {item.submenu?.map((subitem) => (
+                      <Link
+                        key={subitem.href}
+                        href={subitem.href}
+                        className="block px-4 py-2 text-sm text-teal-700 hover:bg-teal-50 rounded-md"
+                        onClick={() => setActiveMenu(null)}
+                      >
+                        <div className="font-medium mb-0.5">{subitem.title}</div>
+                        <div className="text-xs text-teal-500">{subitem.description}</div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2 rounded-md text-teal-600 hover:text-teal-900 hover:bg-teal-50/50"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
         </div>
-      </nav>
+      </div>
 
       {/* Mobile Menu */}
       <AnimatePresence>
@@ -428,29 +331,22 @@ export function Navigation() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-b border-teal-100 bg-white"
-            onClick={(e) => e.stopPropagation()}
+            className="md:hidden bg-white border-t border-teal-100"
           >
-            <div className="container mx-auto px-4 py-4">
-              <nav className="space-y-2">
+            <div className="container mx-auto px-6 py-4">
+              <nav className="space-y-1">
                 {topNavItems.map((item) => (
                   <div key={item.title}>
                     {item.isMenu ? (
                       <div>
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setActiveMenu(activeMenu === item.title ? null : item.title)
-                          }}
-                          onMouseEnter={() => setActiveMenu(item.title)}
-                          className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-teal-50"
+                          onClick={() => setActiveMenu(activeMenu === item.title ? null : item.title)}
+                          className="flex items-center justify-between w-full p-2 text-sm font-medium text-teal-700 rounded-md hover:bg-teal-50"
                         >
-                          <span className="font-medium text-teal-900">
-                            {item.title}
-                          </span>
+                          {item.title}
                           <ChevronDown
                             className={cn(
-                              "w-5 h-5 text-teal-500 transition-transform",
+                              "h-4 w-4 transition-transform",
                               activeMenu === item.title ? "rotate-180" : ""
                             )}
                           />
@@ -461,19 +357,17 @@ export function Navigation() {
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: "auto" }}
                               exit={{ opacity: 0, height: 0 }}
-                              className="pl-4 space-y-2 mt-2"
+                              className="pl-4 space-y-1 mt-1"
                             >
                               {item.submenu?.map((subitem) => (
                                 <Link
                                   key={subitem.href}
                                   href={subitem.href}
-                                  className={cn(
-                                    "block p-3 rounded-lg",
-                                    pathname === subitem.href
-                                      ? "bg-teal-50 text-teal-900"
-                                      : "text-teal-600 hover:bg-teal-50 hover:text-teal-900"
-                                  )}
-                                  onClick={() => setActiveMenu(null)}
+                                  className="block p-2 text-sm text-teal-600 hover:bg-teal-50 rounded-md"
+                                  onClick={() => {
+                                    setActiveMenu(null)
+                                    setIsMobileMenuOpen(false)
+                                  }}
                                 >
                                   {subitem.title}
                                 </Link>
@@ -485,12 +379,8 @@ export function Navigation() {
                     ) : (
                       <Link
                         href={item.href}
-                        className={cn(
-                          "block p-3 rounded-lg",
-                          pathname === item.href
-                            ? "bg-teal-50 text-teal-900"
-                            : "text-teal-600 hover:bg-teal-50 hover:text-teal-900"
-                        )}
+                        className="block p-2 text-sm font-medium text-teal-700 rounded-md hover:bg-teal-50"
+                        onClick={() => setIsMobileMenuOpen(false)}
                       >
                         {item.title}
                       </Link>

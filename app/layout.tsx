@@ -2,6 +2,7 @@ import "@/styles/globals.css"
 import { Inter } from "next/font/google"
 import type { ReactNode } from "react"
 import { Globe2, LineChart, Shield, BarChart3 } from "lucide-react"
+import { Metadata } from "next"
 
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
@@ -51,8 +52,11 @@ export default function RootLayout({
   children: ReactNode
 }) {
   return (
-    <html lang="en" className="h-full">
-      <body className={`${inter.className} h-full`}>
+    <html lang="en" className="h-full text-[15px]">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      </head>
+      <body className={`${inter.className} h-full leading-relaxed`}>
         <ClientProviders>
           <div className="min-h-screen flex flex-col">
             <Navigation />
