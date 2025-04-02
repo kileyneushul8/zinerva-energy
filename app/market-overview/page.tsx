@@ -241,32 +241,44 @@ interface ProductTypeFilterProps {
 const ProductTypeFilter = ({ activeCategory, onCategoryChange, showAllCategories = true }: ProductTypeFilterProps) => {
   return (
     <div className="flex items-center gap-2 overflow-x-auto pb-2">
-      <Button
-        variant={showAllCategories ? "default" : "outline"}
-        size="sm"
-        className={cn(
-          "flex items-center gap-2 whitespace-nowrap",
-          showAllCategories && "bg-teal-600 hover:bg-teal-700"
-        )}
-        onClick={() => onCategoryChange('all')}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3 }}
       >
-        <Globe className="w-4 h-4" />
-        All Categories
-      </Button>
-      {productCategories.map((category) => (
         <Button
-          key={category.id}
-          variant={!showAllCategories && activeCategory === category.id ? "default" : "outline"}
+          variant={showAllCategories ? "default" : "outline"}
           size="sm"
           className={cn(
             "flex items-center gap-2 whitespace-nowrap",
-            !showAllCategories && activeCategory === category.id && "bg-teal-600 hover:bg-teal-700"
+            showAllCategories && "bg-teal-600 hover:bg-teal-700"
           )}
-          onClick={() => onCategoryChange(category.id)}
+          onClick={() => onCategoryChange('all')}
         >
-          <category.icon className="w-4 h-4" />
-          {category.name}
+          <Globe className="w-4 h-4" />
+          All Categories
         </Button>
+      </motion.div>
+      {productCategories.map((category, index) => (
+        <motion.div
+          key={category.id}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3, delay: index * 0.1 }}
+        >
+          <Button
+            variant={!showAllCategories && activeCategory === category.id ? "default" : "outline"}
+            size="sm"
+            className={cn(
+              "flex items-center gap-2 whitespace-nowrap",
+              !showAllCategories && activeCategory === category.id && "bg-teal-600 hover:bg-teal-700"
+            )}
+            onClick={() => onCategoryChange(category.id)}
+          >
+            <category.icon className="w-4 h-4" />
+            {category.name}
+          </Button>
+        </motion.div>
       ))}
     </div>
   )
