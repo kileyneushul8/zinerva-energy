@@ -10,7 +10,30 @@ import { NavigationMenu, NavigationMenuItem, NavigationMenuTrigger, NavigationMe
 
 const mainNav = [
   {
-    title: "Our Services",
+    title: "About Us",
+    items: [
+      {
+        title: "Company Overview",
+        href: "/about#overview",
+        description: "Learn about our mission and values",
+        icon: Users,
+      },
+      {
+        title: "Products",
+        href: "/about#products",
+        description: "Explore our innovative solutions",
+        icon: Target,
+      },
+      {
+        title: "Sustainability",
+        href: "/about#sustainability",
+        description: "Our commitment to sustainable practices",
+        icon: Leaf,
+      },
+    ],
+  },
+  {
+    title: "Services",
     items: [
       {
         title: "Global Network",
@@ -31,39 +54,10 @@ const mainNav = [
         icon: Shield,
       },
       {
-        title: "Market Insights",
-        href: "/market-insights",
+        title: "Market Overview",
+        href: "/market-overview",
         description: "Energy market analysis",
         icon: BarChart3,
-      },
-    ],
-  },
-  {
-    title: "About Us",
-    items: [
-      {
-        title: "Our Story",
-        href: "/about#story",
-        description: "Zinerva's journey and growth",
-        icon: Users,
-      },
-      {
-        title: "Environmental Impact",
-        href: "/about#environmental",
-        description: "Our sustainability commitment",
-        icon: Leaf,
-      },
-      {
-        title: "Mission & Vision",
-        href: "/about#mission",
-        description: "Our future aspirations",
-        icon: Target,
-      },
-      {
-        title: "Awards & Recognition",
-        href: "/about#awards",
-        description: "Industry achievements",
-        icon: Award,
       },
     ],
   },
