@@ -250,6 +250,21 @@ export class HeadlinesService {
         ]
     }
 
+    private getCategoryKeywords(category: string): string[] {
+        const keywords: Record<string, string[]> = {
+            'crude-oil': ['oil', 'crude', 'petroleum'],
+            'natural-gas': ['gas', 'natural gas', 'LNG'],
+            'renewables': ['renewable', 'renewables', 'clean energy'],
+            'nuclear': ['nuclear', 'atomic'],
+            'coal': ['coal', 'thermal'],
+            'solar': ['solar', 'photovoltaic'],
+            'wind': ['wind', 'offshore wind'],
+            'hydrogen': ['hydrogen', 'H2'],
+            'industrial': ['industrial', 'manufacturing']
+        }
+        return keywords[category] || []
+    }
+
     async getHeadlines(): Promise<Headline[]> {
         try {
             console.log('Fetching headlines...')

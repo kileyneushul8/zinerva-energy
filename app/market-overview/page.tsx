@@ -1296,7 +1296,7 @@ const productCategories: ProductCategory[] = [
     }
   },
   {
-    id: 'renewable',
+    id: 'renewables',
     name: 'Renewable',
     icon: Wind,
     metrics: {
@@ -1341,7 +1341,7 @@ const categoryColors: Record<MarketCategoryId, MarketColors> = {
     gradient: ['#3b82f6', '#60a5fa'],
     accent: '#93c5fd'
   },
-  'renewable': {
+  'renewables': {
     primary: '#10b981',
     secondary: '#34d399',
     gradient: ['#10b981', '#34d399'],
@@ -1403,7 +1403,7 @@ const marketParams: Record<MarketCategoryId, MarketParams> = {
     volumeBase: 800000,
     volumeVariance: 400000
   },
-  'renewable': {
+  'renewables': {
     baseValue: 100,
     volatility: 0.015,
     trend: 0.002,
@@ -1465,7 +1465,7 @@ const marketParams: Record<MarketCategoryId, MarketParams> = {
 const categoryLabels: Record<MarketCategoryId, string> = {
   'crude-oil': 'Crude Oil',
   'natural-gas': 'Natural Gas',
-  'renewable': 'Renewable Energy',
+  'renewables': 'Renewable Energy',
   'nuclear': 'Nuclear Power',
   'coal': 'Coal',
   'solar': 'Solar Energy',
