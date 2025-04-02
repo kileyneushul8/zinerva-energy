@@ -3,6 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
+import { useEffect } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -106,6 +107,14 @@ const itemVariants = {
 }
 
 export default function HomePage() {
+  useEffect(() => {
+    // Force a re-render on mount
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new Event('resize'))
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [])
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}

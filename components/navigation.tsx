@@ -4,59 +4,43 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePathname } from "next/navigation"
-import { Menu, X, ChevronDown, ChevronUp } from "lucide-react"
+import { Menu, X, ChevronDown, ChevronUp, Globe2, LineChart, Shield, BarChart3 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { NavigationMenu, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent } from "@/components/ui/navigation-menu"
 
-const topNavItems = [
+const mainNav = [
   {
-    title: "About Us",
-    href: "#",
-    isMenu: true,
-    submenu: [
-      {
-        title: "Company Overview",
-        href: "/about",
-        description: "Our mission and values",
-      },
-      {
-        title: "Products",
-        href: "/products",
-        description: "Energy solutions",
-      },
-      {
-        title: "Sustainability",
-        href: "/sustainability",
-        description: "Environmental commitment",
-      },
-    ],
-  },
-  {
-    title: "Services",
-    href: "#",
-    isMenu: true,
-    submenu: [
+    title: "Our Services",
+    items: [
       {
         title: "Global Network",
         href: "/global-network",
-        description: "Worldwide operations",
+        description: "Our worldwide energy distribution infrastructure",
+        icon: Globe2,
       },
       {
         title: "Energy Trading",
         href: "/energy-trading",
-        description: "Trading solutions",
+        description: "Advanced trading solutions and strategies",
+        icon: LineChart,
       },
       {
         title: "Risk Management",
         href: "/risk-management",
-        description: "Risk assessment",
+        description: "Comprehensive risk assessment and mitigation",
+        icon: Shield,
       },
       {
-        title: "Market Overview",
-        href: "/market-overview",
-        description: "Market analysis",
+        title: "Market Insights",
+        href: "/market-insights",
+        description: "Analysis and trends in energy markets",
+        icon: BarChart3,
       },
     ],
+  },
+  {
+    title: "About Us",
+    href: "/about",
   },
   {
     title: "Ethics & Compliance",
@@ -98,7 +82,6 @@ const serviceItems = [
 
 export function Navigation() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
-  const [isServicesOpen, setIsServicesOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -128,7 +111,7 @@ export function Navigation() {
 
   // Close menus when route changes
   useEffect(() => {
-    setIsServicesOpen(false)
+    setActiveMenu(null)
     setIsMobileMenuOpen(false)
   }, [pathname])
 
@@ -145,175 +128,81 @@ export function Navigation() {
     return () => document.removeEventListener('keydown', handleEscKey)
   }, [])
 
-  // Enhanced animation variants
-  const menuItemVariants = {
-    initial: {
-      y: -8,
-      opacity: 0,
-      filter: "blur(8px)"
-    },
-    animate: {
-      y: 0,
-      opacity: 1,
-      filter: "blur(0px)",
-      transition: {
-        type: "spring",
-        stiffness: 200,
-        damping: 20
-      }
-    },
-    hover: {
-      scale: 1.03,
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 10
-      }
-    },
-    tap: {
-      scale: 0.97
-    }
-  }
-
-  const submenuVariants = {
-    hidden: {
-      opacity: 0,
-      y: -15,
-      scale: 0.95,
-      transition: {
-        duration: 0.2,
-        ease: "easeOut"
-      }
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 20,
-        staggerChildren: 0.05,
-        duration: 0.3
-      }
-    },
-    exit: {
-      opacity: 0,
-      y: -10,
-      scale: 0.95,
-      transition: {
-        duration: 0.2,
-        ease: "easeIn"
-      }
-    }
-  }
-
-  // Add hover animation for logo
-  const logoVariants = {
-    initial: {
-      x: -20,
-      opacity: 0
-    },
-    animate: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 200,
-        damping: 20
-      }
-    },
-    hover: {
-      scale: 1.03,
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 10
-      }
-    }
-  }
-
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
-        scrolled ? "bg-white/95 backdrop-blur-md shadow-sm" : "bg-transparent"
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        scrolled ? "bg-white/95 backdrop-blur-sm shadow-sm" : "bg-transparent"
       )}
       ref={menuRef}
     >
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <motion.div
-            variants={logoVariants}
-            initial="initial"
-            animate="animate"
-            whileHover="hover"
-          >
-            <Link href="/" className="flex items-center space-x-2">
-              <span className="text-xl font-semibold text-teal-900">
-                Zinerva <span className="text-orange-500">LLC</span>
-              </span>
-            </Link>
-          </motion.div>
+          <Link href="/" className="flex items-center space-x-2">
+            <span className="text-2xl font-bold text-teal-900">
+              Zinerva <span className="text-orange-500">LLC</span>
+            </span>
+          </Link>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-1">
-            {topNavItems.map((item) => (
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            {mainNav.map((item) => (
               <div key={item.title} className="relative">
-                {item.isMenu ? (
+                {item.items ? (
                   <button
                     onClick={() => setActiveMenu(activeMenu === item.title ? null : item.title)}
                     className={cn(
-                      "px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                      activeMenu === item.title
-                        ? "text-teal-900 bg-teal-50"
-                        : "text-teal-600 hover:text-teal-800 hover:bg-teal-50/50"
+                      "flex items-center space-x-1 text-sm font-medium",
+                      activeMenu === item.title ? "text-orange-500" : "text-teal-700 hover:text-orange-500"
                     )}
                   >
-                    <span className="flex items-center">
-                      {item.title}
-                      <ChevronDown className="ml-1 h-4 w-4" />
-                    </span>
+                    <span>{item.title}</span>
+                    {activeMenu === item.title ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
                   </button>
                 ) : (
                   <Link
                     href={item.href}
-                    className={cn(
-                      "px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                      pathname === item.href
-                        ? "text-teal-900 bg-teal-50"
-                        : "text-teal-600 hover:text-teal-800 hover:bg-teal-50/50"
-                    )}
+                    className="text-sm font-medium text-teal-700 hover:text-orange-500"
                   >
                     {item.title}
                   </Link>
                 )}
 
                 {/* Dropdown Menu */}
-                {item.isMenu && activeMenu === item.title && (
-                  <div className="absolute top-full left-0 mt-1 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 p-2">
-                    {item.submenu?.map((subitem) => (
-                      <Link
-                        key={subitem.href}
-                        href={subitem.href}
-                        className="block px-4 py-2 text-sm text-teal-700 hover:bg-teal-50 rounded-md"
-                        onClick={() => setActiveMenu(null)}
-                      >
-                        <div className="font-medium mb-0.5">{subitem.title}</div>
-                        <div className="text-xs text-teal-500">{subitem.description}</div>
-                      </Link>
-                    ))}
+                {item.items && activeMenu === item.title && (
+                  <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-teal-100">
+                    <div className="p-4 grid gap-4">
+                      {item.items.map((subitem) => (
+                        <Link
+                          key={subitem.title}
+                          href={subitem.href}
+                          className="flex items-start space-x-3 p-2 rounded-lg hover:bg-teal-50 transition-colors"
+                        >
+                          <div className="p-2 rounded-lg bg-teal-100">
+                            <subitem.icon className="h-5 w-5 text-teal-600" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-teal-900">{subitem.title}</div>
+                            <div className="text-sm text-teal-600">{subitem.description}</div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
             ))}
-          </div>
+          </nav>
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 rounded-md text-teal-600 hover:text-teal-900 hover:bg-teal-50/50"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 text-teal-700 hover:text-orange-500"
           >
             {isMobileMenuOpen ? (
               <X className="h-6 w-6" />
@@ -322,65 +211,51 @@ export function Navigation() {
             )}
           </button>
         </div>
-      </div>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t border-teal-100"
-          >
-            <div className="container mx-auto px-6 py-4">
-              <nav className="space-y-1">
-                {topNavItems.map((item) => (
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden overflow-hidden bg-white"
+            >
+              <nav className="py-4 space-y-2">
+                {mainNav.map((item) => (
                   <div key={item.title}>
-                    {item.isMenu ? (
-                      <div>
+                    {item.items ? (
+                      <>
                         <button
                           onClick={() => setActiveMenu(activeMenu === item.title ? null : item.title)}
-                          className="flex items-center justify-between w-full p-2 text-sm font-medium text-teal-700 rounded-md hover:bg-teal-50"
+                          className="flex items-center justify-between w-full p-2 text-teal-700"
                         >
-                          {item.title}
-                          <ChevronDown
-                            className={cn(
-                              "h-4 w-4 transition-transform",
-                              activeMenu === item.title ? "rotate-180" : ""
-                            )}
-                          />
-                        </button>
-                        <AnimatePresence>
-                          {activeMenu === item.title && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="pl-4 space-y-1 mt-1"
-                            >
-                              {item.submenu?.map((subitem) => (
-                                <Link
-                                  key={subitem.href}
-                                  href={subitem.href}
-                                  className="block p-2 text-sm text-teal-600 hover:bg-teal-50 rounded-md"
-                                  onClick={() => {
-                                    setActiveMenu(null)
-                                    setIsMobileMenuOpen(false)
-                                  }}
-                                >
-                                  {subitem.title}
-                                </Link>
-                              ))}
-                            </motion.div>
+                          <span>{item.title}</span>
+                          {activeMenu === item.title ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
                           )}
-                        </AnimatePresence>
-                      </div>
+                        </button>
+                        {activeMenu === item.title && (
+                          <div className="pl-4 space-y-2">
+                            {item.items.map((subitem) => (
+                              <Link
+                                key={subitem.title}
+                                href={subitem.href}
+                                className="flex items-center space-x-2 p-2 text-teal-600 hover:text-orange-500"
+                              >
+                                <subitem.icon className="h-4 w-4" />
+                                <span>{subitem.title}</span>
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <Link
                         href={item.href}
-                        className="block p-2 text-sm font-medium text-teal-700 rounded-md hover:bg-teal-50"
-                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block p-2 text-teal-700 hover:text-orange-500"
                       >
                         {item.title}
                       </Link>
@@ -388,10 +263,10 @@ export function Navigation() {
                   </div>
                 ))}
               </nav>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </header>
   )
 }
