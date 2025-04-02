@@ -63,9 +63,9 @@ import {
   MarketParams,
   MarketColors
 } from '@/types/market'
+import { HeadlinesSection } from '@/components/headlines-section'
 import { HeadlinesService, Headline } from '@/lib/services/headlines.service'
 import Link from 'next/link'
-import { HeadlinesSection } from '@/components/headlines-section'
 
 // News categories
 type NewsCategoryId = 'regulatory' | 'market-insights' | 'investment' | 'innovation'
@@ -1522,11 +1522,9 @@ export default function MarketOverviewPage() {
   const [showAllCategories, setShowAllCategories] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingNews, setIsLoadingNews] = useState(false)
-  const [headlines, setHeadlines] = useState<Headline[]>([])
   const [marketData, setMarketData] = useState<ExtendedMarketData[]>([])
   const [marketDataCache] = useState(() => new MarketDataCache())
   const [marketDataService] = useState(() => new MarketDataService(selectedCategory))
-  const [headlinesService] = useState(() => HeadlinesService.getInstance())
 
   // Move handleTimeRangeChange inside the component
   const handleTimeRangeChange = useCallback((value: string) => {
@@ -1580,26 +1578,6 @@ export default function MarketOverviewPage() {
     fetchData()
   }, [fetchData])
 
-  // Fetch headlines
-  const fetchHeadlines = useCallback(async () => {
-    setIsLoadingNews(true)
-    try {
-      const fetchedHeadlines = await headlinesService.getHeadlines()
-      const filteredHeadlines = filterHeadlinesByCategory(fetchedHeadlines, selectedNewsCategory)
-      setHeadlines(filteredHeadlines)
-    } catch (error) {
-      console.error('Error fetching headlines:', error)
-      setHeadlines([])
-    } finally {
-      setIsLoadingNews(false)
-    }
-  }, [selectedNewsCategory])
-
-  // Fetch headlines when category changes
-  useEffect(() => {
-    fetchHeadlines()
-  }, [fetchHeadlines])
-
   // Handle category change
   const handleCategoryChange = (category: LocalCategoryId) => {
     // Check if it's a news category
@@ -1617,18 +1595,6 @@ export default function MarketOverviewPage() {
 
     fetchData()
   }
-
-  // Update the sorting to use time instead of date
-  const sortedHeadlines = [...headlines].sort((a, b) => {
-    // Convert time strings to comparable values (assuming format like '2h ago', '1d ago')
-    const getTimeValue = (time: string) => {
-      const value = parseInt(time)
-      const unit = time.includes('h') ? 1 : 24 // Convert to hours
-      return value * unit
-    }
-
-    return getTimeValue(a.time) - getTimeValue(b.time)
-  })
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1816,7 +1782,7 @@ export default function MarketOverviewPage() {
                   variant="ghost"
                   size="sm"
                   className="text-teal-600"
-                  onClick={fetchHeadlines}
+                  onClick={fetchData}
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Refresh
@@ -1836,8 +1802,6 @@ export default function MarketOverviewPage() {
                     )}
                     onClick={() => {
                       setSelectedNewsCategory(category.id)
-                      // Fetch headlines immediately when category changes
-                      fetchHeadlines()
                     }}
                   >
                     <category.icon className="w-4 h-4" />
@@ -1859,46 +1823,8 @@ export default function MarketOverviewPage() {
                       </div>
                     </div>
                   ))
-                ) : sortedHeadlines.length > 0 ? (
-                  // Show headlines for the selected category
-                  sortedHeadlines.map((headline) => (
-                    <Link
-                      key={headline.id}
-                      href={`/headlines/${headline.id}`}
-                      className="block"
-                    >
-                      <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="flex items-start gap-3 p-4 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors"
-                      >
-                        <div className="p-2 rounded-full bg-white">
-                          {headlineCategories.find(cat => cat.id === headline.category)?.icon && (
-                            <div className="w-4 h-4 text-teal-600">
-                              {React.createElement(
-                                headlineCategories.find(cat => cat.id === headline.category)?.icon || NewsIcon
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <p className="text-sm text-teal-900 font-medium">{headline.title}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <p className="text-xs text-teal-500">
-                              {headline.time}
-                            </p>
-                            <Badge variant="secondary" className="text-xs">
-                              {headlineCategories.find(cat => cat.id === headline.category)?.label}
-                            </Badge>
-                          </div>
-                        </div>
-                      </motion.div>
-                    </Link>
-                  ))
                 ) : (
-                  <div className="text-center py-8 text-teal-500">
-                    No headlines available for {headlineCategories.find(cat => cat.id === selectedNewsCategory)?.label}
-                  </div>
+                  <HeadlinesSection />
                 )}
               </div>
 
@@ -1917,12 +1843,6 @@ export default function MarketOverviewPage() {
             </div>
           </div>
         </div>
-
-        {/* Replace the existing headlines section with the new component */}
-        <section className="mt-8">
-          <h2 className="text-2xl font-bold mb-4">Latest News</h2>
-          <HeadlinesSection />
-        </section>
       </main>
     </div>
   )

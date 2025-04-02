@@ -9,12 +9,24 @@ export function HeadlinesSection() {
     const [headlines, setHeadlines] = useState<Headline[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [service, setService] = useState<HeadlinesService | null>(null)
 
     useEffect(() => {
-        const headlinesService = HeadlinesService.getInstance()
+        try {
+            const headlinesService = HeadlinesService.getInstance()
+            setService(headlinesService)
+        } catch (err) {
+            setError('Failed to initialize headlines service')
+            setIsLoading(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!service) return
+
         const fetchHeadlines = async () => {
             try {
-                const data = await headlinesService.getHeadlines()
+                const data = await service.getHeadlines()
                 setHeadlines(data)
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Failed to fetch headlines')
@@ -24,7 +36,7 @@ export function HeadlinesSection() {
         }
 
         fetchHeadlines()
-    }, [])
+    }, [service])
 
     if (isLoading) {
         return <div>Loading headlines...</div>
