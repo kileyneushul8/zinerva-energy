@@ -32,7 +32,7 @@ const HeadlinesPage: React.FC = () => {
     const fetchHeadlines = async () => {
         setIsLoading(true)
         try {
-            const headlinesService = new HeadlinesService()
+            const headlinesService = HeadlinesService.getInstance()
             const allHeadlines = await headlinesService.getHeadlines()
 
             // Filter headlines based on selected category
@@ -47,26 +47,32 @@ const HeadlinesPage: React.FC = () => {
                         {
                             id: 'reg1',
                             title: 'New EPA Regulations Impact Energy Sector',
-                            category: 'regulatory',
-                            date: new Date().toISOString(),
-                            content: 'New environmental regulations announced by the EPA will significantly impact energy production and distribution.',
-                            source: 'Energy News Daily'
+                            category: 'regulation',
+                            time: new Date().toLocaleString(),
+                            summary: 'New environmental regulations announced by the EPA will significantly impact energy production and distribution.',
+                            source: 'Energy News Daily',
+                            url: '#',
+                            impact: 'high'
                         },
                         {
                             id: 'reg2',
                             title: 'Global Climate Policy Updates',
-                            category: 'regulatory',
-                            date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-                            content: 'Major updates to global climate policies expected to shape energy market dynamics.',
-                            source: 'Climate Policy Journal'
+                            category: 'regulation',
+                            time: new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleString(),
+                            summary: 'Major updates to global climate policies expected to shape energy market dynamics.',
+                            source: 'Climate Policy Journal',
+                            url: '#',
+                            impact: 'medium'
                         },
                         {
                             id: 'reg3',
                             title: 'Carbon Emission Standards Revised',
-                            category: 'regulatory',
-                            date: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-                            content: 'Updated carbon emission standards set new benchmarks for energy companies.',
-                            source: 'Environmental Policy Review'
+                            category: 'regulation',
+                            time: new Date(Date.now() - 48 * 60 * 60 * 1000).toLocaleString(),
+                            summary: 'Updated carbon emission standards set new benchmarks for energy companies.',
+                            source: 'Environmental Policy Review',
+                            url: '#',
+                            impact: 'high'
                         }
                     ]
                 } else if (selectedCategory === 'market-insights') {
@@ -74,26 +80,32 @@ const HeadlinesPage: React.FC = () => {
                         {
                             id: 'mkt1',
                             title: 'Energy Market Trends Analysis',
-                            category: 'market-insights',
-                            date: new Date().toISOString(),
-                            content: 'Latest analysis shows shifting patterns in global energy consumption and production.',
-                            source: 'Market Analysis Weekly'
+                            category: 'market-analysis',
+                            time: new Date().toLocaleString(),
+                            summary: 'Latest analysis shows shifting patterns in global energy consumption and production.',
+                            source: 'Market Analysis Weekly',
+                            url: '#',
+                            impact: 'high'
                         },
                         {
                             id: 'mkt2',
                             title: 'Supply Chain Impact on Energy Prices',
-                            category: 'market-insights',
-                            date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-                            content: 'How global supply chain disruptions are affecting energy market prices and availability.',
-                            source: 'Energy Economics Review'
+                            category: 'market-analysis',
+                            time: new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleString(),
+                            summary: 'How global supply chain disruptions are affecting energy market prices and availability.',
+                            source: 'Energy Economics Review',
+                            url: '#',
+                            impact: 'medium'
                         },
                         {
                             id: 'mkt3',
                             title: 'Renewable Energy Market Growth',
-                            category: 'market-insights',
-                            date: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-                            content: 'Renewable energy sector shows unprecedented growth in Q1 2024.',
-                            source: 'Market Intelligence Report'
+                            category: 'market-analysis',
+                            time: new Date(Date.now() - 48 * 60 * 60 * 1000).toLocaleString(),
+                            summary: 'Renewable energy sector shows unprecedented growth in Q1 2024.',
+                            source: 'Market Intelligence Report',
+                            url: '#',
+                            impact: 'high'
                         }
                     ]
                 }
@@ -210,14 +222,14 @@ const HeadlinesPage: React.FC = () => {
                                                             {headline.title}
                                                         </h3>
                                                         <p className="text-sm text-[#2F4D48]/70 mb-4 line-clamp-2">
-                                                            {headline.content}
+                                                            {headline.summary}
                                                         </p>
                                                         <div className="flex items-center justify-between">
                                                             <Badge variant="secondary" className="text-xs bg-[#E9A268]/10 text-[#E9A268]">
                                                                 {headlineCategories.find(cat => cat.id === headline.category)?.label}
                                                             </Badge>
                                                             <span className="text-xs text-[#2F4D48]/60">
-                                                                {new Date(headline.date).toLocaleDateString()}
+                                                                {headline.time}
                                                             </span>
                                                         </div>
                                                     </div>
