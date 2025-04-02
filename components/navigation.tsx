@@ -208,7 +208,7 @@ export function Navigation() {
                   </Link>
                 )}
 
-                {/* Dropdown Menu */}
+                {/* Desktop Dropdown Menu */}
                 {item.items && activeMenu === item.title && (
                   <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-lg shadow-xl border border-teal-100">
                     <div className="p-4 grid gap-4">
@@ -238,9 +238,12 @@ export function Navigation() {
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className={cn(
-              "md:hidden p-2",
-              scrolled ? "text-teal-700 hover:text-orange-500" : "text-white/90 hover:text-white"
+              "md:hidden p-2 rounded-lg",
+              scrolled
+                ? "text-teal-700 hover:text-orange-500 hover:bg-teal-50"
+                : "text-white/90 hover:text-white hover:bg-white/10"
             )}
+            aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
               <X className="h-6 w-6" />
@@ -257,43 +260,55 @@ export function Navigation() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden overflow-hidden bg-white"
+              className="md:hidden overflow-hidden bg-white/95 backdrop-blur-md border-t border-teal-100"
             >
-              <nav className="py-4 space-y-2">
+              <nav className="py-4 space-y-1">
                 {mainNav.map((item) => (
                   <div key={item.title}>
                     {item.items ? (
                       <>
                         <button
                           onClick={() => setActiveMenu(activeMenu === item.title ? null : item.title)}
-                          className="flex items-center justify-between w-full p-2 text-teal-700"
+                          className="flex items-center justify-between w-full p-3 text-teal-700 hover:bg-teal-50"
                         >
-                          <span>{item.title}</span>
+                          <span className="font-medium">{item.title}</span>
                           {activeMenu === item.title ? (
-                            <ChevronUp className="h-4 w-4" />
+                            <ChevronUp className="h-5 w-5" />
                           ) : (
-                            <ChevronDown className="h-4 w-4" />
+                            <ChevronDown className="h-5 w-5" />
                           )}
                         </button>
                         {activeMenu === item.title && (
-                          <div className="pl-4 space-y-2">
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="bg-teal-50/50"
+                          >
                             {item.items.map((subitem) => (
                               <Link
                                 key={subitem.title}
                                 href={subitem.href}
-                                className="flex items-center space-x-2 p-2 text-teal-600 hover:text-orange-500"
+                                className="flex items-start space-x-3 p-3 text-teal-700 hover:bg-teal-100"
+                                onClick={() => setIsMobileMenuOpen(false)}
                               >
-                                <subitem.icon className="h-4 w-4" />
-                                <span>{subitem.title}</span>
+                                <div className="p-2 rounded-lg bg-teal-100">
+                                  <subitem.icon className="h-5 w-5 text-teal-600" />
+                                </div>
+                                <div>
+                                  <div className="font-medium">{subitem.title}</div>
+                                  <div className="text-sm text-teal-600">{subitem.description}</div>
+                                </div>
                               </Link>
                             ))}
-                          </div>
+                          </motion.div>
                         )}
                       </>
                     ) : (
                       <Link
                         href={item.href}
-                        className="block p-2 text-teal-700 hover:text-orange-500"
+                        className="block p-3 text-teal-700 hover:bg-teal-50 font-medium"
+                        onClick={() => setIsMobileMenuOpen(false)}
                       >
                         {item.title}
                       </Link>
