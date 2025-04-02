@@ -160,10 +160,10 @@ const timelineData = [
     }
   },
   {
-    year: "2030",
+    year: "2030 & Beyond",
     title: "Leadership",
     description: "Setting new industry standards in sustainability",
-    icon: <Award className="w-6 h-6" />,
+    icon: <Award className="h-6 w-6" />,
     focusArea: "Industry Leadership",
     achievements: [
       "Net-zero operations achieved",
