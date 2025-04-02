@@ -1518,19 +1518,20 @@ export default function MarketOverviewPage() {
   const [selectedNewsCategory, setSelectedNewsCategory] = useState<NewsCategoryId>('regulatory')
   const [timeRange, setTimeRange] = useState<TimeRange>('1D')
   const [chartType, setChartType] = useState<ChartType>('line')
+  const [showAllCategories, setShowAllCategories] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [isLoadingNews, setIsLoadingNews] = useState(false)
   const [headlines, setHeadlines] = useState<Headline[]>([])
-  const [isPaused, setIsPaused] = useState(false)
   const [marketData, setMarketData] = useState<ExtendedMarketData[]>([])
-  const [showAllCategories, setShowAllCategories] = useState(true)
-  const [isLoading, setIsLoading] = useState(true)
-  const cache = useMemo(() => new MarketDataCache(), [])
+  const [marketDataCache] = useState(() => new MarketDataCache())
+  const [marketDataService] = useState(() => new MarketDataService(selectedCategory))
+  const [headlinesService] = useState(() => HeadlinesService.getInstance())
 
   // Function to fetch market data
   const fetchData = useCallback(async () => {
     setIsLoading(true)
     try {
-      const response = await fetchMarketData(selectedCategory, timeRange, cache)
+      const response = await fetchMarketData(selectedCategory, timeRange, marketDataCache)
       if (response.success && response.data) {
         setMarketData(response.data)
       }
@@ -1539,15 +1540,14 @@ export default function MarketOverviewPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [selectedCategory, timeRange, cache])
+  }, [selectedCategory, timeRange, marketDataCache])
 
   // Initialize market data service for real-time updates
   useEffect(() => {
-    const service = new MarketDataService(selectedCategory)
     let unsubscribe: (() => void) | null = null
 
-    if (!isPaused) {
-      unsubscribe = service.subscribe((newData) => {
+    if (!isLoading) {
+      unsubscribe = marketDataService.subscribe((newData) => {
         setMarketData(currentData => {
           const updatedData = [...currentData]
           if (updatedData.length > 100) {
@@ -1563,9 +1563,9 @@ export default function MarketOverviewPage() {
       if (unsubscribe) {
         unsubscribe()
       }
-      service.disconnect()
+      marketDataService.disconnect()
     }
-  }, [selectedCategory, isPaused])
+  }, [selectedCategory, isLoading])
 
   // Fetch initial data
   useEffect(() => {
@@ -1576,7 +1576,6 @@ export default function MarketOverviewPage() {
   const fetchHeadlines = useCallback(async () => {
     setIsLoadingNews(true)
     try {
-      const headlinesService = HeadlinesService.getInstance()
       const fetchedHeadlines = await headlinesService.getHeadlines()
       const filteredHeadlines = filterHeadlinesByCategory(fetchedHeadlines, selectedNewsCategory)
       setHeadlines(filteredHeadlines)
@@ -1797,8 +1796,8 @@ export default function MarketOverviewPage() {
                     type={chartType}
                     category={selectedCategory}
                     timeRange={timeRange}
-                    isPaused={isPaused}
-                    onPauseToggle={() => setIsPaused(!isPaused)}
+                    isPaused={isLoading}
+                    onPauseToggle={() => setIsLoading(!isLoading)}
                   />
                 )}
               </div>
