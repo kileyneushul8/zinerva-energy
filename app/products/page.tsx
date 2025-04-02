@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import {
@@ -1230,162 +1230,54 @@ export default function ProductsPage() {
 
               {Object.entries(products).map(([category, items]) => (
                 <TabsContent key={category} value={category}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {items.map((product, index) => (
                       <motion.div
                         key={product.name}
                         initial={{ opacity: 0, y: 20 }}
-                        animate={{
-                          opacity: 1,
-                          y: 0,
-                          height: expandedProduct === product.name ? "auto" : "min-content"
-                        }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                        onHoverStart={() => setExpandedProduct(product.name)}
-                        onHoverEnd={() => setExpandedProduct(null)}
-                        className="relative"
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="h-full"
                       >
-                        <Card className="h-full bg-gradient-to-br from-white via-teal-50/30 to-teal-100/20 border-2 border-teal-200 
-                          hover:border-orange-300 shadow-lg hover:shadow-2xl transition-all duration-500 
-                          transform hover:-translate-y-2 hover:rotate-1 group">
-                          <CardHeader className="pb-4">
-                            <div className="flex items-center gap-4 mb-4">
-                              <div className="p-3.5 rounded-xl bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700 text-white
-                                transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-lg
-                                group-hover:from-teal-600 group-hover:to-teal-800">
+                        <Card className="bg-white/95 backdrop-blur-sm border-2 border-teal-100 
+                          hover:border-orange-200 transition-all duration-300 shadow-lg 
+                          hover:shadow-xl group h-full flex flex-col">
+                          <CardHeader>
+                            <div className="flex items-start gap-4">
+                              <div className="p-3 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 
+                                text-white shadow-lg transform group-hover:scale-110 transition-transform duration-300">
                                 {product.icon}
                               </div>
-                              <div className="transform transition-all duration-300 group-hover:translate-x-2">
-                                <CardTitle className="text-xl font-bold text-teal-900 group-hover:text-teal-700 transition-colors">
+                              <div>
+                                <CardTitle className="text-xl font-bold text-teal-900 mb-2">
                                   {product.name}
                                 </CardTitle>
-                                <p className="text-sm text-teal-600 group-hover:text-teal-500 transition-colors">{product.description}</p>
-                              </div>
-                            </div>
-                            <div className="space-y-3 transition-all duration-300 group-hover:translate-y-1">
-                              <p className="text-teal-700 text-sm leading-relaxed group-hover:text-teal-800">{product.details}</p>
-                              <div className="flex flex-wrap gap-2">
-                                {(product.features || []).map((feature: string, idx: number) => (
-                                  <motion.span
-                                    key={idx}
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: idx * 0.1 }}
-                                    className="text-xs px-2.5 py-1 bg-gradient-to-r from-teal-100/50 to-teal-50/50 text-teal-700 rounded-full
-                                      hover:from-orange-100 hover:to-orange-50 hover:text-orange-700 cursor-default transition-all duration-300
-                                      border border-transparent hover:border-orange-200 hover:shadow-sm"
-                                    whileHover={{ scale: 1.08, rotate: 1 }}
-                                    whileTap={{ scale: 0.95 }}
-                                  >
-                                    {feature}
-                                  </motion.span>
-                                ))}
+                                <CardDescription className="text-teal-700">
+                                  {product.description}
+                                </CardDescription>
                               </div>
                             </div>
                           </CardHeader>
-
-                          <CardContent>
-                            <AnimatePresence>
-                              {expandedProduct === product.name && (
-                                <motion.div
-                                  initial={{ opacity: 0, height: 0 }}
-                                  animate={{ opacity: 1, height: "auto" }}
-                                  exit={{ opacity: 0, height: 0 }}
-                                  transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
-                                  className="space-y-6"
-                                >
-                                  {/* Quick Overview */}
-                                  <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.1 }}
-                                    className="bg-white/80 backdrop-blur-sm rounded-lg p-4 shadow-sm
-                                      hover:bg-gradient-to-br hover:from-white hover:to-teal-50/50 transition-colors duration-300"
-                                  >
-                                    <div className="grid gap-2.5">
-                                      {product.specifications.slice(0, 2).map((spec, idx) => (
-                                        <motion.div
-                                          key={idx}
-                                          className="flex justify-between items-center border-b border-teal-100 pb-2 group
-                                            hover:bg-white/80 rounded-lg px-3 transition-all duration-300"
-                                        >
-                                          <span className="text-sm text-teal-600 group-hover:text-teal-700 transition-colors">
-                                            {spec.category}
-                                          </span>
-                                          <span className="text-sm font-medium text-teal-800 bg-gradient-to-r from-teal-50 to-transparent 
-                                            px-3 py-1 rounded group-hover:from-orange-50 group-hover:to-orange-100/30 
-                                            transition-all duration-300 group-hover:shadow-sm">
-                                            {spec.value}
-                                          </span>
-                                        </motion.div>
-                                      ))}
-                                    </div>
-                                  </motion.div>
-
-                                  {/* Key Markets */}
-                                  <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="flex flex-wrap gap-2"
-                                  >
-                                    {product.marketRegions.slice(0, 3).map((region, idx) => (
-                                      <motion.span
-                                        key={idx}
-                                        initial={{ scale: 0.8, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: idx * 0.1 + 0.3 }}
-                                        whileHover={{ scale: 1.05 }}
-                                        className="text-xs px-2.5 py-1 bg-gradient-to-r from-orange-100 to-orange-50 text-orange-700 rounded-full
-                                          hover:from-orange-200 hover:to-orange-100 transition-colors duration-300 cursor-default
-                                          hover:shadow-md hover:text-orange-800 border border-transparent hover:border-orange-200"
-                                      >
-                                        {region}
-                                      </motion.span>
-                                    ))}
-                                    {product.marketRegions.length > 3 && (
-                                      <motion.span
-                                        initial={{ scale: 0.8, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: 0.6 }}
-                                        className="text-xs px-2.5 py-1 bg-gradient-to-r from-orange-100 to-orange-50 text-orange-700 rounded-full
-                                          hover:from-orange-200 hover:to-orange-100 transition-colors duration-300 cursor-default
-                                          hover:shadow-md hover:text-orange-800 border border-transparent hover:border-orange-200"
-                                      >
-                                        +{product.marketRegions.length - 3} more
-                                      </motion.span>
-                                    )}
-                                  </motion.div>
-
-                                  {/* View Full Specifications Button */}
-                                  <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.3 }}
-                                  >
-                                    <Button
-                                      variant="outline"
-                                      className="w-full border-teal-200 hover:border-orange-300 bg-gradient-to-r from-transparent via-teal-50/0 to-transparent
-                                        hover:from-orange-50 hover:via-orange-100/30 hover:to-orange-50 group relative overflow-hidden 
-                                        transition-all duration-500 hover:shadow-md"
-                                      onClick={() => handleQuickview(product)}
-                                    >
-                                      <motion.div
-                                        className="absolute inset-0 bg-gradient-to-r from-orange-100/0 via-orange-200/30 to-orange-100/0"
-                                        initial={{ x: '-100%' }}
-                                        whileHover={{ x: '100%' }}
-                                        transition={{ duration: 1, ease: 'easeInOut' }}
-                                      />
-                                      <span className="relative flex items-center justify-center gap-2 text-teal-700 group-hover:text-orange-700
-                                        transition-colors duration-300">
-                                        View Full Specifications
-                                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                      </span>
-                                    </Button>
-                                  </motion.div>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
+                          <CardContent className="flex-grow flex flex-col justify-between">
+                            <div className="space-y-4">
+                              <div className="text-sm text-teal-700">{product.details}</div>
+                              <div className="space-y-2">
+                                {product.features?.map((feature, i) => (
+                                  <div key={i} className="flex items-center text-teal-600">
+                                    <ArrowRight className="h-4 w-4 text-orange-500 mr-2 flex-shrink-0" />
+                                    <span>{feature}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            <Button
+                              onClick={() => handleQuickview(product)}
+                              className="w-full mt-6 bg-gradient-to-r from-teal-600 to-teal-700 
+                                hover:from-teal-700 hover:to-teal-800 text-white shadow-lg 
+                                hover:shadow-xl transition-all duration-300"
+                            >
+                              View Details
+                            </Button>
                           </CardContent>
                         </Card>
                       </motion.div>
