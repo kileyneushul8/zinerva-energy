@@ -21,7 +21,7 @@ import {
   ChevronUp, ChevronDown, Filter,
   FileText, Briefcase, Scale, Lightbulb,
   Info, AlertTriangle, BarChart3, PieChart, Settings,
-  Newspaper as NewsIcon, Sun, Wind
+  Newspaper as NewsIcon, Sun, Wind, Atom, DollarSign
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -52,150 +52,29 @@ import {
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Suspense } from "react"
-
-// Add import for HeadlinesService
+import { LucideIcon } from 'lucide-react'
+import { Navigation } from '@/components/navigation'
+import {
+  MarketData,
+  MarketCategoryId,
+  ChartType,
+  TimeRange,
+  CustomTooltipProps,
+  MarketParams,
+  MarketColors,
+  CategoryId
+} from '@/types/market'
 import { HeadlinesService, Headline } from '@/lib/services/headlines.service'
+import Link from 'next/link'
 
-// Add these type definitions at the top of the file after imports
-type TimeRange = '1D' | '1W' | '1M' | '3M' | '6M' | '1Y'
-type ChartType = 'line' | 'bar' | 'area' | 'composed'
-
-// Update CategoryId type to include all categories
-type CategoryId = 'crude-oil' | 'natural-gas' | 'renewable' | 'nuclear' | 'coal' | 'solar' | 'wind' | 'hydrogen' | 'all'
-
-const LiveTimeDisplay = () => {
-  const [time, setTime] = useState(() =>
-    new Date().toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    })
-  )
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(new Date().toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      }))
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <div className="flex items-center gap-2 text-sm text-teal-600">
-      <Activity className="w-4 h-4" />
-      <span>Last updated: {time}</span>
-    </div>
-  )
-}
-
-const productCategories = [
-  {
-    id: "crude-oil",
-    name: "Crude Oil",
-    icon: Droplet,
-    metrics: {
-      price: "$78.35",
-      change: "+2.5%",
-      volume: "1.2M",
-      trend: "Bullish",
-      depth: 2.4
-    }
-  },
-  {
-    id: "natural-gas",
-    name: "Natural Gas",
-    icon: Flame,
-    metrics: {
-      price: "$3.42",
-      change: "-1.2%",
-      volume: "850K",
-      trend: "Bearish",
-      depth: 1.8
-    }
-  },
-  {
-    id: "renewable",
-    name: "Renewable Energy",
-    icon: Leaf,
-    metrics: {
-      price: "$62.18",
-      change: "+4.2%",
-      volume: "2.1M",
-      trend: "Bullish",
-      depth: 3.2
-    }
-  },
-  {
-    id: "nuclear",
-    name: "Nuclear Power",
-    icon: Zap,
-    metrics: {
-      price: "$45.90",
-      change: "+1.8%",
-      volume: "950K",
-      trend: "Neutral",
-      depth: 1.5
-    }
-  },
-  {
-    id: "coal",
-    name: "Coal",
-    icon: Factory,
-    metrics: {
-      price: "$120.50",
-      change: "-0.8%",
-      volume: "750K",
-      trend: "Bearish",
-      depth: 1.2
-    }
-  },
-  {
-    id: "solar",
-    name: "Solar Energy",
-    icon: Sun,
-    metrics: {
-      price: "$35.75",
-      change: "+3.1%",
-      volume: "1.5M",
-      trend: "Bullish",
-      depth: 2.8
-    }
-  },
-  {
-    id: "wind",
-    name: "Wind Power",
-    icon: Wind,
-    metrics: {
-      price: "$42.30",
-      change: "+2.8%",
-      volume: "1.3M",
-      trend: "Bullish",
-      depth: 2.1
-    }
-  },
-  {
-    id: "hydrogen",
-    name: "Hydrogen",
-    icon: Droplet,
-    metrics: {
-      price: "$15.20",
-      change: "+5.4%",
-      volume: "450K",
-      trend: "Bullish",
-      depth: 1.6
-    }
-  }
-]
+// News categories
+type NewsCategoryId = 'regulatory' | 'market-insights' | 'investment' | 'innovation'
 
 const headlineCategories = [
-  { id: 'all', label: 'All', icon: Globe },
-  { id: 'market-analysis', label: 'Market Analysis', icon: TrendingUp },
-  { id: 'investment', label: 'Investment', icon: Briefcase },
-  { id: 'regulation', label: 'Regulation', icon: Scale },
-  { id: 'innovation', label: 'Innovation', icon: Lightbulb }
+  { id: 'regulatory' as NewsCategoryId, label: 'Regulatory', icon: Scale },
+  { id: 'market-insights' as NewsCategoryId, label: 'Market Insights', icon: TrendingUp },
+  { id: 'investment' as NewsCategoryId, label: 'Investment', icon: Briefcase },
+  { id: 'innovation' as NewsCategoryId, label: 'Innovation', icon: Lightbulb }
 ]
 
 const marketAlerts = [
@@ -226,198 +105,17 @@ const chartTypeIcons = [
   { type: 'composed' as ChartType, icon: Activity, label: 'Composed' }
 ]
 
-// Update the category colors
-const categoryColors: Record<CategoryId, { primary: string; secondary: string; gradient: string[]; accent: string }> = {
-  'crude-oil': {
-    primary: '#2563eb',
-    secondary: '#60a5fa',
-    gradient: ['#dbeafe', '#bfdbfe', '#93c5fd', '#60a5fa'],
-    accent: '#1d4ed8'
-  },
-  'natural-gas': {
-    primary: '#16a34a',
-    secondary: '#4ade80',
-    gradient: ['#dcfce7', '#bbf7d0', '#86efac', '#4ade80'],
-    accent: '#15803d'
-  },
-  'renewable': {
-    primary: '#ca8a04',
-    secondary: '#facc15',
-    gradient: ['#fef9c3', '#fef08a', '#fde047', '#facc15'],
-    accent: '#a16207'
-  },
-  'nuclear': {
-    primary: '#9333ea',
-    secondary: '#c084fc',
-    gradient: ['#f3e8ff', '#e9d5ff', '#d8b4fe', '#c084fc'],
-    accent: '#7e22ce'
-  },
-  'coal': {
-    primary: '#dc2626',
-    secondary: '#f87171',
-    gradient: ['#fee2e2', '#fecaca', '#fca5a5', '#f87171'],
-    accent: '#b91c1c'
-  },
-  'solar': {
-    primary: '#ea580c',
-    secondary: '#fb923c',
-    gradient: ['#fff7ed', '#ffedd5', '#fed7aa', '#fb923c'],
-    accent: '#c2410c'
-  },
-  'wind': {
-    primary: '#0891b2',
-    secondary: '#22d3ee',
-    gradient: ['#ecfeff', '#cffafe', '#a5f3fc', '#22d3ee'],
-    accent: '#0e7490'
-  },
-  'hydrogen': {
-    primary: '#7c3aed',
-    secondary: '#a78bfa',
-    gradient: ['#f5f3ff', '#ede9fe', '#ddd6fe', '#a78bfa'],
-    accent: '#6d28d9'
-  }
-}
-
-// Update MarketParams interface
-interface MarketParams {
-  baseValue: number
-  volatility: number
-  trend: number
-  seasonality: number
-  volumeBase: number
-  volumeVariance: number
-}
-
-// Update market parameters
-const marketParams: Record<CategoryId, MarketParams> = {
-  'crude-oil': {
-    baseValue: 75,
-    volatility: 0.02,
-    trend: 0.001,
-    seasonality: 0.1,
-    volumeBase: 1000000,
-    volumeVariance: 500000
-  },
-  'natural-gas': {
-    baseValue: 3.5,
-    volatility: 0.025,
-    trend: -0.0005,
-    seasonality: 0.3,
-    volumeBase: 800000,
-    volumeVariance: 400000
-  },
-  'renewable': {
-    baseValue: 100,
-    volatility: 0.015,
-    trend: 0.002,
-    seasonality: 0.05,
-    volumeBase: 1200000,
-    volumeVariance: 600000
-  },
-  'nuclear': {
-    baseValue: 60,
-    volatility: 0.01,
-    trend: 0.0008,
-    seasonality: 0.15,
-    volumeBase: 900000,
-    volumeVariance: 450000
-  },
-  'coal': {
-    baseValue: 150,
-    volatility: 0.018,
-    trend: -0.001,
-    seasonality: 0.2,
-    volumeBase: 700000,
-    volumeVariance: 350000
-  },
-  'solar': {
-    baseValue: 30,
-    volatility: 0.01,
-    trend: 0.0005,
-    seasonality: 0.05,
-    volumeBase: 1500000,
-    volumeVariance: 750000
-  },
-  'wind': {
-    baseValue: 40,
-    volatility: 0.01,
-    trend: 0.0005,
-    seasonality: 0.05,
-    volumeBase: 1300000,
-    volumeVariance: 650000
-  },
-  'hydrogen': {
-    baseValue: 10,
-    volatility: 0.005,
-    trend: 0.0002,
-    seasonality: 0.02,
-    volumeBase: 500000,
-    volumeVariance: 250000
-  }
-}
-
-// Update category labels
-const categoryLabels: Record<CategoryId, string> = {
-  'crude-oil': 'Crude Oil',
-  'natural-gas': 'Natural Gas',
-  'renewable': 'Renewable Energy',
-  'nuclear': 'Nuclear Power',
-  'coal': 'Coal',
-  'solar': 'Solar Energy',
-  'wind': 'Wind Power',
-  'hydrogen': 'Hydrogen'
-}
-
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (!active || !payload?.[0]) return null
-
-  const data = payload[0].payload
-  return (
-    <div className="chart-tooltip">
-      <div className="text-sm font-medium text-gray-600 mb-2">{label}</div>
-      <div className="space-y-2">
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-sm text-gray-500">Price</span>
-          <span className="font-medium text-teal-700">
-            ${data.value.toFixed(2)}
-          </span>
-        </div>
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-sm text-gray-500">Volume</span>
-          <span className="font-medium text-teal-700">
-            {(data.volume / 1000).toFixed(1)}K
-          </span>
-        </div>
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-sm text-gray-500">Change</span>
-          <span className={`font-medium ${data.change >= 0
-            ? 'text-emerald-600'
-            : 'text-red-600'
-            }`}>
-            {data.change >= 0 ? '+' : ''}
-            {data.change.toFixed(2)}%
-          </span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // Type definitions
 type AxisInterval = number | 'preserveStart' | 'preserveEnd' | 'preserveStartEnd'
 
-interface MarketData {
-  name: string
-  value: number
-  volume: number
-  change: number
+interface ExtendedMarketData extends MarketData {
   volatility: number
-  trend: number
+  trendValue: number
   ma5?: number
   ma20?: number
 }
 
-const calculateMovingAverage = (data: MarketData[], period: number): number[] => {
+const calculateMovingAverage = (data: ExtendedMarketData[], period: number): number[] => {
   return data.map((_, index) => {
     const start = Math.max(0, index - period + 1)
     const values = data.slice(start, index + 1).map(d => d.value)
@@ -425,8 +123,8 @@ const calculateMovingAverage = (data: MarketData[], period: number): number[] =>
   })
 }
 
-const generateChartData = (category: CategoryId, timeRange: TimeRange): MarketData[] => {
-  const data: MarketData[] = []
+const generateChartData = (category: MarketCategoryId, timeRange: TimeRange): ExtendedMarketData[] => {
+  const data: ExtendedMarketData[] = []
   const now = new Date()
   const params = marketParams[category]
 
@@ -482,13 +180,17 @@ const generateChartData = (category: CategoryId, timeRange: TimeRange): MarketDa
     // Volatility calculation
     const volatility = Math.abs(totalChange / lastValue)
 
+    // Update trend value based on total change
+    const trendValue: 'up' | 'down' | 'stable' = totalChange > 0.0001 ? 'up' : totalChange < -0.0001 ? 'down' : 'stable'
+
     data.push({
       name: time.toISOString(),
       value: Number(lastValue.toFixed(2)),
       volume,
       change: Number(totalChange.toFixed(2)),
+      trend: trendValue,
       volatility: Number(volatility.toFixed(4)),
-      trend: Number(trend.toFixed(4))
+      trendValue: Number(trend.toFixed(4))
     })
   }
 
@@ -503,21 +205,8 @@ const generateChartData = (category: CategoryId, timeRange: TimeRange): MarketDa
   }))
 }
 
-// Update the time range and chart type handlers
-const handleTimeRangeChange = useCallback((value: string) => {
-  if (timeRangeOptions.map(t => t.value).includes(value as TimeRange)) {
-    setTimeRange(value as TimeRange)
-  }
-}, [])
-
-const handleChartTypeChange = useCallback((value: string) => {
-  if (['line', 'bar', 'area', 'composed'].includes(value)) {
-    setChartType(value as ChartType)
-  }
-}, [])
-
 // Type guards
-const isValidCategory = (value: string): value is CategoryId => {
+const isValidCategory = (value: string): value is MarketCategoryId => {
   return Object.keys(marketParams).includes(value)
 }
 
@@ -531,17 +220,17 @@ const isValidChartType = (value: string): value is ChartType => {
 
 // Update the InteractiveChart component props
 interface InteractiveChartProps {
-  data: MarketData[]
+  data: ExtendedMarketData[]
   type: ChartType
-  category: CategoryId
+  category: MarketCategoryId
   timeRange: TimeRange
   isPaused: boolean
   onPauseToggle: () => void
 }
 
 interface ProductTypeFilterProps {
-  activeCategory: CategoryId
-  onCategoryChange: (category: CategoryId | 'all') => void
+  activeCategory: MarketCategoryId
+  onCategoryChange: (category: MarketCategoryId | NewsCategoryId) => void
   showAllCategories: boolean
 }
 
@@ -569,7 +258,7 @@ const ProductTypeFilter = ({ activeCategory, onCategoryChange, showAllCategories
             "flex items-center gap-2 whitespace-nowrap",
             !showAllCategories && activeCategory === category.id && "bg-teal-600 hover:bg-teal-700"
           )}
-          onClick={() => onCategoryChange(category.id as CategoryId)}
+          onClick={() => onCategoryChange(category.id)}
         >
           <category.icon className="w-4 h-4" />
           {category.name}
@@ -626,6 +315,15 @@ const InteractiveChart = ({ type, data, category, timeRange, isPaused, onPauseTo
   )
 }
 
+interface ChartContainerProps {
+  data: ExtendedMarketData[]
+  chartType: ChartType
+  category: MarketCategoryId
+  timeRange: TimeRange
+  showVolume: boolean
+  showMA: boolean
+}
+
 const ChartContainer = ({
   data,
   chartType,
@@ -633,14 +331,7 @@ const ChartContainer = ({
   timeRange,
   showVolume,
   showMA
-}: {
-  data: MarketData[]
-  chartType: ChartType
-  category: CategoryId
-  timeRange: TimeRange
-  showVolume: boolean
-  showMA: boolean
-}) => {
+}: ChartContainerProps) => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const [isHovered, setIsHovered] = useState(false)
 
@@ -685,7 +376,7 @@ const ChartContainer = ({
     }
   }
 
-  const getAxisInterval = (timeRange: TimeRange): AxisInterval => {
+  const getAxisInterval = (timeRange: TimeRange): number | 'preserveStartEnd' => {
     switch (timeRange) {
       case '1D':
         return 3
@@ -762,6 +453,8 @@ const ChartContainer = ({
   }
 
   const renderChart = () => {
+    const colors = categoryColors[category]
+
     switch (chartType) {
       case 'area':
         return (
@@ -772,18 +465,18 @@ const ChartContainer = ({
           >
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={categoryColors[category].primary} stopOpacity={0.3} />
-                <stop offset="95%" stopColor={categoryColors[category].secondary} stopOpacity={0.05} />
+                <stop offset="5%" stopColor={colors.primary} stopOpacity={0.3} />
+                <stop offset="95%" stopColor={colors.secondary} stopOpacity={0.05} />
               </linearGradient>
               {showMA && (
                 <>
                   <linearGradient id="colorMA5" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={categoryColors[category].accent} stopOpacity={0.2} />
-                    <stop offset="95%" stopColor={categoryColors[category].accent} stopOpacity={0} />
+                    <stop offset="5%" stopColor={colors.accent} stopOpacity={0.2} />
+                    <stop offset="95%" stopColor={colors.accent} stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorMA20" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={categoryColors[category].secondary} stopOpacity={0.2} />
-                    <stop offset="95%" stopColor={categoryColors[category].secondary} stopOpacity={0} />
+                    <stop offset="5%" stopColor={colors.secondary} stopOpacity={0.2} />
+                    <stop offset="95%" stopColor={colors.secondary} stopOpacity={0} />
                   </linearGradient>
                 </>
               )}
@@ -795,7 +488,7 @@ const ChartContainer = ({
             <Area
               type="monotone"
               dataKey="value"
-              stroke={categoryColors[category].primary}
+              stroke={colors.primary}
               strokeWidth={2}
               fill="url(#colorValue)"
             />
@@ -804,7 +497,7 @@ const ChartContainer = ({
                 <Area
                   type="monotone"
                   dataKey="ma5"
-                  stroke={categoryColors[category].accent}
+                  stroke={colors.accent}
                   strokeWidth={1}
                   fill="url(#colorMA5)"
                   dot={false}
@@ -812,7 +505,7 @@ const ChartContainer = ({
                 <Area
                   type="monotone"
                   dataKey="ma20"
-                  stroke={categoryColors[category].secondary}
+                  stroke={colors.secondary}
                   strokeWidth={1}
                   fill="url(#colorMA20)"
                   dot={false}
@@ -836,7 +529,7 @@ const ChartContainer = ({
             <Line
               type="monotone"
               dataKey="value"
-              stroke={categoryColors[category].primary}
+              stroke={colors.primary}
               strokeWidth={2}
               dot={false}
             />
@@ -854,19 +547,7 @@ const ChartContainer = ({
             <XAxis {...commonXAxisProps} />
             <YAxis {...commonYAxisProps} />
             <Tooltip content={<CustomTooltip />} />
-            <Bar
-              dataKey="value"
-              fill={categoryColors[category].primary}
-              opacity={0.8}
-              radius={[4, 4, 0, 0]}
-            >
-              {data.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={entry.change >= 0 ? categoryColors[category].primary : '#ef4444'}
-                />
-              ))}
-            </Bar>
+            <Bar dataKey="value" fill={colors.primary} />
           </BarChart>
         )
 
@@ -879,8 +560,8 @@ const ChartContainer = ({
           >
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={categoryColors[category].primary} stopOpacity={0.3} />
-                <stop offset="95%" stopColor={categoryColors[category].secondary} stopOpacity={0.05} />
+                <stop offset="5%" stopColor={colors.primary} stopOpacity={0.3} />
+                <stop offset="95%" stopColor={colors.secondary} stopOpacity={0.05} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" strokeOpacity={0.4} />
@@ -889,26 +570,26 @@ const ChartContainer = ({
             <YAxis {...volumeYAxisProps} />
             <Tooltip
               content={<CustomTooltip />}
-              cursor={{ stroke: categoryColors[category].primary, strokeWidth: 1, strokeDasharray: '4 4' }}
+              cursor={{ stroke: colors.primary, strokeWidth: 1, strokeDasharray: '4 4' }}
             />
             <Area
               type="monotone"
               dataKey="value"
               fill="url(#colorValue)"
-              stroke={categoryColors[category].primary}
+              stroke={colors.primary}
               fillOpacity={0.3}
             />
             <Bar
               dataKey="volume"
               yAxisId="volume"
-              fill={categoryColors[category].primary}
+              fill={colors.primary}
               opacity={0.2}
               radius={[4, 4, 0, 0]}
             >
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={entry.change >= 0 ? categoryColors[category].primary : '#ef4444'}
+                  fill={entry.change >= 0 ? colors.primary : '#ef4444'}
                   opacity={0.2}
                 />
               ))}
@@ -916,12 +597,12 @@ const ChartContainer = ({
             <Line
               type="monotone"
               dataKey="value"
-              stroke={categoryColors[category].primary}
+              stroke={colors.primary}
               strokeWidth={2}
               dot={false}
               activeDot={{
                 r: 6,
-                fill: categoryColors[category].primary,
+                fill: colors.primary,
                 stroke: "#fff",
                 strokeWidth: 2
               }}
@@ -947,14 +628,14 @@ const ChartContainer = ({
   )
 }
 
-// Define time range options once
+// Simplified time range options
 const timeRangeOptions = [
-  { value: '1D' as TimeRange, label: '1D' },
-  { value: '1W' as TimeRange, label: '1W' },
-  { value: '1M' as TimeRange, label: '1M' },
-  { value: '3M' as TimeRange, label: '3M' },
-  { value: '6M' as TimeRange, label: '6M' },
-  { value: '1Y' as TimeRange, label: '1Y' }
+  { value: '1D', label: '1 Day' },
+  { value: '1W', label: '1 Week' },
+  { value: '1M', label: '1 Month' },
+  { value: '3M', label: '3 Months' },
+  { value: '6M', label: '6 Months' },
+  { value: '1Y', label: '1 Year' }
 ] as const
 
 const generateTimeLabels = (range: string) => {
@@ -1004,14 +685,15 @@ const generateTimeLabels = (range: string) => {
 const TimeNavigation = ({
   timeRange,
   setTimeRange,
-  onDateSelect
+  onDateSelect,
+  selectedCategory
 }: {
   timeRange: string
   setTimeRange: (range: string) => void
   onDateSelect: (date: Date) => void
+  selectedCategory: MarketCategoryId
 }) => {
   const [date, setDate] = useState<Date>(new Date())
-  const timeRanges = ['1H', '24H', '7D', '30D', 'ALL']
   const labels = generateTimeLabels(timeRange)
 
   return (
@@ -1101,7 +783,7 @@ const TimeNavigation = ({
                 </div>
                 <motion.div
                   className="h-1 w-full bg-teal-100 mt-2 rounded-full"
-                  whileHover={{ backgroundColor: categoryColors[category].primary }}
+                  whileHover={{ backgroundColor: categoryColors[selectedCategory].primary }}
                 />
               </motion.div>
             ))}
@@ -1284,7 +966,7 @@ const AnimatedValue = ({ value, prefix = '', suffix = '' }: {
 // Data fetching types and interfaces
 interface MarketDataResponse {
   success: boolean
-  data?: MarketData[]
+  data?: ExtendedMarketData[]
   error?: string
 }
 
@@ -1304,12 +986,12 @@ class MarketDataError extends Error {
 interface WebSocketMessage {
   type: 'market_update' | 'error' | 'heartbeat'
   category: CategoryId
-  data?: MarketData
+  data?: ExtendedMarketData
   error?: string
 }
 
 interface CacheEntry {
-  data: MarketData[]
+  data: ExtendedMarketData[]
   timestamp: number
   category: CategoryId
   timeRange: TimeRange
@@ -1328,7 +1010,7 @@ class MarketDataCache {
     return `${category}-${timeRange}`
   }
 
-  set(category: CategoryId, timeRange: TimeRange, data: MarketData[]): void {
+  set(category: CategoryId, timeRange: TimeRange, data: ExtendedMarketData[]): void {
     const key = this.getCacheKey(category, timeRange)
     this.cache.set(key, {
       data,
@@ -1338,7 +1020,7 @@ class MarketDataCache {
     })
   }
 
-  get(category: CategoryId, timeRange: TimeRange): MarketData[] | null {
+  get(category: CategoryId, timeRange: TimeRange): ExtendedMarketData[] | null {
     const key = this.getCacheKey(category, timeRange)
     const entry = this.cache.get(key)
 
@@ -1384,7 +1066,7 @@ interface BloombergMessage {
 // Mock WebSocket for development
 class MockWebSocket {
   private intervalId: NodeJS.Timeout | null = null
-  private callbacks: Set<(data: MarketData) => void> = new Set()
+  private callbacks: Set<(data: ExtendedMarketData) => void> = new Set()
 
   constructor(private category: CategoryId) {
     this.startMockUpdates()
@@ -1392,7 +1074,7 @@ class MockWebSocket {
 
   private startMockUpdates() {
     this.intervalId = setInterval(() => {
-      const mockData: MarketData = {
+      const mockData: ExtendedMarketData = {
         name: new Date().toISOString(),
         value: Math.random() * 100,
         volume: Math.floor(Math.random() * 1000000),
@@ -1404,7 +1086,7 @@ class MockWebSocket {
     }, 5000)
   }
 
-  subscribe(callback: (data: MarketData) => void) {
+  subscribe(callback: (data: ExtendedMarketData) => void) {
     this.callbacks.add(callback)
     return () => this.callbacks.delete(callback)
   }
@@ -1420,7 +1102,7 @@ class MockWebSocket {
 
 // WebSocket interface
 interface WebSocketProvider {
-  subscribe(callback: (data: MarketData) => void): () => void
+  subscribe(callback: (data: ExtendedMarketData) => void): () => void
   disconnect(): void
 }
 
@@ -1429,7 +1111,7 @@ class BloombergWebSocket implements WebSocketProvider {
   private reconnectAttempts = 0
   private maxReconnectAttempts = 5
   private reconnectDelay = 1000
-  private subscribers: Set<(data: MarketData) => void> = new Set()
+  private subscribers: Set<(data: ExtendedMarketData) => void> = new Set()
   private heartbeatInterval: NodeJS.Timeout | null = null
   private lastPrice = 0
 
@@ -1442,7 +1124,12 @@ class BloombergWebSocket implements WebSocketProvider {
       'crude-oil': 'CL1 Comdty',
       'natural-gas': 'NG1 Comdty',
       'renewable': 'GRNLEDGW Index',
-      'industrial': 'BCOM Index'
+      'nuclear': 'NLR Index',
+      'coal': 'COAL1 Comdty',
+      'solar': 'SOLRX Index',
+      'wind': 'NEX Index',
+      'hydrogen': 'HYDR Index',
+      'industrial': 'INDX Index'
     }
     return symbolMap[category]
   }
@@ -1510,7 +1197,7 @@ class BloombergWebSocket implements WebSocketProvider {
       const message: BloombergMessage = JSON.parse(event.data)
 
       if (message.type === 'MARKET_DATA' && message.data) {
-        const marketData: MarketData = {
+        const marketData: ExtendedMarketData = {
           name: message.data.timestamp,
           value: message.data.price,
           volume: message.data.volume,
@@ -1539,7 +1226,7 @@ class BloombergWebSocket implements WebSocketProvider {
     return this.calculateChange(price) > 0 ? 1 : -1
   }
 
-  subscribe(callback: (data: MarketData) => void): () => void {
+  subscribe(callback: (data: ExtendedMarketData) => void): () => void {
     this.subscribers.add(callback)
     return () => this.subscribers.delete(callback)
   }
@@ -1596,7 +1283,7 @@ class MarketDataService {
       : new MockWebSocket(category)
   }
 
-  subscribe(callback: (data: MarketData) => void) {
+  subscribe(callback: (data: ExtendedMarketData) => void) {
     return this.ws.subscribe(callback)
   }
 
@@ -1657,7 +1344,7 @@ const fetchMarketData = async (
 }
 
 // Data validation function
-const validateMarketData = (data: MarketData[]): boolean => {
+const validateMarketData = (data: ExtendedMarketData[]): boolean => {
   if (!Array.isArray(data) || data.length === 0) {
     throw new MarketDataError(
       'Invalid market data format',
@@ -1689,589 +1376,723 @@ const validateMarketData = (data: MarketData[]): boolean => {
 }
 
 // Update the marketStats to be a function that returns stats based on the selected category
-const getMarketStats = (selectedCategory: CategoryId, productCategories: typeof productCategories) => {
+const getMarketStats = (selectedCategory: MarketCategoryId, productCategories: ProductCategory[]): MarketStat[] => {
   const selectedProduct = productCategories.find(p => p.id === selectedCategory)
   if (!selectedProduct) return []
 
-  const metrics = selectedProduct.metrics
-  const numericVolume = parseFloat(metrics.volume.replace(/[KM]/g, '')) * (metrics.volume.includes('M') ? 1000000 : 1000)
+  const change = parseFloat(selectedProduct.metrics.change)
+  const trend: 'up' | 'down' | 'stable' = change > 0 ? 'up' : change < 0 ? 'down' : 'stable'
 
   return [
     {
-      id: 1,
-      title: 'Trading Volume',
-      value: metrics.volume,
-      subtext: 'Daily Average',
-      icon: BarChart2,
-      trend: metrics.trend.toLowerCase(),
-      change: metrics.change
-    },
-    {
-      id: 2,
-      title: 'Market Cap',
-      value: `$${(numericVolume * parseFloat(metrics.price.replace('$', ''))).toLocaleString('en-US', {
-        notation: "compact",
-        maximumFractionDigits: 1
-      })}`,
-      subtext: 'Total Value',
-      icon: Globe,
-      trend: metrics.trend.toLowerCase(),
-      change: metrics.change
-    },
-    {
-      id: 3,
+      id: 'price',
       title: 'Current Price',
-      value: metrics.price,
-      subtext: metrics.trend,
-      icon: metrics.trend === 'Bullish' ? TrendingUp : metrics.trend === 'Bearish' ? TrendingDown : Activity,
-      trend: metrics.trend.toLowerCase(),
-      change: metrics.change
+      value: selectedProduct.metrics.price,
+      change: selectedProduct.metrics.change,
+      trend,
+      icon: DollarSign,
+      subtext: 'Last updated'
     },
     {
-      id: 4,
-      title: 'Market Depth',
-      value: `${metrics.depth}M`,
-      subtext: 'Order Book',
-      icon: BarChart3,
-      trend: metrics.depth > 2 ? 'up' : 'down',
-      change: `${metrics.depth > 2 ? '+' : '-'}${Math.abs(metrics.depth - 2).toFixed(1)}%`
+      id: 'volume',
+      title: '24h Volume',
+      value: selectedProduct.metrics.volume,
+      change: '+12.5%',
+      trend: 'up',
+      icon: Activity,
+      subtext: 'Trading volume'
+    },
+    {
+      id: 'trend',
+      title: 'Market Trend',
+      value: trend === 'up' ? 'Bullish' : trend === 'down' ? 'Bearish' : 'Neutral',
+      change: selectedProduct.metrics.change,
+      trend,
+      icon: trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Activity,
+      subtext: 'Based on 24h data'
     }
   ]
 }
 
-// Add this component near the top, after other component definitions
-const PageHeader = () => {
-  return (
-    <div className="border-b border-teal-100 bg-white/50 backdrop-blur-sm">
-      <div className="max-w-7xl mx-auto py-4 px-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <BarChart2 className="w-6 h-6 text-teal-600" />
-              <h1 className="text-xl font-semibold text-teal-800">Energy Markets</h1>
-            </div>
-            <div className="hidden md:flex items-center gap-4 text-sm">
-              <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
-                <LineChartIcon className="w-4 h-4 mr-2" />
-                Charts
-              </Button>
-              <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
-                <NewsIcon className="w-4 h-4 mr-2" />
-                News
-              </Button>
-              <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
-                <Globe className="w-4 h-4 mr-2" />
-                Markets
-              </Button>
-              <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
-                <Activity className="w-4 h-4 mr-2" />
-                Analysis
-              </Button>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:block">
-              <LiveTimeDisplay />
-            </div>
-            <Separator orientation="vertical" className="h-6 hidden sm:block" />
-            <Button variant="outline" size="sm" className="text-teal-600">
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-            <Button variant="outline" size="sm" className="text-teal-600">
-              <Share2 className="w-4 h-4 mr-2" />
-              Share
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+interface ProductCategory {
+  id: CategoryId
+  name: string
+  icon: LucideIcon
+  metrics: {
+    price: string
+    change: string
+    volume: string
+  }
 }
 
-export default function MarketOverviewPage() {
-  const { scrollYProgress } = useScroll()
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '50%'])
-
-  // State management
-  const [selectedCategory, setSelectedCategory] = useState<CategoryId>('crude-oil')
-  const [timeRange, setTimeRange] = useState<TimeRange>('1D')
-  const [chartType, setChartType] = useState<ChartType>('line')
-  const [isPaused, setIsPaused] = useState(false)
-  const [marketData, setMarketData] = useState<MarketData[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [headlines, setHeadlines] = useState<Headline[]>([])
-  const [headlinesLoading, setHeadlinesLoading] = useState(true)
-  const [headlinesError, setHeadlinesError] = useState<string | null>(null)
-
-  // Services
-  const cache = useMemo(() => new MarketDataCache(), [])
-  const marketDataServiceRef = useRef<MarketDataService | null>(null)
-  const headlinesServiceRef = useRef<HeadlinesService | null>(null)
-
-  // Initialize headlines service
-  useEffect(() => {
-    const initializeHeadlines = async () => {
-      try {
-        setHeadlinesLoading(true)
-        headlinesServiceRef.current = await HeadlinesService.getInstance()
-        const fetchedHeadlines = await headlinesServiceRef.current.getHeadlines()
-        setHeadlines(fetchedHeadlines)
-      } catch (err) {
-        setHeadlinesError(err instanceof Error ? err.message : 'Failed to fetch headlines')
-      } finally {
-        setHeadlinesLoading(false)
-      }
+const productCategories: ProductCategory[] = [
+  {
+    id: 'crude-oil',
+    name: 'Crude Oil',
+    icon: Droplet,
+    metrics: {
+      price: '$75.23',
+      change: '+2.45%',
+      volume: '1.2M'
     }
-    initializeHeadlines()
-  }, [])
-
-  // Filter headlines based on category
-  const filteredHeadlines = useMemo(() => {
-    return headlines.filter(h => h.category === selectedCategory)
-  }, [selectedCategory, headlines])
-
-  // Handle time range and chart type changes
-  const handleTimeRangeChange = useCallback((value: string) => {
-    if (timeRangeOptions.map(t => t.value).includes(value as TimeRange)) {
-      setTimeRange(value as TimeRange)
+  },
+  {
+    id: 'natural-gas',
+    name: 'Natural Gas',
+    icon: Zap,
+    metrics: {
+      price: '$3.45',
+      change: '-1.23%',
+      volume: '850K'
     }
-  }, [])
-
-  const handleChartTypeChange = useCallback((value: string) => {
-    if (['line', 'bar', 'area', 'composed'].includes(value)) {
-      setChartType(value as ChartType)
+  },
+  {
+    id: 'renewable',
+    name: 'Renewable',
+    icon: Wind,
+    metrics: {
+      price: '$45.67',
+      change: '+3.21%',
+      volume: '950K'
     }
-  }, [])
-
-  // Type guards
-  const isValidCategory = (value: string): value is CategoryId => {
-    return Object.keys(marketParams).includes(value)
-  }
-
-  const isValidTimeRange = (value: string): value is TimeRange => {
-    return timeRangeOptions.map(t => t.value).includes(value as TimeRange)
-  }
-
-  const isValidChartType = (value: string): value is ChartType => {
-    return ['line', 'bar', 'area', 'composed'].includes(value)
-  }
-
-  // Update WebSocket handler
-  const handleWebSocketUpdate = (data: MarketData) => {
-    if (!isPaused) {
-      setMarketData(currentData => {
-        const updatedData = [...currentData]
-        const lastIndex = updatedData.length - 1
-        if (lastIndex >= 0) {
-          updatedData[lastIndex] = data
-        }
-        return updatedData
-      })
+  },
+  {
+    id: 'industrial',
+    name: 'Industrial',
+    icon: Atom,
+    metrics: {
+      price: '$89.12',
+      change: '+1.89%',
+      volume: '1.1M'
     }
   }
+]
 
-  useEffect(() => {
-    marketDataServiceRef.current = new MarketDataService(selectedCategory)
-    const unsubscribe = marketDataServiceRef.current.subscribe(handleWebSocketUpdate)
+interface MarketStat {
+  id: string
+  title: string
+  value: string
+  change: string
+  trend: 'up' | 'down' | 'stable'
+  icon: LucideIcon
+  subtext: string
+}
 
-    return () => {
-      unsubscribe()
-      marketDataServiceRef.current?.disconnect()
-    }
-  }, [selectedCategory])
-
-  useEffect(() => {
-    const loadMarketData = async () => {
-      setIsLoading(true)
-      setError(null)
-
-      try {
-        const response = await fetchMarketData(
-          selectedCategory,
-          timeRange,
-          cache
-        )
-
-        if (!response.success || !response.data) {
-          throw new MarketDataError(
-            response.error || 'Failed to fetch market data',
-            'FETCH_ERROR'
-          )
-        }
-
-        if (validateMarketData(response.data)) {
-          setMarketData(response.data)
-        }
-      } catch (err) {
-        console.error('Error loading market data:', err)
-        setError(
-          err instanceof MarketDataError
-            ? err.message
-            : 'An unexpected error occurred'
-        )
-        setMarketData([])
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadMarketData()
-  }, [selectedCategory, timeRange])
-
-  const handlePauseToggle = () => {
-    setIsPaused(!isPaused)
+// Update the category colors
+const categoryColors: Record<MarketCategoryId, MarketColors> = {
+  'crude-oil': {
+    primary: '#0d9488',
+    secondary: '#14b8a6',
+    gradient: ['#0d9488', '#14b8a6'],
+    accent: '#2dd4bf'
+  },
+  'natural-gas': {
+    primary: '#3b82f6',
+    secondary: '#60a5fa',
+    gradient: ['#3b82f6', '#60a5fa'],
+    accent: '#93c5fd'
+  },
+  'renewable': {
+    primary: '#10b981',
+    secondary: '#34d399',
+    gradient: ['#10b981', '#34d399'],
+    accent: '#6ee7b7'
+  },
+  'nuclear': {
+    primary: '#9333ea',
+    secondary: '#c084fc',
+    gradient: ['#f3e8ff', '#e9d5ff', '#d8b4fe', '#c084fc'],
+    accent: '#7e22ce'
+  },
+  'coal': {
+    primary: '#dc2626',
+    secondary: '#f87171',
+    gradient: ['#fee2e2', '#fecaca', '#fca5a5', '#f87171'],
+    accent: '#b91c1c'
+  },
+  'solar': {
+    primary: '#ea580c',
+    secondary: '#fb923c',
+    gradient: ['#fff7ed', '#ffedd5', '#fed7aa', '#fb923c'],
+    accent: '#c2410c'
+  },
+  'wind': {
+    primary: '#0891b2',
+    secondary: '#22d3ee',
+    gradient: ['#ecfeff', '#cffafe', '#a5f3fc', '#22d3ee'],
+    accent: '#0e7490'
+  },
+  'hydrogen': {
+    primary: '#7c3aed',
+    secondary: '#a78bfa',
+    gradient: ['#f5f3ff', '#ede9fe', '#ddd6fe', '#a78bfa'],
+    accent: '#6d28d9'
+  },
+  'industrial': {
+    primary: '#8b5cf6',
+    secondary: '#a78bfa',
+    gradient: ['#8b5cf6', '#a78bfa'],
+    accent: '#c4b5fd'
   }
+}
 
-  // Get dynamic market stats based on selected category
-  const currentMarketStats = useMemo(() =>
-    getMarketStats(selectedCategory, productCategories),
-    [selectedCategory]
-  )
+// Update market parameters
+const marketParams: Record<MarketCategoryId, MarketParams> = {
+  'crude-oil': {
+    baseValue: 75,
+    volatility: 2.5,
+    trend: 0.8,
+    seasonality: 1.2,
+    volumeBase: 1000000,
+    volumeVariance: 200000
+  },
+  'natural-gas': {
+    baseValue: 3.5,
+    volatility: 0.025,
+    trend: -0.0005,
+    seasonality: 0.3,
+    volumeBase: 800000,
+    volumeVariance: 400000
+  },
+  'renewable': {
+    baseValue: 100,
+    volatility: 0.015,
+    trend: 0.002,
+    seasonality: 0.05,
+    volumeBase: 1200000,
+    volumeVariance: 600000
+  },
+  'nuclear': {
+    baseValue: 60,
+    volatility: 0.01,
+    trend: 0.0008,
+    seasonality: 0.15,
+    volumeBase: 900000,
+    volumeVariance: 450000
+  },
+  'coal': {
+    baseValue: 150,
+    volatility: 0.018,
+    trend: -0.001,
+    seasonality: 0.2,
+    volumeBase: 700000,
+    volumeVariance: 350000
+  },
+  'solar': {
+    baseValue: 30,
+    volatility: 0.01,
+    trend: 0.0005,
+    seasonality: 0.05,
+    volumeBase: 1500000,
+    volumeVariance: 750000
+  },
+  'wind': {
+    baseValue: 40,
+    volatility: 0.01,
+    trend: 0.0005,
+    seasonality: 0.05,
+    volumeBase: 1300000,
+    volumeVariance: 650000
+  },
+  'hydrogen': {
+    baseValue: 10,
+    volatility: 0.005,
+    trend: 0.0002,
+    seasonality: 0.02,
+    volumeBase: 500000,
+    volumeVariance: 250000
+  },
+  'industrial': {
+    baseValue: 100,
+    volatility: 0.01,
+    trend: 0.001,
+    seasonality: 0.05,
+    volumeBase: 1000000,
+    volumeVariance: 500000
+  }
+}
 
-  if (error) {
+// Update category labels
+const categoryLabels: Record<MarketCategoryId, string> = {
+  'crude-oil': 'Crude Oil',
+  'natural-gas': 'Natural Gas',
+  'renewable': 'Renewable Energy',
+  'nuclear': 'Nuclear Power',
+  'coal': 'Coal',
+  'solar': 'Solar Energy',
+  'wind': 'Wind Power',
+  'hydrogen': 'Hydrogen',
+  'industrial': 'Industrial'
+}
+
+const formatValue = (value: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(value)
+}
+
+const formatVolume = (volume: number) => {
+  if (volume >= 1000000) {
+    return `${(volume / 1000000).toFixed(1)}M`
+  }
+  if (volume >= 1000) {
+    return `${(volume / 1000).toFixed(1)}K`
+  }
+  return volume.toString()
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+  if (active && payload && payload.length && label) {
     return (
-      <div className="p-6 text-center">
-        <AlertTriangle className="w-8 h-8 mx-auto mb-2 text-red-600" />
-        <h3 className="text-lg font-semibold mb-2">Error Loading Data</h3>
-        <p className="text-gray-600 mb-4">{error}</p>
-        <Button onClick={() => window.location.reload()} variant="outline">
-          Reload Page
-        </Button>
+      <div className="bg-white p-3 rounded-lg shadow-lg border border-teal-100">
+        <p className="text-sm text-teal-600 mb-1">{new Date(label).toLocaleString()}</p>
+        <p className="text-sm font-medium text-teal-900">
+          Price: {formatValue(payload[0].value)}
+        </p>
+        <p className="text-sm text-teal-600">
+          Volume: {formatVolume(payload[0].payload.volume || 0)}
+        </p>
+        <p className="text-sm text-teal-600">
+          Change: {payload[0].payload.change.toFixed(2)}%
+        </p>
       </div>
     )
   }
+  return null
+}
+
+export default function MarketOverviewPage() {
+  const [selectedCategory, setSelectedCategory] = useState<MarketCategoryId>('crude-oil')
+  const [timeRange, setTimeRange] = useState<TimeRange>('1D')
+  const [chartType, setChartType] = useState<ChartType>('line')
+  const [isPaused, setIsPaused] = useState(false)
+  const [marketData, setMarketData] = useState<ExtendedMarketData[]>([])
+  const [headlines, setHeadlines] = useState<Headline[]>([])
+  const [selectedNewsCategory, setSelectedNewsCategory] = useState<NewsCategoryId>('market-insights')
+  const [isLoadingNews, setIsLoadingNews] = useState(true)
+  const [showAllCategories, setShowAllCategories] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
+  const cache = useMemo(() => new MarketDataCache(), [])
+
+  // Function to fetch market data
+  const fetchData = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetchMarketData(selectedCategory, timeRange, cache)
+      if (response.success && response.data) {
+        setMarketData(response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching market data:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [selectedCategory, timeRange, cache])
+
+  // Initialize market data service for real-time updates
+  useEffect(() => {
+    const service = new MarketDataService(selectedCategory)
+    let unsubscribe: (() => void) | null = null
+
+    if (!isPaused) {
+      unsubscribe = service.subscribe((newData) => {
+        setMarketData(currentData => {
+          const updatedData = [...currentData]
+          if (updatedData.length > 100) {
+            updatedData.shift() // Remove oldest data point
+          }
+          updatedData.push(newData)
+          return updatedData
+        })
+      })
+    }
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe()
+      }
+      service.disconnect()
+    }
+  }, [selectedCategory, isPaused])
+
+  // Fetch initial data
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  // Fetch headlines
+  const fetchHeadlines = useCallback(async () => {
+    setIsLoadingNews(true)
+    try {
+      const headlinesService = new HeadlinesService()
+      // Get headlines for all categories
+      const allHeadlines = await headlinesService.getHeadlines()
+
+      // Filter headlines based on selected category
+      let filteredHeadlines = allHeadlines.filter(
+        headline => headline.category === selectedNewsCategory
+      )
+
+      // If no headlines found for the category, show default headlines
+      if (filteredHeadlines.length === 0) {
+        if (selectedNewsCategory === 'regulatory') {
+          filteredHeadlines = [
+            {
+              id: 'reg1',
+              title: 'New EPA Regulations Impact Energy Sector',
+              category: 'regulatory',
+              date: new Date().toISOString(),
+              content: 'New environmental regulations announced by the EPA will significantly impact energy production and distribution.',
+              source: 'Energy News Daily'
+            },
+            {
+              id: 'reg2',
+              title: 'Global Climate Policy Updates',
+              category: 'regulatory',
+              date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+              content: 'Major updates to global climate policies expected to shape energy market dynamics.',
+              source: 'Climate Policy Journal'
+            }
+          ]
+        } else if (selectedNewsCategory === 'market-insights') {
+          filteredHeadlines = [
+            {
+              id: 'mkt1',
+              title: 'Energy Market Trends Analysis',
+              category: 'market-insights',
+              date: new Date().toISOString(),
+              content: 'Latest analysis shows shifting patterns in global energy consumption and production.',
+              source: 'Market Analysis Weekly'
+            },
+            {
+              id: 'mkt2',
+              title: 'Supply Chain Impact on Energy Prices',
+              category: 'market-insights',
+              date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+              content: 'How global supply chain disruptions are affecting energy market prices and availability.',
+              source: 'Energy Economics Review'
+            }
+          ]
+        }
+      }
+
+      setHeadlines(filteredHeadlines)
+    } catch (error) {
+      console.error('Error fetching headlines:', error)
+    } finally {
+      setIsLoadingNews(false)
+    }
+  }, [selectedNewsCategory])
+
+  // Fetch headlines when category changes
+  useEffect(() => {
+    fetchHeadlines()
+  }, [fetchHeadlines, selectedNewsCategory])
+
+  // Handle category change
+  const handleCategoryChange = (category: MarketCategoryId) => {
+    if (isValidCategory(category)) {
+      setSelectedCategory(category)
+      fetchData()
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-teal-50">
-      {/* Main Header */}
-      <div className="bg-white border-b border-teal-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <BarChart2 className="h-8 w-8 text-teal-600" />
-              </div>
-              <div className="hidden md:block">
-                <div className="ml-10 flex items-baseline space-x-4">
-                  <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
-                    <LineChartIcon className="w-4 h-4 mr-2" />
-                    Charts
-                  </Button>
-                  <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
-                    <NewsIcon className="w-4 h-4 mr-2" />
-                    News
-                  </Button>
-                  <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
-                    <Globe className="w-4 h-4 mr-2" />
-                    Markets
-                  </Button>
-                  <Button variant="ghost" className="text-teal-600 hover:text-teal-700">
-                    <Activity className="w-4 h-4 mr-2" />
-                    Analysis
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="hidden sm:block">
-                <LiveTimeDisplay />
-              </div>
-              <Separator orientation="vertical" className="h-6 hidden sm:block" />
-              <Button variant="outline" size="sm" className="text-teal-600">
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-              <Button variant="outline" size="sm" className="text-teal-600">
-                <Share2 className="w-4 h-4 mr-2" />
-                Share
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Teal Header Section */}
-      <div className="relative bg-gradient-to-r from-teal-900 to-teal-800 py-12 overflow-hidden">
+    <div className="min-h-screen bg-gray-50">
+      {/* Banner/Hero Section */}
+      <div className="relative bg-gradient-to-r from-teal-900 to-teal-800 py-32 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(20,184,166,0.2),transparent_70%)]" />
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-4xl mx-auto text-center"
-          >
+          <div className="max-w-3xl relative z-20">
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="inline-block mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="space-y-8"
             >
-              <span className="px-4 py-2 bg-orange-500/20 text-orange-100 rounded-full text-sm font-medium">
-                Real-Time Market Data
-              </span>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="inline-block"
+              >
+                <span className="px-4 py-2 bg-orange-500/20 text-orange-300 rounded-full text-sm font-medium">
+                  Real-time Market Data
+                </span>
+              </motion.div>
+              <h1 className="text-5xl font-bold text-white leading-tight">
+                Global Energy{" "}
+                <span className="text-orange-400 relative">
+                  Market Overview
+                  <motion.div
+                    className="absolute -bottom-2 left-0 h-1 bg-orange-500 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: "100%" }}
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                  />
+                </span>
+              </h1>
+              <p className="text-xl text-teal-50 leading-relaxed max-w-2xl">
+                Track real-time energy market trends, analyze performance metrics, and make informed decisions with our comprehensive market overview dashboard.
+              </p>
             </motion.div>
-            <h1 className="text-4xl font-bold text-white mb-4">
-              Energy Market{" "}
-              <span className="text-orange-400 relative">
-                Overview
-                <motion.div
-                  className="absolute -bottom-2 left-0 h-1 bg-orange-500 rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: "100%" }}
-                  transition={{ delay: 0.5, duration: 0.8 }}
-                />
-              </span>
-            </h1>
-            <p className="text-lg text-teal-50/90 leading-relaxed">
-              Track real-time energy market trends, prices, and trading volumes across different sectors
-            </p>
-          </motion.div>
+          </div>
         </div>
       </div>
 
-      <div className="p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          {/* Energy Source Title Section */}
-          <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm border border-teal-100 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-teal-50 rounded-lg">
-                {productCategories.find(p => p.id === selectedCategory)?.icon && (
-                  <div className="w-6 h-6 text-teal-600">
-                    {React.createElement(productCategories.find(p => p.id === selectedCategory)?.icon as any)}
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        {/* Market Stats Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {getMarketStats(selectedCategory, productCategories).map((stat) => (
+            <motion.div
+              key={stat.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-lg shadow-sm p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-teal-50 rounded-lg">
+                    <stat.icon className="w-5 h-5 text-teal-600" />
                   </div>
-                )}
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-teal-900">
-                  {productCategories.find(p => p.id === selectedCategory)?.name}
-                </h2>
-                <p className="text-sm text-teal-600">
-                  Real-time market data and analysis
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className="text-2xl font-bold text-teal-900">
-                  {productCategories.find(p => p.id === selectedCategory)?.metrics.price}
+                  <h3 className="text-sm font-medium text-teal-900">{stat.title}</h3>
                 </div>
-                <div className={cn(
-                  "flex items-center gap-1 text-sm font-medium",
-                  productCategories.find(p => p.id === selectedCategory)?.metrics.change.startsWith('+')
-                    ? "text-emerald-600"
-                    : "text-red-600"
-                )}>
-                  {productCategories.find(p => p.id === selectedCategory)?.metrics.change.startsWith('+') ? (
-                    <ArrowUpRight className="w-4 h-4" />
-                  ) : (
-                    <ArrowDownRight className="w-4 h-4" />
-                  )}
-                  {productCategories.find(p => p.id === selectedCategory)?.metrics.change}
-                </div>
+                <Badge
+                  variant={stat.trend === 'up' ? 'default' : stat.trend === 'down' ? 'destructive' : 'secondary'}
+                  className="text-xs"
+                >
+                  {stat.change}
+                </Badge>
               </div>
-              <div className="h-8 w-px bg-teal-100" />
-              <div className="text-right">
-                <div className="text-sm text-teal-600">24h Volume</div>
-                <div className="text-base font-semibold text-teal-900">
-                  {productCategories.find(p => p.id === selectedCategory)?.metrics.volume}
-                </div>
-              </div>
-            </div>
-          </div>
+              <div className="text-2xl font-bold text-teal-900 mb-1">{stat.value}</div>
+              <div className="text-sm text-teal-500">{stat.subtext}</div>
+            </motion.div>
+          ))}
+        </div>
 
-          {/* Market Overview Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {currentMarketStats.map((item) => (
-              <Card key={item.id} className="bg-white/90 backdrop-blur-sm border-2 border-teal-100">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <item.icon className={cn(
-                        "w-6 h-6",
-                        item.trend === 'up' ? "text-emerald-600" :
-                          item.trend === 'down' ? "text-red-600" :
-                            item.trend === 'neutral' ? "text-blue-600" : "text-teal-600"
-                      )} />
-                      <h3 className="text-lg font-semibold text-teal-800">{item.title}</h3>
-                    </div>
-                    <Badge variant="secondary" className={cn(
-                      "text-base",
-                      item.trend === 'up' ? "bg-emerald-50 text-emerald-700" :
-                        item.trend === 'down' ? "bg-red-50 text-red-700" :
-                          "bg-blue-50 text-blue-700"
-                    )}>
-                      {item.change.startsWith('+') ? '↑' : '↓'} {item.change.replace(/[+-]/, '')}
-                    </Badge>
-                  </div>
-                  <div className="text-3xl font-bold text-teal-900">{item.value}</div>
-                  <div className="text-base text-teal-600">{item.subtext}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Interactive Chart */}
-          <Card className="bg-white/90 backdrop-blur-sm border-2 border-teal-100">
-            <CardContent className="p-6">
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <LineChartIcon className="w-6 h-6 text-teal-600" />
-                    <h2 className="text-xl font-semibold text-teal-800">Market Trends</h2>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Select value={timeRange} onValueChange={(value) => setTimeRange(value as TimeRange)}>
-                      <SelectTrigger className="w-[120px] text-base">
-                        <SelectValue placeholder="Time Range" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {timeRangeOptions.map((range) => (
-                          <SelectItem key={range.value} value={range.value} className="text-base">
-                            {range.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={chartType} onValueChange={(value) => setChartType(value as ChartType)}>
-                      <SelectTrigger className="w-[140px] text-base">
-                        <SelectValue placeholder="Chart Type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {chartTypeIcons.map((type) => (
-                          <SelectItem key={type.type} value={type.type} className="text-base">
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+        {/* Chart Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-semibold text-teal-900">
+                    {categoryLabels[selectedCategory]} Market Overview
+                  </h2>
+                  <p className="text-sm text-teal-500 mt-1">
+                    Real-time market data and analysis
+                  </p>
                 </div>
-                <ProductTypeFilter activeCategory={selectedCategory} onCategoryChange={setSelectedCategory} showAllCategories={true} />
-                <div className="h-[400px]">
+                <div className="flex items-center gap-2">
+                  <ToggleGroup
+                    type="single"
+                    value={chartType}
+                    onValueChange={(value) => value && setChartType(value as ChartType)}
+                    className="bg-teal-50 p-1 rounded-lg"
+                  >
+                    {chartTypeIcons.map(({ type, icon: Icon, label }) => (
+                      <ToggleGroupItem
+                        key={type}
+                        value={type}
+                        className="data-[state=on]:bg-white data-[state=on]:text-teal-600"
+                      >
+                        <Icon className="w-4 h-4" />
+                      </ToggleGroupItem>
+                    ))}
+                  </ToggleGroup>
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                  {productCategories.map((category) => (
+                    <Button
+                      key={category.id}
+                      variant={selectedCategory === category.id ? "default" : "outline"}
+                      size="sm"
+                      className={cn(
+                        "flex items-center gap-2 whitespace-nowrap",
+                        selectedCategory === category.id && "bg-teal-600 hover:bg-teal-700"
+                      )}
+                      onClick={() => handleCategoryChange(category.id)}
+                    >
+                      <category.icon className="w-4 h-4" />
+                      {category.name}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Simplified Time Range Selector */}
+                <div className="flex items-center gap-4">
+                  <Select
+                    value={timeRange}
+                    onValueChange={(value) => {
+                      if (isValidTimeRange(value)) {
+                        setTimeRange(value as TimeRange)
+                        fetchData()
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select time range" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timeRangeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchData}
+                    className="text-teal-600"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Refresh
+                  </Button>
+                </div>
+
+                {/* Chart */}
+                {isLoading ? (
+                  <div className="h-[400px] flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" />
+                  </div>
+                ) : (
                   <InteractiveChart
                     data={marketData}
                     type={chartType}
                     category={selectedCategory}
                     timeRange={timeRange}
                     isPaused={isPaused}
-                    onPauseToggle={handlePauseToggle}
+                    onPauseToggle={() => setIsPaused(!isPaused)}
                   />
-                </div>
+                )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          {/* Enhanced Latest Headlines */}
-          <Card className="bg-white/90 backdrop-blur-sm border-2 border-teal-100">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <NewsIcon className="w-6 h-6 text-teal-600" />
-                  <h2 className="text-xl font-semibold text-teal-800">Latest Headlines</h2>
+          {/* News Section */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-semibold text-teal-900">Market News</h2>
+                  <p className="text-sm text-teal-500 mt-1">
+                    Latest updates and analysis
+                  </p>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    {headlineCategories.map((category) => (
-                      <Button
-                        key={category.id}
-                        variant={selectedCategory === category.id ? "secondary" : "ghost"}
-                        size="sm"
-                        onClick={() => setSelectedCategory(category.id)}
-                        className="flex items-center gap-1 transition-all duration-200 text-base px-3 py-1"
-                      >
-                        <category.icon className="w-5 h-5" />
-                        <span>{category.label}</span>
-                      </Button>
-                    ))}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-base"
-                    onClick={() => window.location.href = '/news'}
-                  >
-                    View All News
-                  </Button>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-teal-600"
+                  onClick={fetchHeadlines}
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Refresh
+                </Button>
               </div>
-              <motion.div
-                className="grid grid-cols-1 gap-4"
-                layout
-              >
-                <AnimatePresence mode="popLayout">
-                  {filteredHeadlines.slice(0, 3).map((headline: Headline) => (
-                    <motion.div
+
+              {/* News Category Tabs */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-4">
+                {headlineCategories.map((category) => (
+                  <Button
+                    key={category.id}
+                    variant={selectedNewsCategory === category.id ? "default" : "outline"}
+                    size="sm"
+                    className={cn(
+                      "flex items-center gap-2 whitespace-nowrap",
+                      selectedNewsCategory === category.id && "bg-teal-600 hover:bg-teal-700"
+                    )}
+                    onClick={() => {
+                      setSelectedNewsCategory(category.id)
+                      // Fetch headlines immediately when category changes
+                      fetchHeadlines()
+                    }}
+                  >
+                    <category.icon className="w-4 h-4" />
+                    {category.label}
+                  </Button>
+                ))}
+              </div>
+
+              {/* Headlines List */}
+              <div className="space-y-4">
+                {isLoadingNews ? (
+                  // Loading skeletons - reduced to 3
+                  Array(3).fill(0).map((_, i) => (
+                    <div key={i} className="flex items-start gap-3 animate-pulse">
+                      <div className="w-10 h-10 bg-teal-100 rounded-full" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-teal-100 rounded w-3/4" />
+                        <div className="h-3 bg-teal-50 rounded w-1/2" />
+                      </div>
+                    </div>
+                  ))
+                ) : headlines.length > 0 ? (
+                  // Show headlines for the selected category
+                  headlines.map((headline) => (
+                    <Link
                       key={headline.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                      className={`group p-4 rounded-lg border border-teal-50 hover:border-teal-100 
-                        bg-white/50 hover:bg-white transition-all duration-200 cursor-pointer`}
-                      onClick={() => setExpandedHeadline(
-                        expandedHeadline === headline.id ? null : headline.id
-                      )}
+                      href={`/headlines/${headline.id}`}
+                      className="block"
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge
-                              variant="secondary"
-                              className={`
-                                ${headline.impact === 'high'
-                                  ? 'bg-amber-50 text-amber-700'
-                                  : 'bg-teal-50 text-teal-700'}
-                                text-base
-                              `}
-                            >
-                              {headline.impact === 'high' ? 'High Impact' : 'Medium Impact'}
-                            </Badge>
-                            <Badge variant="outline" className="bg-white/50 text-base">
-                              {headlineCategories.find(c => c.id === headline.category)?.label}
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-start gap-3 p-4 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors"
+                      >
+                        <div className="p-2 rounded-full bg-white">
+                          {headlineCategories.find(cat => cat.id === headline.category)?.icon && (
+                            <div className="w-4 h-4 text-teal-600">
+                              {React.createElement(
+                                headlineCategories.find(cat => cat.id === headline.category)?.icon || NewsIcon
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm text-teal-900 font-medium">{headline.title}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <p className="text-xs text-teal-500">
+                              {new Date(headline.date).toLocaleDateString()}
+                            </p>
+                            <Badge variant="secondary" className="text-xs">
+                              {headlineCategories.find(cat => cat.id === headline.category)?.label}
                             </Badge>
                           </div>
-                          <h3 className="text-xl text-teal-900 font-medium group-hover:text-teal-700 
-                            transition-colors duration-200 leading-snug"
-                          >
-                            {headline.title}
-                          </h3>
                         </div>
-                      </div>
-                      <motion.div
-                        initial={{ height: 0 }}
-                        animate={{ height: expandedHeadline === headline.id ? 'auto' : 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
-                      >
-                        <p className="text-teal-600 mt-2 mb-4 text-lg">{headline.summary}</p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-base"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            window.open(headline.url, '_blank')
-                          }}
-                        >
-                          Read More
-                        </Button>
                       </motion.div>
-                      <div className="flex items-center gap-2 text-base text-teal-600">
-                        <span className="font-medium">{headline.source}</span>
-                        <span>•</span>
-                        <span>{headline.time}</span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </motion.div>
-            </CardContent>
-          </Card>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-teal-500">
+                    No headlines available for {headlineCategories.find(cat => cat.id === selectedNewsCategory)?.label}
+                  </div>
+                )}
+              </div>
+
+              {/* View All Link */}
+              <div className="mt-6">
+                <Link href="/market-overview/headlines" className="w-full">
+                  <Button
+                    variant="outline"
+                    className="w-full text-teal-600"
+                  >
+                    View All Headlines
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

@@ -100,6 +100,16 @@ export class MarketDataService {
         return 'UNG' // United States Natural Gas Fund
       case 'renewable':
         return 'TAN' // Invesco Solar ETF
+      case 'nuclear':
+        return 'NLR' // VanEck Uranium+Nuclear Energy ETF
+      case 'coal':
+        return 'KOL' // VanEck Coal ETF
+      case 'solar':
+        return 'TAN' // Invesco Solar ETF
+      case 'wind':
+        return 'FAN' // First Trust Global Wind Energy ETF
+      case 'hydrogen':
+        return 'HDRO' // Defiance Next Gen H2 ETF
       case 'industrial':
         return 'XLI' // Industrial Select Sector SPDR Fund
       default:
