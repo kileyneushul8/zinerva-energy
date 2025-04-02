@@ -1,4 +1,5 @@
 import { Headline } from './headlines.service'
+import { CategoryId } from '@/types/market'
 
 interface AlphaVantageNewsResponse {
     items: Array<{
@@ -113,7 +114,7 @@ export class NewsService {
             const data: AlphaVantageNewsResponse = await response.json()
 
             return data.items.map((item, index) => ({
-                id: index + 1,
+                id: (index + 1).toString(),
                 title: item.title,
                 source: item.source_domain,
                 time: this.formatTime(item.time_published),
@@ -131,34 +132,34 @@ export class NewsService {
     private getMockNews(): Headline[] {
         return [
             {
-                id: 1,
-                title: 'Global Oil Demand Reaches Record High',
+                id: '1',
+                title: 'Oil Prices Surge Amid Supply Concerns',
                 source: 'Reuters',
-                time: '2h ago',
-                category: 'market-analysis',
+                time: '2024-03-20T10:00:00Z',
+                category: 'crude-oil',
                 impact: 'high',
-                summary: 'Global oil demand has hit a new record as economic growth and industrial activity surge in major economies.',
-                url: '#'
+                summary: 'Global oil prices have risen sharply due to supply disruptions in key producing regions.',
+                url: 'https://example.com/oil-markets'
             },
             {
-                id: 2,
-                title: 'Renewable Energy Investment Surges',
-                source: 'Energy News',
-                time: '4h ago',
-                category: 'investment',
-                impact: 'high',
-                summary: 'Global investment in renewable energy projects reaches unprecedented levels as costs continue to decline.',
-                url: '#'
-            },
-            {
-                id: 3,
-                title: 'New Energy Storage Technology Breakthrough',
-                source: 'Clean Energy Wire',
-                time: '6h ago',
-                category: 'innovation',
+                id: '2',
+                title: 'Natural Gas Markets Face Volatility',
+                source: 'Bloomberg',
+                time: '2024-03-20T09:30:00Z',
+                category: 'natural-gas',
                 impact: 'medium',
-                summary: 'Scientists announce breakthrough in energy storage technology, promising longer duration and lower costs.',
-                url: '#'
+                summary: 'Natural gas prices are experiencing increased volatility as weather patterns shift.',
+                url: 'https://example.com/gas-prices'
+            },
+            {
+                id: '3',
+                title: 'Renewable Energy Investment Soars',
+                source: 'Financial Times',
+                time: '2024-03-20T09:00:00Z',
+                category: 'renewables',
+                impact: 'high',
+                summary: 'Global investment in renewable energy projects reaches record levels.',
+                url: 'https://example.com/renewable-investment'
             }
         ]
     }
