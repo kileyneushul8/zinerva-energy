@@ -145,13 +145,13 @@ export default function RiskManagementPage() {
       <div className="relative bg-gradient-to-br from-teal-950 via-teal-900 to-teal-800 py-32 overflow-hidden">
         {/* Improved animated background patterns */}
         <div className="absolute inset-0 overflow-hidden">
-          <motion.div 
+          <motion.div
             className="absolute inset-0 opacity-10"
-            animate={{ 
+            animate={{
               backgroundPosition: ["0px 0px", "100px 100px"],
               transition: { duration: 30, repeat: Infinity, repeatType: "reverse" }
             }}
-            style={{ 
+            style={{
               backgroundImage: 'url("/grid-pattern.svg")',
               backgroundSize: '30px 30px',
               filter: 'blur(1px)'
@@ -248,10 +248,10 @@ export default function RiskManagementPage() {
                   <Card className="bg-white/95 backdrop-blur-sm border-2 border-teal-100/50 
                     hover:border-orange-200/50 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.1)] 
                     hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all 
-                    duration-300 group hover:-translate-y-1 relative overflow-hidden">
+                    duration-300 group hover:-translate-y-1 relative overflow-hidden h-[400px]">
                     <div className="absolute inset-0 bg-gradient-to-br from-white via-transparent to-teal-50/30 
                       opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    
+
                     <CardHeader className="relative z-10">
                       <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 
                         flex items-center justify-center mb-4 group-hover:scale-110 transition-transform
@@ -270,8 +270,8 @@ export default function RiskManagementPage() {
                     <CardContent className="relative z-10">
                       <ul className="space-y-4">
                         {phase.steps.map((step, i) => (
-                          <motion.li 
-                            key={i} 
+                          <motion.li
+                            key={i}
                             initial={{ opacity: 0, x: -20 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3 + (i * 0.1) }}
@@ -298,7 +298,7 @@ export default function RiskManagementPage() {
       {/* Enhanced Risk Analysis Section with Better Tabs */}
       <div className="container mx-auto px-4 py-32">
         <AnimatedSection>
-          <motion.div 
+          <motion.div
             className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -317,8 +317,8 @@ export default function RiskManagementPage() {
             <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 p-2 bg-gradient-to-br 
               from-teal-50 to-teal-100/50 rounded-xl min-h-[70px] gap-2 shadow-inner">
               {riskCategories.map((category) => (
-                <TabsTrigger 
-                  key={category.title} 
+                <TabsTrigger
+                  key={category.title}
                   value={category.title}
                   className="relative data-[state=active]:bg-white data-[state=active]:text-teal-900 
                     data-[state=active]:shadow-lg transition-all duration-300
@@ -346,7 +346,7 @@ export default function RiskManagementPage() {
                   hover:shadow-2xl transition-all duration-300 overflow-hidden">
                   {/* Add subtle gradient background */}
                   <div className="absolute inset-0 bg-gradient-to-br from-teal-50/50 via-transparent to-orange-50/30" />
-                  
+
                   <CardHeader>
                     <CardTitle className="flex items-center gap-3 text-2xl text-teal-900">
                       <div className="p-2 rounded-full bg-gradient-to-br from-orange-100 to-orange-200">
@@ -361,8 +361,8 @@ export default function RiskManagementPage() {
                   <CardContent>
                     <div className="space-y-6">
                       {category.details.map((detail, index) => (
-                        <motion.div 
-                          key={index} 
+                        <motion.div
+                          key={index}
                           className="space-y-2"
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
@@ -372,8 +372,8 @@ export default function RiskManagementPage() {
                             <span className="font-medium text-teal-900">{detail.title}</span>
                             <span className="text-sm text-teal-600">{detail.level}%</span>
                           </div>
-                          <Progress 
-                            value={detail.level} 
+                          <Progress
+                            value={detail.level}
                             className="h-2 bg-teal-100 [&>div]:bg-gradient-to-r [&>div]:from-teal-500 [&>div]:to-orange-500"
                           />
                           <p className="text-sm text-teal-600">{detail.mitigation}</p>
@@ -392,7 +392,7 @@ export default function RiskManagementPage() {
       <div className="bg-gradient-to-b from-white via-teal-50/20 to-teal-100/20 py-24">
         <div className="container mx-auto px-4">
           <AnimatedSection>
-            <motion.div 
+            <motion.div
               className="text-center"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -403,16 +403,16 @@ export default function RiskManagementPage() {
               </h2>
               <div className="w-20 h-1 bg-orange-500 rounded-full mx-auto mb-8" />
               <p className="text-xl text-teal-700 mb-12 max-w-2xl mx-auto">
-                Connect with our risk management experts to develop a comprehensive strategy 
+                Connect with our risk management experts to develop a comprehensive strategy
                 tailored to your needs.
               </p>
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button 
-                  asChild 
-                  size="lg" 
+                <Button
+                  asChild
+                  size="lg"
                   className="bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 
                     hover:to-teal-800 text-white shadow-xl hover:shadow-2xl transition-all 
                     duration-300 px-8 py-6 text-lg"
