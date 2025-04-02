@@ -45,6 +45,9 @@ export class HeadlinesService {
     }
 
     public static getInstance(): HeadlinesService {
+        if (typeof window === 'undefined') {
+            throw new Error('HeadlinesService can only be instantiated on the client side')
+        }
         if (!HeadlinesService.instance) {
             HeadlinesService.instance = new HeadlinesService()
         }

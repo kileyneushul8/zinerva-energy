@@ -65,6 +65,7 @@ import {
 } from '@/types/market'
 import { HeadlinesService, Headline } from '@/lib/services/headlines.service'
 import Link from 'next/link'
+import { HeadlinesSection } from '@/components/headlines-section'
 
 // News categories
 type NewsCategoryId = 'regulatory' | 'market-insights' | 'investment' | 'innovation'
@@ -1916,6 +1917,12 @@ export default function MarketOverviewPage() {
             </div>
           </div>
         </div>
+
+        {/* Replace the existing headlines section with the new component */}
+        <section className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">Latest News</h2>
+          <HeadlinesSection />
+        </section>
       </main>
     </div>
   )
