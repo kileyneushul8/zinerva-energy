@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { motion, useScroll, useTransform, animate } from "framer-motion"
-import { useState, useEffect, useId, useRef, useMemo } from "react"
+import { useState, useEffect, useId, useRef, useMemo, useCallback } from "react"
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, BarChart, Bar, LineChart, Line, ComposedChart, Scatter, Cell, ReferenceDot
@@ -61,7 +61,7 @@ type TimeRange = '1D' | '1W' | '1M' | '3M' | '6M' | '1Y'
 type ChartType = 'line' | 'bar' | 'area' | 'composed'
 
 // Update CategoryId type to include all categories
-type CategoryId = 'crude-oil' | 'natural-gas' | 'renewable' | 'nuclear' | 'coal' | 'solar' | 'wind' | 'hydrogen'
+type CategoryId = 'crude-oil' | 'natural-gas' | 'renewable' | 'nuclear' | 'coal' | 'solar' | 'wind' | 'hydrogen' | 'all'
 
 const LiveTimeDisplay = () => {
   const [time, setTime] = useState(() =>
@@ -504,17 +504,17 @@ const generateChartData = (category: CategoryId, timeRange: TimeRange): MarketDa
 }
 
 // Update the time range and chart type handlers
-const handleTimeRangeChange = (value: string) => {
-  if (isValidTimeRange(value)) {
-    setTimeRange(value)
+const handleTimeRangeChange = useCallback((value: string) => {
+  if (timeRangeOptions.map(t => t.value).includes(value as TimeRange)) {
+    setTimeRange(value as TimeRange)
   }
-}
+}, [])
 
-const handleChartTypeChange = (value: string) => {
-  if (isValidChartType(value)) {
-    setChartType(value)
+const handleChartTypeChange = useCallback((value: string) => {
+  if (['line', 'bar', 'area', 'composed'].includes(value)) {
+    setChartType(value as ChartType)
   }
-}
+}, [])
 
 // Type guards
 const isValidCategory = (value: string): value is CategoryId => {
@@ -539,20 +539,35 @@ interface InteractiveChartProps {
   onPauseToggle: () => void
 }
 
-const ProductTypeFilter = ({ activeCategory, onCategoryChange }: {
-  activeCategory: CategoryId,
-  onCategoryChange: (category: CategoryId) => void
-}) => {
+interface ProductTypeFilterProps {
+  activeCategory: CategoryId
+  onCategoryChange: (category: CategoryId | 'all') => void
+  showAllCategories: boolean
+}
+
+const ProductTypeFilter = ({ activeCategory, onCategoryChange, showAllCategories }: ProductTypeFilterProps) => {
   return (
     <div className="flex items-center gap-2 overflow-x-auto pb-2">
+      <Button
+        variant={showAllCategories ? "default" : "outline"}
+        size="sm"
+        className={cn(
+          "flex items-center gap-2 whitespace-nowrap",
+          showAllCategories && "bg-teal-600 hover:bg-teal-700"
+        )}
+        onClick={() => onCategoryChange('all')}
+      >
+        <Globe className="w-4 h-4" />
+        All Categories
+      </Button>
       {productCategories.map((category) => (
         <Button
           key={category.id}
-          variant={activeCategory === category.id ? "default" : "outline"}
+          variant={!showAllCategories && activeCategory === category.id ? "default" : "outline"}
           size="sm"
           className={cn(
             "flex items-center gap-2 whitespace-nowrap",
-            activeCategory === category.id && "bg-teal-600 hover:bg-teal-700"
+            !showAllCategories && activeCategory === category.id && "bg-teal-600 hover:bg-teal-700"
           )}
           onClick={() => onCategoryChange(category.id as CategoryId)}
         >
@@ -1777,49 +1792,76 @@ const PageHeader = () => {
 export default function MarketOverviewPage() {
   const { scrollYProgress } = useScroll()
   const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '50%'])
-  const [activeCategory, setActiveCategory] = useState<CategoryId>('crude-oil')
+
+  // State management
+  const [selectedCategory, setSelectedCategory] = useState<CategoryId>('crude-oil')
   const [timeRange, setTimeRange] = useState<TimeRange>('1D')
-  const [chartData, setChartData] = useState<MarketData[]>([])
   const [chartType, setChartType] = useState<ChartType>('line')
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [zoomLevel, setZoomLevel] = useState(1)
-  const timeLabels = generateTimeLabels(timeRange)
-  const [activeHeadlineCategory, setActiveHeadlineCategory] = useState<string>('all')
-  const [expandedHeadline, setExpandedHeadline] = useState<number | null>(null)
+  const [isPaused, setIsPaused] = useState(false)
+  const [marketData, setMarketData] = useState<MarketData[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isPaused, setIsPaused] = useState(false)
-  const marketDataServiceRef = useRef<MarketDataService | null>(null)
-  const marketDataCacheRef = useRef<MarketDataCache>(new MarketDataCache())
-  const [latestHeadlines, setLatestHeadlines] = useState<Headline[]>([])
-  const headlinesService = useRef<HeadlinesService | null>(null)
+  const [headlines, setHeadlines] = useState<Headline[]>([])
+  const [headlinesLoading, setHeadlinesLoading] = useState(true)
+  const [headlinesError, setHeadlinesError] = useState<string | null>(null)
 
+  // Services
+  const cache = useMemo(() => new MarketDataCache(), [])
+  const marketDataServiceRef = useRef<MarketDataService | null>(null)
+  const headlinesServiceRef = useRef<HeadlinesService | null>(null)
+
+  // Initialize headlines service
   useEffect(() => {
-    // Initialize the service only on the client side
-    if (typeof window !== 'undefined') {
-      headlinesService.current = HeadlinesService.getInstance()
-      fetchHeadlines()
+    const initializeHeadlines = async () => {
+      try {
+        setHeadlinesLoading(true)
+        headlinesServiceRef.current = await HeadlinesService.getInstance()
+        const fetchedHeadlines = await headlinesServiceRef.current.getHeadlines()
+        setHeadlines(fetchedHeadlines)
+      } catch (err) {
+        setHeadlinesError(err instanceof Error ? err.message : 'Failed to fetch headlines')
+      } finally {
+        setHeadlinesLoading(false)
+      }
+    }
+    initializeHeadlines()
+  }, [])
+
+  // Filter headlines based on category
+  const filteredHeadlines = useMemo(() => {
+    return headlines.filter(h => h.category === selectedCategory)
+  }, [selectedCategory, headlines])
+
+  // Handle time range and chart type changes
+  const handleTimeRangeChange = useCallback((value: string) => {
+    if (timeRangeOptions.map(t => t.value).includes(value as TimeRange)) {
+      setTimeRange(value as TimeRange)
     }
   }, [])
 
-  const fetchHeadlines = async () => {
-    if (headlinesService.current) {
-      const headlines = await headlinesService.current.getHeadlines()
-      setLatestHeadlines(headlines)
+  const handleChartTypeChange = useCallback((value: string) => {
+    if (['line', 'bar', 'area', 'composed'].includes(value)) {
+      setChartType(value as ChartType)
     }
+  }, [])
+
+  // Type guards
+  const isValidCategory = (value: string): value is CategoryId => {
+    return Object.keys(marketParams).includes(value)
   }
 
-  // Update the filtered headlines to use the new headlines state
-  const filteredHeadlines = useMemo(() => {
-    return activeHeadlineCategory === 'all'
-      ? latestHeadlines
-      : latestHeadlines.filter(h => h.category === activeHeadlineCategory)
-  }, [activeHeadlineCategory, latestHeadlines])
+  const isValidTimeRange = (value: string): value is TimeRange => {
+    return timeRangeOptions.map(t => t.value).includes(value as TimeRange)
+  }
+
+  const isValidChartType = (value: string): value is ChartType => {
+    return ['line', 'bar', 'area', 'composed'].includes(value)
+  }
 
   // Update WebSocket handler
   const handleWebSocketUpdate = (data: MarketData) => {
     if (!isPaused) {
-      setChartData(currentData => {
+      setMarketData(currentData => {
         const updatedData = [...currentData]
         const lastIndex = updatedData.length - 1
         if (lastIndex >= 0) {
@@ -1831,14 +1873,14 @@ export default function MarketOverviewPage() {
   }
 
   useEffect(() => {
-    marketDataServiceRef.current = new MarketDataService(activeCategory)
+    marketDataServiceRef.current = new MarketDataService(selectedCategory)
     const unsubscribe = marketDataServiceRef.current.subscribe(handleWebSocketUpdate)
 
     return () => {
       unsubscribe()
       marketDataServiceRef.current?.disconnect()
     }
-  }, [activeCategory])
+  }, [selectedCategory])
 
   useEffect(() => {
     const loadMarketData = async () => {
@@ -1847,9 +1889,9 @@ export default function MarketOverviewPage() {
 
       try {
         const response = await fetchMarketData(
-          activeCategory,
+          selectedCategory,
           timeRange,
-          marketDataCacheRef.current
+          cache
         )
 
         if (!response.success || !response.data) {
@@ -1860,7 +1902,7 @@ export default function MarketOverviewPage() {
         }
 
         if (validateMarketData(response.data)) {
-          setChartData(response.data)
+          setMarketData(response.data)
         }
       } catch (err) {
         console.error('Error loading market data:', err)
@@ -1869,14 +1911,14 @@ export default function MarketOverviewPage() {
             ? err.message
             : 'An unexpected error occurred'
         )
-        setChartData([])
+        setMarketData([])
       } finally {
         setIsLoading(false)
       }
     }
 
     loadMarketData()
-  }, [activeCategory, timeRange])
+  }, [selectedCategory, timeRange])
 
   const handlePauseToggle = () => {
     setIsPaused(!isPaused)
@@ -1884,8 +1926,8 @@ export default function MarketOverviewPage() {
 
   // Get dynamic market stats based on selected category
   const currentMarketStats = useMemo(() =>
-    getMarketStats(activeCategory, productCategories),
-    [activeCategory]
+    getMarketStats(selectedCategory, productCategories),
+    [selectedCategory]
   )
 
   if (error) {
@@ -1995,15 +2037,15 @@ export default function MarketOverviewPage() {
           <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm border border-teal-100 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-teal-50 rounded-lg">
-                {productCategories.find(p => p.id === activeCategory)?.icon && (
+                {productCategories.find(p => p.id === selectedCategory)?.icon && (
                   <div className="w-6 h-6 text-teal-600">
-                    {React.createElement(productCategories.find(p => p.id === activeCategory)?.icon as any)}
+                    {React.createElement(productCategories.find(p => p.id === selectedCategory)?.icon as any)}
                   </div>
                 )}
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-teal-900">
-                  {productCategories.find(p => p.id === activeCategory)?.name}
+                  {productCategories.find(p => p.id === selectedCategory)?.name}
                 </h2>
                 <p className="text-sm text-teal-600">
                   Real-time market data and analysis
@@ -2013,27 +2055,27 @@ export default function MarketOverviewPage() {
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <div className="text-2xl font-bold text-teal-900">
-                  {productCategories.find(p => p.id === activeCategory)?.metrics.price}
+                  {productCategories.find(p => p.id === selectedCategory)?.metrics.price}
                 </div>
                 <div className={cn(
                   "flex items-center gap-1 text-sm font-medium",
-                  productCategories.find(p => p.id === activeCategory)?.metrics.change.startsWith('+')
+                  productCategories.find(p => p.id === selectedCategory)?.metrics.change.startsWith('+')
                     ? "text-emerald-600"
                     : "text-red-600"
                 )}>
-                  {productCategories.find(p => p.id === activeCategory)?.metrics.change.startsWith('+') ? (
+                  {productCategories.find(p => p.id === selectedCategory)?.metrics.change.startsWith('+') ? (
                     <ArrowUpRight className="w-4 h-4" />
                   ) : (
                     <ArrowDownRight className="w-4 h-4" />
                   )}
-                  {productCategories.find(p => p.id === activeCategory)?.metrics.change}
+                  {productCategories.find(p => p.id === selectedCategory)?.metrics.change}
                 </div>
               </div>
               <div className="h-8 w-px bg-teal-100" />
               <div className="text-right">
                 <div className="text-sm text-teal-600">24h Volume</div>
                 <div className="text-base font-semibold text-teal-900">
-                  {productCategories.find(p => p.id === activeCategory)?.metrics.volume}
+                  {productCategories.find(p => p.id === selectedCategory)?.metrics.volume}
                 </div>
               </div>
             </div>
@@ -2106,12 +2148,12 @@ export default function MarketOverviewPage() {
                     </Select>
                   </div>
                 </div>
-                <ProductTypeFilter activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
+                <ProductTypeFilter activeCategory={selectedCategory} onCategoryChange={setSelectedCategory} showAllCategories={true} />
                 <div className="h-[400px]">
                   <InteractiveChart
-                    data={chartData}
+                    data={marketData}
                     type={chartType}
-                    category={activeCategory}
+                    category={selectedCategory}
                     timeRange={timeRange}
                     isPaused={isPaused}
                     onPauseToggle={handlePauseToggle}
@@ -2134,9 +2176,9 @@ export default function MarketOverviewPage() {
                     {headlineCategories.map((category) => (
                       <Button
                         key={category.id}
-                        variant={activeHeadlineCategory === category.id ? "secondary" : "ghost"}
+                        variant={selectedCategory === category.id ? "secondary" : "ghost"}
                         size="sm"
-                        onClick={() => setActiveHeadlineCategory(category.id)}
+                        onClick={() => setSelectedCategory(category.id)}
                         className="flex items-center gap-1 transition-all duration-200 text-base px-3 py-1"
                       >
                         <category.icon className="w-5 h-5" />
