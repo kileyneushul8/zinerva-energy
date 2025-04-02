@@ -1610,11 +1610,12 @@ export default function MarketOverviewPage() {
     fetchData()
   }
 
-  const handleTimeRangeChange = (value: string) => {
+  // Update the handleTimeRangeChange function
+  const handleTimeRangeChange = useCallback((value: string) => {
     if (isValidTimeRange(value)) {
       setTimeRange(value)
     }
-  }
+  }, [])
 
   // Update the sorting to use time instead of date
   const sortedHeadlines = [...headlines].sort((a, b) => {
@@ -1757,11 +1758,7 @@ export default function MarketOverviewPage() {
                 <div className="flex items-center gap-4">
                   <Select
                     value={timeRange}
-                    onValueChange={(value) => {
-                      if (isValidTimeRange(value)) {
-                        setTimeRange(value)
-                      }
-                    }}
+                    onValueChange={handleTimeRangeChange}
                   >
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Select time range" />
