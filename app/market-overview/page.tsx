@@ -61,8 +61,7 @@ import {
   TimeRange,
   CustomTooltipProps,
   MarketParams,
-  MarketColors,
-  CategoryId
+  MarketColors
 } from '@/types/market'
 import { HeadlinesService, Headline } from '@/lib/services/headlines.service'
 import Link from 'next/link'
@@ -108,9 +107,12 @@ const chartTypeIcons = [
 // Type definitions
 type AxisInterval = number | 'preserveStart' | 'preserveEnd' | 'preserveStartEnd'
 
+// Define local types
+type LocalCategoryId = MarketCategoryId | NewsCategoryId | 'all'
+
 interface ExtendedMarketData extends MarketData {
   volatility: number
-  trendValue: number
+  trend: TrendDirection
   ma5?: number
   ma20?: number
 }
@@ -181,16 +183,15 @@ const generateChartData = (category: MarketCategoryId, timeRange: TimeRange): Ex
     const volatility = Math.abs(totalChange / lastValue)
 
     // Update trend value based on total change
-    const trendValue: 'up' | 'down' | 'stable' = totalChange > 0.0001 ? 'up' : totalChange < -0.0001 ? 'down' : 'stable'
+    const trendDirection = getTrendDirection(totalChange)
 
     data.push({
       name: time.toISOString(),
       value: Number(lastValue.toFixed(2)),
       volume,
       change: Number(totalChange.toFixed(2)),
-      trend: trendValue,
-      volatility: Number(volatility.toFixed(4)),
-      trendValue: Number(trend.toFixed(4))
+      trend: trendDirection,
+      volatility: Number(volatility.toFixed(4))
     })
   }
 
@@ -211,7 +212,7 @@ const isValidCategory = (value: string): value is MarketCategoryId => {
 }
 
 const isValidTimeRange = (value: string): value is TimeRange => {
-  return timeRangeOptions.map(t => t.value).includes(value as TimeRange)
+  return ['1D', '1W', '1M', '3M', '6M', '1Y'].includes(value)
 }
 
 const isValidChartType = (value: string): value is ChartType => {
@@ -228,13 +229,16 @@ interface InteractiveChartProps {
   onPauseToggle: () => void
 }
 
+// Update the type definitions
+type CategoryId = MarketCategoryId | NewsCategoryId | 'all'
+
 interface ProductTypeFilterProps {
-  activeCategory: MarketCategoryId
-  onCategoryChange: (category: MarketCategoryId | NewsCategoryId) => void
-  showAllCategories: boolean
+  activeCategory: LocalCategoryId
+  onCategoryChange: (category: LocalCategoryId) => void
+  showAllCategories?: boolean
 }
 
-const ProductTypeFilter = ({ activeCategory, onCategoryChange, showAllCategories }: ProductTypeFilterProps) => {
+const ProductTypeFilter = ({ activeCategory, onCategoryChange, showAllCategories = true }: ProductTypeFilterProps) => {
   return (
     <div className="flex items-center gap-2 overflow-x-auto pb-2">
       <Button
@@ -1040,35 +1044,27 @@ class MarketDataCache {
   }
 }
 
-// Bloomberg API configuration
-const BLOOMBERG_CONFIG = {
-  // These should be in environment variables
-  API_HOST: process.env.NEXT_PUBLIC_BLOOMBERG_API_HOST,
-  API_KEY: process.env.BLOOMBERG_API_KEY,
-  API_SECRET: process.env.BLOOMBERG_API_SECRET
+// WebSocket interfaces
+interface WebSocketProvider {
+  subscribe(callback: (data: ExtendedMarketData) => void): () => void
+  disconnect(): void
 }
 
-// Bloomberg WebSocket message types
-interface BloombergMessage {
-  type: 'MARKET_DATA' | 'HEARTBEAT' | 'ERROR'
-  security?: string
-  data?: {
-    price: number
-    volume: number
-    timestamp: string
-    bid?: number
-    ask?: number
-    // Add other Bloomberg fields as needed
-  }
-  error?: string
+// Update the trend type and conversion
+type TrendDirection = 'up' | 'down' | 'stable'
+
+const getTrendDirection = (value: number): TrendDirection => {
+  if (value > 0) return 'up'
+  if (value < 0) return 'down'
+  return 'stable'
 }
 
-// Mock WebSocket for development
-class MockWebSocket {
+// Update the MarketDataWebSocket class
+class MarketDataWebSocket implements WebSocketProvider {
   private intervalId: NodeJS.Timeout | null = null
   private callbacks: Set<(data: ExtendedMarketData) => void> = new Set()
 
-  constructor(private category: CategoryId) {
+  constructor(private category: MarketCategoryId) {
     this.startMockUpdates()
   }
 
@@ -1080,7 +1076,7 @@ class MockWebSocket {
         volume: Math.floor(Math.random() * 1000000),
         change: (Math.random() - 0.5) * 2,
         volatility: Math.random() * 0.5,
-        trend: Math.random() - 0.5
+        trend: getTrendDirection(Math.random() - 0.5)
       }
       this.callbacks.forEach(callback => callback(mockData))
     }, 5000)
@@ -1100,187 +1096,28 @@ class MockWebSocket {
   }
 }
 
-// WebSocket interface
-interface WebSocketProvider {
-  subscribe(callback: (data: ExtendedMarketData) => void): () => void
-  disconnect(): void
-}
-
-class BloombergWebSocket implements WebSocketProvider {
-  private ws: WebSocket | null = null
-  private reconnectAttempts = 0
-  private maxReconnectAttempts = 5
-  private reconnectDelay = 1000
-  private subscribers: Set<(data: ExtendedMarketData) => void> = new Set()
-  private heartbeatInterval: NodeJS.Timeout | null = null
-  private lastPrice = 0
-
-  constructor(private category: CategoryId) {
-    this.initializeConnection()
+// Update the filterHeadlinesByCategory function
+const filterHeadlinesByCategory = (headlines: Headline[], category: LocalCategoryId): Headline[] => {
+  if (category === 'all') {
+    return headlines
   }
 
-  private getBloombergSymbol(category: CategoryId): string {
-    const symbolMap: Record<CategoryId, string> = {
-      'crude-oil': 'CL1 Comdty',
-      'natural-gas': 'NG1 Comdty',
-      'renewable': 'GRNLEDGW Index',
-      'nuclear': 'NLR Index',
-      'coal': 'COAL1 Comdty',
-      'solar': 'SOLRX Index',
-      'wind': 'NEX Index',
-      'hydrogen': 'HYDR Index',
-      'industrial': 'INDX Index'
-    }
-    return symbolMap[category]
+  // Check if it's a news category
+  const newsCategories: NewsCategoryId[] = ['regulatory', 'market-insights', 'investment', 'innovation']
+  if (newsCategories.includes(category as NewsCategoryId)) {
+    return headlines.filter(headline => headline.category === category)
   }
 
-  private async getAuthToken(): Promise<string> {
-    try {
-      const response = await fetch(`${BLOOMBERG_CONFIG.API_HOST}/auth/token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          apiKey: BLOOMBERG_CONFIG.API_KEY,
-          secret: BLOOMBERG_CONFIG.API_SECRET
-        })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to get Bloomberg auth token')
-      }
-
-      const data = await response.json()
-      return data.token
-    } catch (error) {
-      console.error('Bloomberg authentication error:', error)
-      throw error
-    }
-  }
-
-  private async initializeConnection() {
-    try {
-      const token = await this.getAuthToken()
-      const symbol = this.getBloombergSymbol(this.category)
-
-      this.ws = new WebSocket(`${BLOOMBERG_CONFIG.API_HOST}/market-data/stream`)
-
-      // Set headers after connection
-      if (this.ws) {
-        this.ws.onopen = () => {
-          this.ws?.send(JSON.stringify({
-            type: 'auth',
-            token,
-            symbol
-          }))
-          this.handleOpen()
-        }
-        this.setupWebSocketHandlers()
-      }
-    } catch (error) {
-      console.error('Bloomberg WebSocket connection error:', error)
-      this.handleReconnect()
-    }
-  }
-
-  private setupWebSocketHandlers() {
-    if (!this.ws) return
-
-    this.ws.onmessage = (event: MessageEvent) => this.handleMessage(event)
-    this.ws.onclose = () => this.handleClose()
-    this.ws.onerror = (event: Event) => this.handleError(event)
-  }
-
-  private handleMessage(event: MessageEvent) {
-    try {
-      const message: BloombergMessage = JSON.parse(event.data)
-
-      if (message.type === 'MARKET_DATA' && message.data) {
-        const marketData: ExtendedMarketData = {
-          name: message.data.timestamp,
-          value: message.data.price,
-          volume: message.data.volume,
-          change: this.calculateChange(message.data.price),
-          volatility: this.calculateVolatility(message.data.price),
-          trend: this.calculateTrend(message.data.price)
-        }
-        this.subscribers.forEach(callback => callback(marketData))
-      }
-    } catch (error) {
-      console.error('Error parsing Bloomberg message:', error)
-    }
-  }
-
-  private calculateChange(price: number): number {
-    const change = this.lastPrice ? (price - this.lastPrice) / this.lastPrice : 0
-    this.lastPrice = price
-    return change
-  }
-
-  private calculateVolatility(price: number): number {
-    return Math.abs(this.calculateChange(price))
-  }
-
-  private calculateTrend(price: number): number {
-    return this.calculateChange(price) > 0 ? 1 : -1
-  }
-
-  subscribe(callback: (data: ExtendedMarketData) => void): () => void {
-    this.subscribers.add(callback)
-    return () => this.subscribers.delete(callback)
-  }
-
-  disconnect(): void {
-    if (this.heartbeatInterval) {
-      clearInterval(this.heartbeatInterval)
-    }
-    if (this.ws) {
-      this.ws.close()
-      this.ws = null
-    }
-    this.subscribers.clear()
-  }
-
-  private handleOpen = () => {
-    console.log('Bloomberg WebSocket connected')
-    this.reconnectAttempts = 0
-    this.startHeartbeat()
-  }
-
-  private handleClose = () => {
-    console.log('Bloomberg WebSocket disconnected')
-    this.handleReconnect()
-  }
-
-  private handleError = (error: Event) => {
-    console.error('Bloomberg WebSocket error:', error)
-  }
-
-  private handleReconnect() {
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++
-      setTimeout(() => this.initializeConnection(), this.reconnectDelay * this.reconnectAttempts)
-    }
-  }
-
-  private startHeartbeat() {
-    this.heartbeatInterval = setInterval(() => {
-      if (this.ws?.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify({ type: 'HEARTBEAT' }))
-      }
-    }, 30000)
-  }
+  // If it's a market category, return all headlines
+  return headlines
 }
 
 // Market data service
 class MarketDataService {
   private ws: WebSocketProvider
 
-  constructor(category: CategoryId) {
-    this.ws = process.env.NODE_ENV === 'production'
-      ? new BloombergWebSocket(category)
-      : new MockWebSocket(category)
+  constructor(category: MarketCategoryId) {
+    this.ws = new MarketDataWebSocket(category)
   }
 
   subscribe(callback: (data: ExtendedMarketData) => void) {
@@ -1310,7 +1147,7 @@ const fetchWithRetry = async (
 
 // Updated data fetching function
 const fetchMarketData = async (
-  category: CategoryId,
+  category: MarketCategoryId,
   timeRange: TimeRange,
   cache: MarketDataCache
 ): Promise<MarketDataResponse> => {
@@ -1666,13 +1503,13 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 
 export default function MarketOverviewPage() {
   const [selectedCategory, setSelectedCategory] = useState<MarketCategoryId>('crude-oil')
+  const [selectedNewsCategory, setSelectedNewsCategory] = useState<NewsCategoryId>('regulatory')
   const [timeRange, setTimeRange] = useState<TimeRange>('1D')
   const [chartType, setChartType] = useState<ChartType>('line')
+  const [isLoadingNews, setIsLoadingNews] = useState(false)
+  const [headlines, setHeadlines] = useState<Headline[]>([])
   const [isPaused, setIsPaused] = useState(false)
   const [marketData, setMarketData] = useState<ExtendedMarketData[]>([])
-  const [headlines, setHeadlines] = useState<Headline[]>([])
-  const [selectedNewsCategory, setSelectedNewsCategory] = useState<NewsCategoryId>('market-insights')
-  const [isLoadingNews, setIsLoadingNews] = useState(true)
   const [showAllCategories, setShowAllCategories] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const cache = useMemo(() => new MarketDataCache(), [])
@@ -1727,61 +1564,13 @@ export default function MarketOverviewPage() {
   const fetchHeadlines = useCallback(async () => {
     setIsLoadingNews(true)
     try {
-      const headlinesService = new HeadlinesService()
-      // Get headlines for all categories
-      const allHeadlines = await headlinesService.getHeadlines()
-
-      // Filter headlines based on selected category
-      let filteredHeadlines = allHeadlines.filter(
-        headline => headline.category === selectedNewsCategory
-      )
-
-      // If no headlines found for the category, show default headlines
-      if (filteredHeadlines.length === 0) {
-        if (selectedNewsCategory === 'regulatory') {
-          filteredHeadlines = [
-            {
-              id: 'reg1',
-              title: 'New EPA Regulations Impact Energy Sector',
-              category: 'regulatory',
-              date: new Date().toISOString(),
-              content: 'New environmental regulations announced by the EPA will significantly impact energy production and distribution.',
-              source: 'Energy News Daily'
-            },
-            {
-              id: 'reg2',
-              title: 'Global Climate Policy Updates',
-              category: 'regulatory',
-              date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-              content: 'Major updates to global climate policies expected to shape energy market dynamics.',
-              source: 'Climate Policy Journal'
-            }
-          ]
-        } else if (selectedNewsCategory === 'market-insights') {
-          filteredHeadlines = [
-            {
-              id: 'mkt1',
-              title: 'Energy Market Trends Analysis',
-              category: 'market-insights',
-              date: new Date().toISOString(),
-              content: 'Latest analysis shows shifting patterns in global energy consumption and production.',
-              source: 'Market Analysis Weekly'
-            },
-            {
-              id: 'mkt2',
-              title: 'Supply Chain Impact on Energy Prices',
-              category: 'market-insights',
-              date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-              content: 'How global supply chain disruptions are affecting energy market prices and availability.',
-              source: 'Energy Economics Review'
-            }
-          ]
-        }
-      }
-
+      const headlinesService = HeadlinesService.getInstance()
+      const fetchedHeadlines = await headlinesService.getHeadlines()
+      const filteredHeadlines = filterHeadlinesByCategory(fetchedHeadlines, selectedNewsCategory)
       setHeadlines(filteredHeadlines)
     } catch (error) {
       console.error('Error fetching headlines:', error)
+      setHeadlines([])
     } finally {
       setIsLoadingNews(false)
     }
@@ -1790,15 +1579,43 @@ export default function MarketOverviewPage() {
   // Fetch headlines when category changes
   useEffect(() => {
     fetchHeadlines()
-  }, [fetchHeadlines, selectedNewsCategory])
+  }, [fetchHeadlines])
 
   // Handle category change
-  const handleCategoryChange = (category: MarketCategoryId) => {
-    if (isValidCategory(category)) {
-      setSelectedCategory(category)
-      fetchData()
+  const handleCategoryChange = (category: LocalCategoryId) => {
+    // Check if it's a news category
+    const newsCategories: NewsCategoryId[] = ['regulatory', 'market-insights', 'investment', 'innovation']
+    if (newsCategories.includes(category as NewsCategoryId)) {
+      setSelectedNewsCategory(category as NewsCategoryId)
+    } else if (category === 'all') {
+      // Handle 'all' category
+      setShowAllCategories(true)
+    } else {
+      // It's a market category
+      setSelectedCategory(category as MarketCategoryId)
+      setShowAllCategories(false)
+    }
+
+    fetchData()
+  }
+
+  const handleTimeRangeChange = (value: string) => {
+    if (isValidTimeRange(value)) {
+      setTimeRange(value)
     }
   }
+
+  // Update the sorting to use time instead of date
+  const sortedHeadlines = [...headlines].sort((a, b) => {
+    // Convert time strings to comparable values (assuming format like '2h ago', '1d ago')
+    const getTimeValue = (time: string) => {
+      const value = parseInt(time)
+      const unit = time.includes('h') ? 1 : 24 // Convert to hours
+      return value * unit
+    }
+
+    return getTimeValue(a.time) - getTimeValue(b.time)
+  })
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1931,8 +1748,7 @@ export default function MarketOverviewPage() {
                     value={timeRange}
                     onValueChange={(value) => {
                       if (isValidTimeRange(value)) {
-                        setTimeRange(value as TimeRange)
-                        fetchData()
+                        setTimeRange(value)
                       }
                     }}
                   >
@@ -2034,9 +1850,9 @@ export default function MarketOverviewPage() {
                       </div>
                     </div>
                   ))
-                ) : headlines.length > 0 ? (
+                ) : sortedHeadlines.length > 0 ? (
                   // Show headlines for the selected category
-                  headlines.map((headline) => (
+                  sortedHeadlines.map((headline) => (
                     <Link
                       key={headline.id}
                       href={`/headlines/${headline.id}`}
@@ -2060,7 +1876,7 @@ export default function MarketOverviewPage() {
                           <p className="text-sm text-teal-900 font-medium">{headline.title}</p>
                           <div className="flex items-center gap-2 mt-1">
                             <p className="text-xs text-teal-500">
-                              {new Date(headline.date).toLocaleDateString()}
+                              {headline.time}
                             </p>
                             <Badge variant="secondary" className="text-xs">
                               {headlineCategories.find(cat => cat.id === headline.category)?.label}
