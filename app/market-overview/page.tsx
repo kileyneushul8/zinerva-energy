@@ -1527,6 +1527,13 @@ export default function MarketOverviewPage() {
   const [marketDataService] = useState(() => new MarketDataService(selectedCategory))
   const [headlinesService] = useState(() => HeadlinesService.getInstance())
 
+  // Move handleTimeRangeChange inside the component
+  const handleTimeRangeChange = useCallback((value: string) => {
+    if (isValidTimeRange(value)) {
+      setTimeRange(value as TimeRange)
+    }
+  }, [])
+
   // Function to fetch market data
   const fetchData = useCallback(async () => {
     setIsLoading(true)
@@ -1609,13 +1616,6 @@ export default function MarketOverviewPage() {
 
     fetchData()
   }
-
-  // Update the handleTimeRangeChange function
-  const handleTimeRangeChange = useCallback((value: string) => {
-    if (isValidTimeRange(value)) {
-      setTimeRange(value)
-    }
-  }, [])
 
   // Update the sorting to use time instead of date
   const sortedHeadlines = [...headlines].sort((a, b) => {
