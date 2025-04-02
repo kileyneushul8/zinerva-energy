@@ -1,6 +1,6 @@
-import { MarketData } from '@/types/market'
+import { DetailedMarketData } from '@/lib/market-data'
 
 export interface WebSocketProvider {
-    subscribe(callback: (data: MarketData) => void): () => void
+    subscribe(callback: (data: DetailedMarketData) => void): () => void
     disconnect(): void
 } 

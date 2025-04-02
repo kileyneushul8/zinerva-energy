@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { MarketData, CategoryId } from '@/types/market'
+import { CategoryId } from '@/types/market'
+import { DetailedMarketData } from '@/lib/market-data'
 import {
     LineChart,
     Line,
@@ -17,11 +18,12 @@ import {
 import { Pause, Play } from 'lucide-react'
 
 interface InteractiveChartProps {
-    data: MarketData[]
+    data: DetailedMarketData[]
     type: 'area' | 'line' | 'bar' | 'composed'
     category: CategoryId
     isPaused?: boolean
     onPauseToggle?: () => void
+    timeRange: string
 }
 
 const formatValue = (value: number) => {
@@ -68,7 +70,8 @@ export function InteractiveChart({
     type,
     category,
     isPaused = false,
-    onPauseToggle
+    onPauseToggle,
+    timeRange
 }: InteractiveChartProps) {
     const [isHovered, setIsHovered] = useState(false)
 

@@ -1,4 +1,4 @@
-export type CategoryId = 'crude-oil' | 'natural-gas' | 'renewable' | 'nuclear' | 'coal' | 'solar' | 'wind' | 'hydrogen' | 'industrial'
+export type CategoryId = 'crude-oil' | 'natural-gas' | 'renewables' | 'nuclear' | 'coal' | 'solar' | 'wind' | 'hydrogen' | 'industrial'
 
 export type MarketCategoryId = CategoryId
 
@@ -15,8 +15,7 @@ export interface MarketData {
 }
 
 export interface MarketDataResponse {
-  success: boolean
-  data?: MarketData[]
+  data: MarketData[]
   error?: string
 }
 

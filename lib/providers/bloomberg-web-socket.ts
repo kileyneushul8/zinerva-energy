@@ -1,9 +1,9 @@
-import { MarketData } from '@/types/market'
+import { DetailedMarketData } from '@/lib/market-data'
 import { WebSocketProvider } from './web-socket'
 
 export class BloombergWebSocket implements WebSocketProvider {
     private ws: WebSocket | null = null
-    private callbacks: Set<(data: MarketData) => void> = new Set()
+    private callbacks: Set<(data: DetailedMarketData) => void> = new Set()
 
     constructor(private apiKey: string) {
         this.initializeConnection()
@@ -19,7 +19,7 @@ export class BloombergWebSocket implements WebSocketProvider {
         }
     }
 
-    subscribe(callback: (data: MarketData) => void) {
+    subscribe(callback: (data: DetailedMarketData) => void) {
         this.callbacks.add(callback)
         return () => this.callbacks.delete(callback)
     }
