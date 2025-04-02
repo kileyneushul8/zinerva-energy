@@ -72,27 +72,27 @@ const serviceItems = [
   {
     title: "Global Network",
     href: "/global-network",
-    description: "Our worldwide operational network",
+    description: "Worldwide operations",
   },
   {
     title: "Energy Trading",
     href: "/energy-trading",
-    description: "Strategic energy trading solutions",
+    description: "Trading solutions",
   },
   {
     title: "Risk Management",
     href: "/risk-management",
-    description: "Advanced risk assessment and mitigation",
+    description: "Risk assessment",
   },
   {
     title: "Market Overview",
     href: "/market-overview",
-    description: "Comprehensive analysis of global energy markets",
+    description: "Market analysis",
   },
   {
     title: "Global Distribution",
     href: "/global-distribution",
-    description: "International energy distribution services",
+    description: "Distribution services",
   },
 ]
 
