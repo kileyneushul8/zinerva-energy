@@ -244,11 +244,12 @@ export default function RiskManagementPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.2 }}
                   viewport={{ once: true }}
+                  className="h-full"
                 >
                   <Card className="bg-white/95 backdrop-blur-sm border-2 border-teal-100/50 
                     hover:border-orange-200/50 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.1)] 
                     hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all 
-                    duration-300 group hover:-translate-y-1 relative overflow-hidden h-[400px]">
+                    duration-300 group hover:-translate-y-1 relative overflow-hidden h-full">
                     <div className="absolute inset-0 bg-gradient-to-br from-white via-transparent to-teal-50/30 
                       opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
