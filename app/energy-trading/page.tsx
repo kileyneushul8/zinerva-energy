@@ -223,20 +223,19 @@ export default function EnergyTradingPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                     viewport={{ once: true }}
-                    className="relative"
+                    className="relative h-full"
                   >
-                    <div className="bg-white rounded-xl p-6 shadow-lg border-2 border-teal-100
-                      hover:border-orange-200 transition-all duration-300 group hover:-translate-y-1"
-                    >
+                    <div className="bg-white rounded-xl p-8 shadow-lg border-2 border-teal-100
+                      hover:border-orange-200 transition-all duration-300 group hover:-translate-y-1
+                      h-full flex flex-col">
                       <div className="absolute -top-4 left-6 bg-orange-500 text-white w-8 h-8 rounded-full
-                        flex items-center justify-center font-bold"
-                      >
+                        flex items-center justify-center font-bold">
                         {index + 1}
                       </div>
-                      <div className="pt-4">
-                        <step.icon className="w-6 h-6 text-teal-600 mb-4" />
-                        <h3 className="text-xl font-bold text-teal-900 mb-2">{step.title}</h3>
-                        <p className="text-teal-700">{step.description}</p>
+                      <div className="pt-4 flex flex-col h-full">
+                        <step.icon className="w-8 h-8 text-teal-600 mb-6" />
+                        <h3 className="text-2xl font-bold text-teal-900 mb-4">{step.title}</h3>
+                        <p className="text-teal-700 text-lg flex-grow">{step.description}</p>
                       </div>
                     </div>
                   </motion.div>
