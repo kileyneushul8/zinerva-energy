@@ -14,19 +14,19 @@ const mainNav = [
     items: [
       {
         title: "Company Overview",
-        href: "/about#overview",
+        href: "/about",
         description: "Learn about our mission and values",
         icon: Users,
       },
       {
         title: "Products",
-        href: "/about#products",
+        href: "/products",
         description: "Explore our innovative solutions",
         icon: Target,
       },
       {
         title: "Sustainability",
-        href: "/about#sustainability",
+        href: "/sustainability",
         description: "Our commitment to sustainable practices",
         icon: Leaf,
       },
