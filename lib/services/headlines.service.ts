@@ -3,8 +3,12 @@ import axios from 'axios'
 export interface Headline {
     id: string
     title: string
-    category: 'regulatory' | 'market-insights' | 'investment' | 'innovation'
+    category: 'regulation' | 'market' | 'investment' | 'innovation' | 'crude-oil' | 'natural-gas' | 'renewables'
     time: string
+    summary: string
+    source: string
+    url: string
+    impact: 'high' | 'medium'
 }
 
 interface AlphaVantageNewsResponse {
@@ -33,50 +37,82 @@ export class HeadlinesService {
         {
             id: '1',
             title: 'EU Announces New Carbon Trading Framework',
-            category: 'regulatory',
-            time: '2 hours ago'
+            category: 'regulation',
+            time: '2 hours ago',
+            summary: '',
+            source: '',
+            url: '',
+            impact: 'medium'
         },
         {
             id: '2',
             title: 'Global Oil Demand Expected to Peak by 2030',
-            category: 'market-insights',
-            time: '3 hours ago'
+            category: 'market',
+            time: '3 hours ago',
+            summary: '',
+            source: '',
+            url: '',
+            impact: 'medium'
         },
         {
             id: '3',
             title: '$2B Investment in Renewable Energy Projects',
             category: 'investment',
-            time: '4 hours ago'
+            time: '4 hours ago',
+            summary: '',
+            source: '',
+            url: '',
+            impact: 'high'
         },
         {
             id: '4',
             title: 'Breakthrough in Solar Panel Efficiency',
             category: 'innovation',
-            time: '5 hours ago'
+            time: '5 hours ago',
+            summary: '',
+            source: '',
+            url: '',
+            impact: 'high'
         },
         {
             id: '5',
             title: 'Natural Gas Prices Surge on Supply Concerns',
-            category: 'market-insights',
-            time: '6 hours ago'
+            category: 'market',
+            time: '6 hours ago',
+            summary: '',
+            source: '',
+            url: '',
+            impact: 'medium'
         },
         {
             id: '6',
             title: 'New Regulations for Energy Storage Systems',
-            category: 'regulatory',
-            time: '7 hours ago'
+            category: 'regulation',
+            time: '7 hours ago',
+            summary: '',
+            source: '',
+            url: '',
+            impact: 'high'
         },
         {
             id: '7',
             title: 'Green Hydrogen Projects Attract Major Funding',
             category: 'investment',
-            time: '8 hours ago'
+            time: '8 hours ago',
+            summary: '',
+            source: '',
+            url: '',
+            impact: 'high'
         },
         {
             id: '8',
             title: 'AI-Powered Grid Management System Launched',
             category: 'innovation',
-            time: '9 hours ago'
+            time: '9 hours ago',
+            summary: '',
+            source: '',
+            url: '',
+            impact: 'high'
         }
     ]
 
