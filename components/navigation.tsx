@@ -105,8 +105,20 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <span className="text-lg font-bold">
-              <span className="text-orange-500 hover:text-orange-600 transition-colors">Zinerva</span>{" "}
-              <span className="text-orange-400">LLC</span>
+              <span className={cn(
+                "transition-colors",
+                isScrolled
+                  ? "text-orange-500 hover:text-orange-600"
+                  : "text-white hover:text-white/90"
+              )}>
+                Zinerva
+              </span>{" "}
+              <span className={cn(
+                "transition-colors",
+                isScrolled ? "text-orange-600" : "text-orange-400"
+              )}>
+                LLC
+              </span>
             </span>
           </Link>
 

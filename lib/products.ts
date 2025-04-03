@@ -107,3 +107,124 @@ export const products: Product[] = [
   },
 ]
 
+interface ProductDetails {
+  description: string;
+  sustainability: {
+    carbonFootprint: string;
+    renewableContent: string;
+    environmentalCertifications: string[];
+  };
+  marketInsights: {
+    demandOutlook: string;
+    seasonalFactors: string[];
+  };
+  logistics: {
+    storageRequirements: string;
+    transportationModes: string[];
+    safetyPrecautions: string[];
+  };
+}
+
+const productDetailsMap: Record<string, ProductDetails> = {
+  'Brent Crude': {
+    description: 'Brent Crude is a major trading classification of sweet light crude oil that serves as a benchmark price for purchases of oil worldwide.',
+    sustainability: {
+      carbonFootprint: 'High - 3.2 tons CO2/barrel',
+      renewableContent: '0%',
+      environmentalCertifications: [
+        'ISO 14001 Environmental Management',
+        'API Pipeline Environmental Program'
+      ]
+    },
+    marketInsights: {
+      demandOutlook: 'Strong global demand with increasing focus on sustainability',
+      seasonalFactors: [
+        'Higher demand during winter months',
+        'Summer driving season impact',
+        'Refinery maintenance periods'
+      ]
+    },
+    logistics: {
+      storageRequirements: 'Temperature-controlled storage tanks with vapor recovery systems',
+      transportationModes: [
+        'Oil tankers',
+        'Pipelines',
+        'Rail transport'
+      ],
+      safetyPrecautions: [
+        'Regular leak detection',
+        'Fire suppression systems',
+        'Emergency response protocols'
+      ]
+    }
+  },
+  'Natural Gas': {
+    description: 'Natural gas is a naturally occurring hydrocarbon gas mixture consisting primarily of methane, used as a major energy source.',
+    sustainability: {
+      carbonFootprint: 'Medium - 0.9 tons CO2/MMBtu',
+      renewableContent: '0%',
+      environmentalCertifications: [
+        'Green-e Energy Certified',
+        'Low Emission Standards Compliance'
+      ]
+    },
+    marketInsights: {
+      demandOutlook: 'Growing demand as transition fuel in renewable energy shift',
+      seasonalFactors: [
+        'Peak winter heating demand',
+        'Summer cooling demand',
+        'Industrial usage patterns'
+      ]
+    },
+    logistics: {
+      storageRequirements: 'Pressurized storage facilities with monitoring systems',
+      transportationModes: [
+        'LNG carriers',
+        'Natural gas pipelines',
+        'Compressed gas trucks'
+      ],
+      safetyPrecautions: [
+        'Pressure monitoring',
+        'Gas detection systems',
+        'Emergency shutdown procedures'
+      ]
+    }
+  },
+  'Solar Energy': {
+    description: 'Solar energy refers to the conversion of sunlight into electrical energy through photovoltaic cells or concentrated solar power.',
+    sustainability: {
+      carbonFootprint: 'Very Low - 0.02 tons CO2/MWh',
+      renewableContent: '100%',
+      environmentalCertifications: [
+        'Solar Energy Industries Association (SEIA) Certification',
+        'Clean Energy Council Approved'
+      ]
+    },
+    marketInsights: {
+      demandOutlook: 'Rapidly growing with increasing renewable energy adoption',
+      seasonalFactors: [
+        'Peak production in summer months',
+        'Weather dependency',
+        'Grid capacity variations'
+      ]
+    },
+    logistics: {
+      storageRequirements: 'Battery storage systems with smart grid integration',
+      transportationModes: [
+        'Grid transmission',
+        'Local distribution networks',
+        'Battery storage systems'
+      ],
+      safetyPrecautions: [
+        'Surge protection',
+        'Grounding systems',
+        'Maintenance protocols'
+      ]
+    }
+  }
+}
+
+export function getProductDetails(productName: string): ProductDetails | null {
+  return productDetailsMap[productName] || null
+}
+

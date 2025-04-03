@@ -66,6 +66,10 @@ import {
 import { HeadlinesSection } from '@/components/headlines-section'
 import { HeadlinesService, Headline } from '@/lib/services/headlines.service'
 import Link from 'next/link'
+import { ProductCard } from "@/components/product-card"
+import { MarketDataDisplay } from "@/components/market-data-display"
+import { getProductDetails } from "@/lib/products"
+import { DetailedMarketData } from "@/lib/market-data"
 
 // News categories
 type NewsCategoryId = 'regulatory' | 'market-insights' | 'investment' | 'innovation'
@@ -1525,6 +1529,14 @@ export default function MarketOverviewPage() {
   const [marketData, setMarketData] = useState<ExtendedMarketData[]>([])
   const [marketDataCache] = useState(() => new MarketDataCache())
   const [marketDataService] = useState(() => new MarketDataService(selectedCategory))
+  const [selectedProduct, setSelectedProduct] = useState<{
+    name: string;
+    description: string;
+    tradingVolume: string;
+    sustainability: any;
+    marketInsights: any;
+    logistics: any;
+  } | null>(null)
 
   // Move handleTimeRangeChange inside the component
   const handleTimeRangeChange = useCallback((value: string) => {
@@ -1596,6 +1608,24 @@ export default function MarketOverviewPage() {
     fetchData()
   }
 
+  const handleProductClick = (item: DetailedMarketData) => {
+    const productDetails = getProductDetails(item.name)
+    if (productDetails) {
+      setSelectedProduct({
+        name: item.name,
+        description: productDetails.description,
+        tradingVolume: `${item.volume.toLocaleString()} units`,
+        sustainability: productDetails.sustainability,
+        marketInsights: {
+          priceTrends: `Current price trend is ${item.trend === 'up' ? 'upward' : 'downward'} with ${Math.abs(item.change)}% change`,
+          demandOutlook: productDetails.marketInsights.demandOutlook,
+          seasonalFactors: productDetails.marketInsights.seasonalFactors,
+        },
+        logistics: productDetails.logistics,
+      })
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Banner/Hero Section */}
@@ -1640,94 +1670,95 @@ export default function MarketOverviewPage() {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Market Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {getMarketStats(selectedCategory, productCategories).map((stat) => (
             <motion.div
               key={stat.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-lg shadow-sm p-4"
+              className="bg-white rounded-lg shadow-sm p-6"
             >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-teal-50 rounded-lg">
-                    <stat.icon className="w-4 h-4 text-teal-600" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-teal-50 rounded-lg">
+                    <stat.icon className="w-5 h-5 text-teal-600" />
                   </div>
-                  <h3 className="text-sm font-medium text-teal-900">{stat.title}</h3>
+                  <h3 className="text-base font-medium text-teal-900">{stat.title}</h3>
                 </div>
                 <Badge
                   variant={stat.trend === 'up' ? 'default' : stat.trend === 'down' ? 'destructive' : 'secondary'}
-                  className="text-xs"
+                  className="text-sm"
                 >
                   {stat.change}
                 </Badge>
               </div>
-              <div className="text-xl font-bold text-teal-900 mb-1">{stat.value}</div>
-              <div className="text-xs text-teal-500">{stat.subtext}</div>
+              <div className="text-2xl font-bold text-teal-900 mb-2">{stat.value}</div>
+              <div className="text-sm text-teal-500">{stat.subtext}</div>
             </motion.div>
           ))}
         </div>
 
-        {/* Chart Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        {/* Chart and News Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-4">
+            <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-xl font-semibold text-teal-900">
+                  <h2 className="text-2xl font-semibold text-teal-900">
                     {categoryLabels[selectedCategory]} Market Overview
                   </h2>
-                  <p className="text-sm text-teal-500 mt-1">
+                  <p className="text-base text-teal-500 mt-2">
                     Real-time market data and analysis
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <ToggleGroup
                     type="single"
                     value={chartType}
                     onValueChange={(value) => value && setChartType(value as ChartType)}
-                    className="bg-teal-50 p-1 rounded-lg"
+                    className="bg-teal-50 p-1.5 rounded-lg"
                   >
                     {chartTypeIcons.map(({ type, icon: Icon, label }) => (
                       <ToggleGroupItem
                         key={type}
                         value={type}
-                        className="data-[state=on]:bg-white data-[state=on]:text-teal-600"
+                        className="data-[state=on]:bg-white data-[state=on]:text-teal-600 p-2"
                       >
-                        <Icon className="w-4 h-4" />
+                        <Icon className="w-5 h-5" />
                       </ToggleGroupItem>
                     ))}
                   </ToggleGroup>
                 </div>
               </div>
+
               <div className="space-y-6">
-                <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                <div className="flex items-center gap-3 overflow-x-auto pb-3">
                   {productCategories.map((category) => (
                     <Button
                       key={category.id}
                       variant={selectedCategory === category.id ? "default" : "outline"}
-                      size="sm"
+                      size="default"
                       className={cn(
                         "flex items-center gap-2 whitespace-nowrap",
                         selectedCategory === category.id && "bg-teal-600 hover:bg-teal-700"
                       )}
                       onClick={() => handleCategoryChange(category.id)}
                     >
-                      <category.icon className="w-4 h-4" />
+                      <category.icon className="w-5 h-5" />
                       {category.name}
                     </Button>
                   ))}
                 </div>
 
-                {/* Simplified Time Range Selector */}
+                {/* Time Range Selector */}
                 <div className="flex items-center gap-4">
                   <Select
                     value={timeRange}
                     onValueChange={handleTimeRangeChange}
                   >
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[200px]">
                       <SelectValue placeholder="Select time range" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1740,19 +1771,19 @@ export default function MarketOverviewPage() {
                   </Select>
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="default"
                     onClick={fetchData}
                     className="text-teal-600"
                   >
-                    <RefreshCw className="w-4 h-4 mr-2" />
+                    <RefreshCw className="w-5 h-5 mr-2" />
                     Refresh
                   </Button>
                 </div>
 
                 {/* Chart */}
                 {isLoading ? (
-                  <div className="h-[400px] flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" />
+                  <div className="h-[500px] flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600" />
                   </div>
                 ) : (
                   <InteractiveChart
@@ -1770,32 +1801,30 @@ export default function MarketOverviewPage() {
 
           {/* News Section */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-4">
+            <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-xl font-semibold text-teal-900">Market News</h2>
-                  <p className="text-sm text-teal-500 mt-1">
-                    Latest updates and analysis
-                  </p>
+                  <h2 className="text-2xl font-semibold text-teal-900">Market News</h2>
+                  <p className="text-base text-teal-500 mt-2">Latest updates and analysis</p>
                 </div>
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="default"
                   className="text-teal-600"
                   onClick={fetchData}
                 >
-                  <RefreshCw className="w-4 h-4 mr-2" />
+                  <RefreshCw className="w-5 h-5 mr-2" />
                   Refresh
                 </Button>
               </div>
 
               {/* News Category Tabs */}
-              <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-4">
+              <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6">
                 {headlineCategories.map((category) => (
                   <Button
                     key={category.id}
                     variant={selectedNewsCategory === category.id ? "default" : "outline"}
-                    size="sm"
+                    size="default"
                     className={cn(
                       "flex items-center gap-2 whitespace-nowrap",
                       selectedNewsCategory === category.id && "bg-teal-600 hover:bg-teal-700"
@@ -1804,7 +1833,7 @@ export default function MarketOverviewPage() {
                       setSelectedNewsCategory(category.id)
                     }}
                   >
-                    <category.icon className="w-4 h-4" />
+                    <category.icon className="w-5 h-5" />
                     {category.label}
                   </Button>
                 ))}
@@ -1813,30 +1842,30 @@ export default function MarketOverviewPage() {
               {/* Headlines List */}
               <div className="space-y-4">
                 {isLoadingNews ? (
-                  // Loading skeletons - reduced to 3
-                  Array(3).fill(0).map((_, i) => (
-                    <div key={i} className="flex items-start gap-3 animate-pulse">
-                      <div className="w-10 h-10 bg-teal-100 rounded-full" />
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-teal-100 rounded w-3/4" />
-                        <div className="h-3 bg-teal-50 rounded w-1/2" />
+                  Array(5).fill(0).map((_, i) => (
+                    <div key={i} className="flex items-start gap-4 animate-pulse">
+                      <div className="w-12 h-12 bg-teal-100 rounded-full" />
+                      <div className="flex-1 space-y-3">
+                        <div className="h-5 bg-teal-100 rounded w-3/4" />
+                        <div className="h-4 bg-teal-50 rounded w-1/2" />
                       </div>
                     </div>
                   ))
                 ) : (
-                  <HeadlinesSection />
+                  <HeadlinesSection limit={5} />
                 )}
               </div>
 
               {/* View All Link */}
-              <div className="mt-6">
+              <div className="mt-8">
                 <Link href="/market-overview/headlines" className="w-full">
                   <Button
                     variant="outline"
-                    className="w-full text-teal-600"
+                    size="lg"
+                    className="w-full text-teal-600 hover:bg-teal-50"
                   >
                     View All Headlines
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>
               </div>
@@ -1844,6 +1873,19 @@ export default function MarketOverviewPage() {
           </div>
         </div>
       </main>
+
+      {/* Product Card Dialog */}
+      {selectedProduct && (
+        <ProductCard
+          title={selectedProduct.name}
+          description={selectedProduct.description}
+          tradingVolume={selectedProduct.tradingVolume}
+          sustainability={selectedProduct.sustainability}
+          marketInsights={selectedProduct.marketInsights}
+          logistics={selectedProduct.logistics}
+          onClose={() => setSelectedProduct(null)}
+        />
+      )}
     </div>
   )
 }
