@@ -270,31 +270,38 @@ export default function SustainabilityPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header Section */}
-      <div className="relative bg-gradient-to-br from-teal-900 to-teal-800 py-48 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(20,184,166,0.2),transparent_70%)]" />
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl relative z-20">
+      {/* Hero Section with Background Image */}
+      <div className="relative h-[80vh] overflow-hidden">
+        <Image
+          src="/tree-desert.jpeg"
+          alt="Sustainability in Action"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-teal-900/90 to-teal-800/75" />
+        <div className="absolute inset-0 flex items-center">
+          <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="space-y-8"
+              className="max-w-3xl"
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
-                className="inline-block"
+                className="inline-block mb-6"
               >
                 <span className="px-4 py-2 bg-orange-500/20 text-orange-300 rounded-full text-sm font-medium">
                   Environmental Stewardship
                 </span>
               </motion.div>
-              <h1 className="text-7xl font-bold text-white leading-tight">
-                Our Vision for{" "}
+              <h1 className="text-6xl font-bold text-white mb-6">
+                Sustainable{" "}
                 <span className="text-orange-400 relative">
-                  Sustainability
+                  Energy Future
                   <motion.div
                     className="absolute -bottom-2 left-0 h-1 bg-orange-500 rounded-full"
                     initial={{ width: 0 }}
@@ -304,8 +311,7 @@ export default function SustainabilityPage() {
                 </span>
               </h1>
               <p className="text-xl text-teal-50 leading-relaxed max-w-2xl">
-                Leading the energy industry's transition towards a sustainable future through
-                innovation, responsibility, and commitment to environmental stewardship.
+                Leading the transition to sustainable energy through innovation, responsibility, and environmental stewardship.
               </p>
             </motion.div>
           </div>

@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import { Shield, FileText, Users, Globe, Scale, AlertTriangle, CheckCircle2, ExternalLink, Download, ArrowRight } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 const sections = [
     {
@@ -105,24 +106,33 @@ const complianceDetails = [
 export default function CodeOfConductPage() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 via-teal-50/10 to-white">
-            {/* Header Section */}
-            <div className="relative bg-gradient-to-r from-teal-900 to-teal-800 py-24">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(20,184,166,0.2),transparent_70%)]" />
-                <div className="container mx-auto px-4">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
-                        className="max-w-4xl mx-auto text-center"
-                    >
-                        <div className="inline-block mb-6">
-                            <FileText className="h-16 w-16 text-orange-400" />
-                        </div>
-                        <h1 className="text-5xl font-bold text-white mb-6">Code of Conduct</h1>
-                        <p className="text-xl text-teal-50 leading-relaxed">
-                            Our commitment to ethical business practices and professional integrity in the global energy sector
-                        </p>
-                    </motion.div>
+            {/* Header Section with Background Image */}
+            <div className="relative h-[60vh] overflow-hidden">
+                <Image
+                    src="/compliance-photo.jpeg"
+                    alt="Ethics and Compliance"
+                    fill
+                    className="object-cover"
+                    priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-900/90 to-teal-800/75" />
+                <div className="absolute inset-0 flex items-center">
+                    <div className="container mx-auto px-4">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8 }}
+                            className="max-w-4xl mx-auto text-center"
+                        >
+                            <div className="inline-block mb-6">
+                                <FileText className="h-16 w-16 text-orange-400" />
+                            </div>
+                            <h1 className="text-5xl font-bold text-white mb-6">Code of Conduct</h1>
+                            <p className="text-xl text-teal-50 leading-relaxed">
+                                Our commitment to ethical business practices and professional integrity in the global energy sector
+                            </p>
+                        </motion.div>
+                    </div>
                 </div>
             </div>
 

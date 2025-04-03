@@ -141,93 +141,55 @@ export default function RiskManagementPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-teal-50/10 to-white">
-      {/* Enhanced Header with Dynamic Background */}
-      <div className="relative bg-gradient-to-br from-teal-950 via-teal-900 to-teal-800 py-32 overflow-hidden">
-        {/* Improved animated background patterns */}
-        <div className="absolute inset-0 overflow-hidden">
-          <motion.div
-            className="absolute inset-0 opacity-10"
-            animate={{
-              backgroundPosition: ["0px 0px", "100px 100px"],
-              transition: { duration: 30, repeat: Infinity, repeatType: "reverse" }
-            }}
-            style={{
-              backgroundImage: 'url("/grid-pattern.svg")',
-              backgroundSize: '30px 30px',
-              filter: 'blur(1px)'
-            }}
-          />
-          {/* Enhanced floating elements with parallax */}
-          <motion.div
-            className="absolute inset-0"
-            style={{ y: backgroundY }}
-          >
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.1, 0.2, 0.1],
-              }}
-              transition={{
-                duration: 8,
-                repeat: Infinity,
-                repeatType: "reverse"
-              }}
-              className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-orange-500/20 to-transparent rounded-full blur-3xl"
-            />
-            <motion.div
-              animate={{
-                scale: [1.2, 1, 1.2],
-                opacity: [0.1, 0.2, 0.1],
-              }}
-              transition={{
-                duration: 8,
-                repeat: Infinity,
-                repeatType: "reverse",
-                delay: 1
-              }}
-              className="absolute bottom-1/4 right-1/4 w-[32rem] h-[32rem] bg-gradient-to-br from-teal-500/20 to-transparent rounded-full blur-3xl"
-            />
-          </motion.div>
-        </div>
-
-        {/* Enhanced Header Content */}
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl relative z-20">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="space-y-8"
-            >
+      {/* Enhanced Header with Background Image */}
+      <div className="relative h-[80vh] overflow-hidden">
+        <Image
+          src="/oil-extraction.jpeg"
+          alt="Risk Management in Energy Operations"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-teal-900/90 to-teal-800/75" />
+        <div className="absolute inset-0 flex items-center">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl relative z-20">
               <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="inline-block"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="space-y-8"
               >
-                <span className="px-6 py-2 bg-gradient-to-r from-orange-500/20 to-orange-400/10 
-                  text-orange-200 rounded-full text-sm font-medium border border-orange-400/20
-                  shadow-lg shadow-orange-900/5 backdrop-blur-sm"
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="inline-block"
                 >
-                  Advanced Protection
-                </span>
+                  <span className="px-6 py-2 bg-gradient-to-r from-orange-500/20 to-orange-400/10 
+                    text-orange-200 rounded-full text-sm font-medium border border-orange-400/20
+                    shadow-lg shadow-orange-900/5 backdrop-blur-sm"
+                  >
+                    Advanced Protection
+                  </span>
+                </motion.div>
+                <h1 className="text-7xl font-bold text-white leading-tight tracking-tight">
+                  Risk{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-500 relative">
+                    Management
+                    <motion.div
+                      className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-orange-500 to-orange-400 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: "100%" }}
+                      transition={{ delay: 0.5, duration: 0.8 }}
+                    />
+                  </span>
+                </h1>
+                <p className="text-xl text-teal-50/90 leading-relaxed max-w-2xl">
+                  Sophisticated risk assessment and mitigation strategies for energy trading
+                </p>
               </motion.div>
-              <h1 className="text-7xl font-bold text-white leading-tight tracking-tight">
-                Risk{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-500 relative">
-                  Management
-                  <motion.div
-                    className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-orange-500 to-orange-400 rounded-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: "100%" }}
-                    transition={{ delay: 0.5, duration: 0.8 }}
-                  />
-                </span>
-              </h1>
-              <p className="text-xl text-teal-50/90 leading-relaxed max-w-2xl">
-                Sophisticated risk assessment and mitigation strategies for energy trading
-              </p>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
