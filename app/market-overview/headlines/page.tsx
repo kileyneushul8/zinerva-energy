@@ -24,6 +24,81 @@ const headlineCategories = [
     { id: 'innovation' as NewsCategoryId, label: 'Innovation', icon: Lightbulb }
 ]
 
+const sampleHeadlines: Headline[] = [
+    {
+        id: 'reg1',
+        title: 'New EPA Regulations Impact Energy Sector',
+        category: 'regulatory',
+        time: new Date().toLocaleString()
+    },
+    {
+        id: 'reg2',
+        title: 'Global Carbon Trading Framework Update',
+        category: 'regulatory',
+        time: new Date().toLocaleString()
+    },
+    {
+        id: 'reg3',
+        title: 'Renewable Energy Tax Credit Extension',
+        category: 'regulatory',
+        time: new Date().toLocaleString()
+    },
+    {
+        id: 'market1',
+        title: 'Crude Oil Prices Reach 3-Month High',
+        category: 'market-insights',
+        time: new Date().toLocaleString()
+    },
+    {
+        id: 'market2',
+        title: 'Natural Gas Storage Levels Below Average',
+        category: 'market-insights',
+        time: new Date().toLocaleString()
+    },
+    {
+        id: 'market3',
+        title: 'Renewable Energy Capacity Growth Accelerates',
+        category: 'market-insights',
+        time: new Date().toLocaleString()
+    },
+    {
+        id: 'inv1',
+        title: 'Major Investment in Hydrogen Infrastructure',
+        category: 'investment',
+        time: new Date().toLocaleString()
+    },
+    {
+        id: 'inv2',
+        title: 'New Energy Storage Fund Launches',
+        category: 'investment',
+        time: new Date().toLocaleString()
+    },
+    {
+        id: 'inv3',
+        title: 'Clean Energy Startups Raise Record Funding',
+        category: 'investment',
+        time: new Date().toLocaleString()
+    },
+    {
+        id: 'inn1',
+        title: 'Breakthrough in Solar Cell Efficiency',
+        category: 'innovation',
+        time: new Date().toLocaleString()
+    },
+    {
+        id: 'inn2',
+        title: 'New Battery Technology Promises Faster Charging',
+        category: 'innovation',
+        time: new Date().toLocaleString()
+    },
+    {
+        id: 'inn3',
+        title: 'AI-Powered Grid Management System Launched',
+        category: 'innovation',
+        time: new Date().toLocaleString()
+    }
+]
+
 const HeadlinesPage: React.FC = () => {
     const [headlines, setHeadlines] = useState<Headline[]>([])
     const [selectedCategory, setSelectedCategory] = useState<NewsCategoryId | 'all'>('all')
@@ -43,71 +118,13 @@ const HeadlinesPage: React.FC = () => {
             // If no headlines found for the category, show default headlines
             if (filteredHeadlines.length === 0) {
                 if (selectedCategory === 'regulatory') {
-                    filteredHeadlines = [
-                        {
-                            id: 'reg1',
-                            title: 'New EPA Regulations Impact Energy Sector',
-                            category: 'regulation',
-                            time: new Date().toLocaleString(),
-                            summary: 'New environmental regulations announced by the EPA will significantly impact energy production and distribution.',
-                            source: 'Energy News Daily',
-                            url: '#',
-                            impact: 'high'
-                        },
-                        {
-                            id: 'reg2',
-                            title: 'Global Climate Policy Updates',
-                            category: 'regulation',
-                            time: new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleString(),
-                            summary: 'Major updates to global climate policies expected to shape energy market dynamics.',
-                            source: 'Climate Policy Journal',
-                            url: '#',
-                            impact: 'medium'
-                        },
-                        {
-                            id: 'reg3',
-                            title: 'Carbon Emission Standards Revised',
-                            category: 'regulation',
-                            time: new Date(Date.now() - 48 * 60 * 60 * 1000).toLocaleString(),
-                            summary: 'Updated carbon emission standards set new benchmarks for energy companies.',
-                            source: 'Environmental Policy Review',
-                            url: '#',
-                            impact: 'high'
-                        }
-                    ]
+                    filteredHeadlines = sampleHeadlines.filter(headline => headline.category === 'regulatory')
                 } else if (selectedCategory === 'market-insights') {
-                    filteredHeadlines = [
-                        {
-                            id: 'mkt1',
-                            title: 'Energy Market Trends Analysis',
-                            category: 'market-analysis',
-                            time: new Date().toLocaleString(),
-                            summary: 'Latest analysis shows shifting patterns in global energy consumption and production.',
-                            source: 'Market Analysis Weekly',
-                            url: '#',
-                            impact: 'high'
-                        },
-                        {
-                            id: 'mkt2',
-                            title: 'Supply Chain Impact on Energy Prices',
-                            category: 'market-analysis',
-                            time: new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleString(),
-                            summary: 'How global supply chain disruptions are affecting energy market prices and availability.',
-                            source: 'Energy Economics Review',
-                            url: '#',
-                            impact: 'medium'
-                        },
-                        {
-                            id: 'mkt3',
-                            title: 'Renewable Energy Market Growth',
-                            category: 'market-analysis',
-                            time: new Date(Date.now() - 48 * 60 * 60 * 1000).toLocaleString(),
-                            summary: 'Renewable energy sector shows unprecedented growth in Q1 2024.',
-                            source: 'Market Intelligence Report',
-                            url: '#',
-                            impact: 'high'
-                        }
-                    ]
+                    filteredHeadlines = sampleHeadlines.filter(headline => headline.category === 'market-insights')
+                } else if (selectedCategory === 'investment') {
+                    filteredHeadlines = sampleHeadlines.filter(headline => headline.category === 'investment')
+                } else if (selectedCategory === 'innovation') {
+                    filteredHeadlines = sampleHeadlines.filter(headline => headline.category === 'innovation')
                 }
             }
 
@@ -185,16 +202,19 @@ const HeadlinesPage: React.FC = () => {
                     </div>
 
                     {/* Headlines Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="space-y-4">
                         {isLoading ? (
                             // Loading skeletons
                             Array(6).fill(0).map((_, i) => (
-                                <Card key={i} className="animate-pulse">
-                                    <CardContent className="p-6">
-                                        <div className="h-4 bg-[#2F4D48]/10 rounded w-3/4 mb-4" />
-                                        <div className="h-3 bg-[#2F4D48]/5 rounded w-1/2" />
-                                    </CardContent>
-                                </Card>
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="bg-white rounded-lg shadow-sm p-4 animate-pulse"
+                                >
+                                    <div className="h-4 bg-[#2F4D48]/10 rounded w-3/4 mb-4" />
+                                    <div className="h-3 bg-[#2F4D48]/5 rounded w-1/2" />
+                                </motion.div>
                             ))
                         ) : headlines.length > 0 ? (
                             headlines.map((headline) => (
@@ -202,41 +222,28 @@ const HeadlinesPage: React.FC = () => {
                                     key={headline.id}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.3 }}
+                                    className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow"
                                 >
-                                    <Link href={`/market-overview/headlines/${headline.id}`}>
-                                        <Card className="h-full hover:shadow-md transition-shadow">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-start gap-3">
-                                                    <div className="p-2 rounded-full bg-[#2F4D48]/5">
-                                                        {headlineCategories.find(cat => cat.id === headline.category)?.icon && (
-                                                            <div className="w-5 h-5 text-[#2F4D48]">
-                                                                {React.createElement(
-                                                                    headlineCategories.find(cat => cat.id === headline.category)?.icon || Filter
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div>
-                                                        <h3 className="text-lg font-semibold text-[#2F4D48] mb-2">
-                                                            {headline.title}
-                                                        </h3>
-                                                        <p className="text-sm text-[#2F4D48]/70 mb-4 line-clamp-2">
-                                                            {headline.summary}
-                                                        </p>
-                                                        <div className="flex items-center justify-between">
-                                                            <Badge variant="secondary" className="text-xs bg-[#E9A268]/10 text-[#E9A268]">
-                                                                {headlineCategories.find(cat => cat.id === headline.category)?.label}
-                                                            </Badge>
-                                                            <span className="text-xs text-[#2F4D48]/60">
-                                                                {headline.time}
-                                                            </span>
-                                                        </div>
-                                                    </div>
+                                    <div className="flex items-start gap-4">
+                                        <div className="p-2 bg-teal-50 rounded-lg">
+                                            {headlineCategories.find(cat => cat.id === headline.category)?.icon && (
+                                                <div className="w-5 h-5 text-teal-600">
+                                                    {React.createElement(
+                                                        headlineCategories.find(cat => cat.id === headline.category)?.icon || Filter
+                                                    )}
                                                 </div>
-                                            </CardContent>
-                                        </Card>
-                                    </Link>
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-base font-medium text-teal-900">{headline.title}</h3>
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <Badge variant="outline" className="text-xs">
+                                                    {headlineCategories.find(cat => cat.id === headline.category)?.label}
+                                                </Badge>
+                                                <span className="text-xs text-teal-500">{headline.time}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </motion.div>
                             ))
                         ) : (
