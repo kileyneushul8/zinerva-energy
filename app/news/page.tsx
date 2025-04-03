@@ -11,6 +11,7 @@ import {
     Globe, TrendingUp, Briefcase, Scale, Lightbulb,
     Search, Filter, ArrowRight
 } from "lucide-react"
+import React from "react"
 
 const headlineCategories = [
     { id: 'all', label: 'All', icon: Globe },
@@ -45,8 +46,7 @@ export default function NewsPage() {
         return headlines.filter(headline => {
             const matchesCategory = activeCategory === 'all' || headline.category === activeCategory
             const matchesSearch = searchQuery === '' ||
-                headline.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                headline.summary.toLowerCase().includes(searchQuery.toLowerCase())
+                headline.title.toLowerCase().includes(searchQuery.toLowerCase())
             return matchesCategory && matchesSearch
         })
     }, [headlines, activeCategory, searchQuery])
@@ -104,73 +104,36 @@ export default function NewsPage() {
                 </Card>
 
                 {/* Headlines Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <AnimatePresence mode="popLayout">
-                        {filteredHeadlines.map((headline, index) => (
-                            <motion.div
-                                key={headline.id}
-                                layout
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ duration: 0.2 }}
-                                className={`group p-4 rounded-lg border border-teal-50 hover:border-teal-100 
-                  bg-white/50 hover:bg-white transition-all duration-200 cursor-pointer
-                  ${expandedHeadline === index ? 'md:col-span-2' : ''}`}
-                                onClick={() => setExpandedHeadline(expandedHeadline === index ? null : index)}
-                            >
-                                <div className="flex items-start justify-between mb-2">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <Badge
-                                                variant="secondary"
-                                                className={`
-                          ${headline.impact === 'high'
-                                                        ? 'bg-amber-50 text-amber-700'
-                                                        : 'bg-teal-50 text-teal-700'}
-                          text-base
-                        `}
-                                            >
-                                                {headline.impact === 'high' ? 'High Impact' : 'Medium Impact'}
-                                            </Badge>
-                                            <Badge variant="outline" className="bg-white/50 text-base">
-                                                {headlineCategories.find(c => c.id === headline.category)?.label}
-                                            </Badge>
+                <div className="space-y-4">
+                    {filteredHeadlines.map((headline) => (
+                        <motion.div
+                            key={headline.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow"
+                        >
+                            <div className="flex items-start gap-4">
+                                <div className="p-2 bg-teal-50 rounded-lg">
+                                    {headlineCategories.find(cat => cat.id === headline.category)?.icon && (
+                                        <div className="w-5 h-5 text-teal-600">
+                                            {React.createElement(
+                                                headlineCategories.find(cat => cat.id === headline.category)?.icon || Filter
+                                            )}
                                         </div>
-                                        <h3 className="text-xl text-teal-900 font-medium group-hover:text-teal-700 
-                      transition-colors duration-200 leading-snug"
-                                        >
-                                            {headline.title}
-                                        </h3>
+                                    )}
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="text-base font-medium text-teal-900">{headline.title}</h3>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <Badge variant="outline" className="text-xs">
+                                            {headlineCategories.find(cat => cat.id === headline.category)?.label}
+                                        </Badge>
+                                        <span className="text-xs text-teal-500">{headline.time}</span>
                                     </div>
                                 </div>
-                                <motion.div
-                                    initial={{ height: 0 }}
-                                    animate={{ height: expandedHeadline === index ? 'auto' : 0 }}
-                                    transition={{ duration: 0.2 }}
-                                    className="overflow-hidden"
-                                >
-                                    <p className="text-teal-600 mt-2 mb-4 text-lg">{headline.summary}</p>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="text-base"
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            window.open(headline.url, '_blank')
-                                        }}
-                                    >
-                                        Read More <ArrowRight className="w-4 h-4 ml-2" />
-                                    </Button>
-                                </motion.div>
-                                <div className="flex items-center gap-2 text-base text-teal-600 mt-4">
-                                    <span className="font-medium">{headline.source}</span>
-                                    <span>•</span>
-                                    <span>{headline.time}</span>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
+                            </div>
+                        </motion.div>
+                    ))}
                 </div>
             </div>
         </div>
