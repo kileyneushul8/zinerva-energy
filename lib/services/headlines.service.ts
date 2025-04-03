@@ -8,7 +8,7 @@ export interface Headline {
     summary: string
     source: string
     url: string
-    impact: 'high' | 'medium'
+    impact: 'high' | 'medium' | 'low'
 }
 
 interface AlphaVantageNewsResponse {
@@ -36,82 +36,72 @@ export class HeadlinesService {
     private sampleHeadlines: Headline[] = [
         {
             id: '1',
-            title: 'EU Announces New Carbon Trading Framework',
+            title: 'New Regulatory Framework for Energy Markets',
             category: 'regulation',
             time: '2 hours ago',
-            summary: '',
-            source: '',
-            url: '',
-            impact: 'medium'
+            summary: 'Government announces new regulatory framework for energy markets',
+            source: 'Energy News',
+            url: '#',
+            impact: 'high'
         },
         {
             id: '2',
-            title: 'Global Oil Demand Expected to Peak by 2030',
+            title: 'Market Analysis: Energy Sector Trends',
             category: 'market',
-            time: '3 hours ago',
-            summary: '',
-            source: '',
-            url: '',
+            time: '4 hours ago',
+            summary: 'Latest market analysis shows significant trends in energy sector',
+            source: 'Market Watch',
+            url: '#',
             impact: 'medium'
         },
         {
             id: '3',
-            title: '$2B Investment in Renewable Energy Projects',
+            title: 'Major Investment in Renewable Energy',
             category: 'investment',
-            time: '4 hours ago',
-            summary: '',
-            source: '',
-            url: '',
+            time: '6 hours ago',
+            summary: 'Global investment in renewable energy reaches new heights',
+            source: 'Financial Times',
+            url: '#',
             impact: 'high'
         },
         {
             id: '4',
-            title: 'Breakthrough in Solar Panel Efficiency',
+            title: 'Innovation in Energy Storage Technology',
             category: 'innovation',
-            time: '5 hours ago',
-            summary: '',
-            source: '',
-            url: '',
+            time: '8 hours ago',
+            summary: 'Breakthrough in energy storage technology announced',
+            source: 'Tech Review',
+            url: '#',
             impact: 'high'
         },
         {
             id: '5',
-            title: 'Natural Gas Prices Surge on Supply Concerns',
-            category: 'market',
-            time: '6 hours ago',
-            summary: '',
-            source: '',
-            url: '',
-            impact: 'medium'
+            title: 'Crude Oil Prices Surge',
+            category: 'crude-oil',
+            time: '10 hours ago',
+            summary: 'Crude oil prices surge due to supply concerns',
+            source: 'Oil Daily',
+            url: '#',
+            impact: 'high'
         },
         {
             id: '6',
-            title: 'New Regulations for Energy Storage Systems',
-            category: 'regulation',
-            time: '7 hours ago',
-            summary: '',
-            source: '',
-            url: '',
-            impact: 'high'
+            title: 'Natural Gas Market Update',
+            category: 'natural-gas',
+            time: '12 hours ago',
+            summary: 'Natural gas market shows strong growth potential',
+            source: 'Gas Weekly',
+            url: '#',
+            impact: 'medium'
         },
         {
             id: '7',
-            title: 'Green Hydrogen Projects Attract Major Funding',
-            category: 'investment',
-            time: '8 hours ago',
-            summary: '',
-            source: '',
-            url: '',
-            impact: 'high'
-        },
-        {
-            id: '8',
-            title: 'AI-Powered Grid Management System Launched',
-            category: 'innovation',
-            time: '9 hours ago',
-            summary: '',
-            source: '',
-            url: '',
+            title: 'Renewable Energy Adoption Accelerates',
+            category: 'renewables',
+            time: '14 hours ago',
+            summary: 'Global adoption of renewable energy accelerates',
+            source: 'Green Energy',
+            url: '#',
             impact: 'high'
         }
     ]
@@ -129,13 +119,14 @@ export class HeadlinesService {
         return HeadlinesService.instance
     }
 
-    async getHeadlines(): Promise<Headline[]> {
+    public async getHeadlines(): Promise<Headline[]> {
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 1000))
         return this.sampleHeadlines
     }
 
-    async getHeadlinesByCategory(category: string): Promise<Headline[]> {
+    public async getHeadlinesByCategory(category: Headline['category']): Promise<Headline[]> {
+        // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 1000))
         return this.sampleHeadlines.filter(headline => headline.category === category)
     }

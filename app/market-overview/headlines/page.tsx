@@ -10,92 +10,143 @@ import { cn } from "@/lib/utils"
 import { HeadlinesService, Headline } from '@/lib/services/headlines.service'
 import {
     Scale, TrendingUp, Briefcase, Lightbulb,
-    ArrowRight, RefreshCw, Filter, ChevronLeft
+    ArrowRight, RefreshCw, Filter, ChevronLeft, FileText, DollarSign, Droplet, Flame, Sun
 } from "lucide-react"
 import Link from 'next/link'
 
 // News categories
-type NewsCategoryId = 'regulatory' | 'market-insights' | 'investment' | 'innovation'
+type NewsCategoryId = 'regulation' | 'market' | 'investment' | 'innovation' | 'crude-oil' | 'natural-gas' | 'renewables'
 
 const headlineCategories = [
-    { id: 'regulatory' as NewsCategoryId, label: 'Regulatory', icon: Scale },
-    { id: 'market-insights' as NewsCategoryId, label: 'Market Insights', icon: TrendingUp },
-    { id: 'investment' as NewsCategoryId, label: 'Investment', icon: Briefcase },
-    { id: 'innovation' as NewsCategoryId, label: 'Innovation', icon: Lightbulb }
+    { id: 'regulation' as NewsCategoryId, label: 'Regulatory', icon: FileText },
+    { id: 'market' as NewsCategoryId, label: 'Market Insights', icon: TrendingUp },
+    { id: 'investment' as NewsCategoryId, label: 'Investment', icon: DollarSign },
+    { id: 'innovation' as NewsCategoryId, label: 'Innovation', icon: Lightbulb },
+    { id: 'crude-oil' as NewsCategoryId, label: 'Crude Oil', icon: Droplet },
+    { id: 'natural-gas' as NewsCategoryId, label: 'Natural Gas', icon: Flame },
+    { id: 'renewables' as NewsCategoryId, label: 'Renewables', icon: Sun }
 ]
 
 const sampleHeadlines: Headline[] = [
     {
         id: 'reg1',
         title: 'New EPA Regulations Impact Energy Sector',
-        category: 'regulatory',
-        time: new Date().toLocaleString()
+        category: 'regulation',
+        time: new Date().toLocaleString(),
+        summary: 'New environmental regulations announced by the EPA will significantly impact energy production and distribution.',
+        source: 'Energy News Daily',
+        url: '#',
+        impact: 'high'
     },
     {
         id: 'reg2',
         title: 'Global Carbon Trading Framework Update',
-        category: 'regulatory',
-        time: new Date().toLocaleString()
+        category: 'regulation',
+        time: new Date().toLocaleString(),
+        summary: 'International carbon trading framework receives major updates to streamline cross-border emissions trading.',
+        source: 'Climate Policy Journal',
+        url: '#',
+        impact: 'medium'
     },
     {
         id: 'reg3',
         title: 'Renewable Energy Tax Credit Extension',
-        category: 'regulatory',
-        time: new Date().toLocaleString()
+        category: 'regulation',
+        time: new Date().toLocaleString(),
+        summary: 'Congress extends renewable energy tax credits for another five years, providing stability for clean energy investments.',
+        source: 'Energy Policy Review',
+        url: '#',
+        impact: 'high'
     },
     {
         id: 'market1',
         title: 'Crude Oil Prices Reach 3-Month High',
-        category: 'market-insights',
-        time: new Date().toLocaleString()
+        category: 'market',
+        time: new Date().toLocaleString(),
+        summary: 'Crude oil prices surge to highest levels in three months amid supply concerns and increased demand.',
+        source: 'Energy Markets Today',
+        url: '#',
+        impact: 'high'
     },
     {
         id: 'market2',
         title: 'Natural Gas Storage Levels Below Average',
-        category: 'market-insights',
-        time: new Date().toLocaleString()
+        category: 'natural-gas',
+        time: new Date().toLocaleString(),
+        summary: 'Natural gas storage levels fall below seasonal averages, signaling potential price volatility ahead.',
+        source: 'Gas Market Monitor',
+        url: '#',
+        impact: 'medium'
     },
     {
         id: 'market3',
         title: 'Renewable Energy Capacity Growth Accelerates',
-        category: 'market-insights',
-        time: new Date().toLocaleString()
+        category: 'renewables',
+        time: new Date().toLocaleString(),
+        summary: 'Global renewable energy capacity growth exceeds expectations, driven by falling costs and policy support.',
+        source: 'Renewable Energy World',
+        url: '#',
+        impact: 'high'
     },
     {
         id: 'inv1',
         title: 'Major Investment in Hydrogen Infrastructure',
         category: 'investment',
-        time: new Date().toLocaleString()
+        time: new Date().toLocaleString(),
+        summary: 'Consortium announces $2 billion investment in hydrogen production and distribution infrastructure.',
+        source: 'Energy Investment News',
+        url: '#',
+        impact: 'high'
     },
     {
         id: 'inv2',
         title: 'New Energy Storage Fund Launches',
         category: 'investment',
-        time: new Date().toLocaleString()
+        time: new Date().toLocaleString(),
+        summary: 'Investment firm launches $500 million fund focused on energy storage technologies and grid-scale solutions.',
+        source: 'Investment Weekly',
+        url: '#',
+        impact: 'medium'
     },
     {
         id: 'inv3',
         title: 'Clean Energy Startups Raise Record Funding',
         category: 'investment',
-        time: new Date().toLocaleString()
+        time: new Date().toLocaleString(),
+        summary: 'Clean energy startups secure record $1.2 billion in venture capital funding in Q2 2024.',
+        source: 'TechCrunch Energy',
+        url: '#',
+        impact: 'high'
     },
     {
         id: 'inn1',
         title: 'Breakthrough in Solar Cell Efficiency',
         category: 'innovation',
-        time: new Date().toLocaleString()
+        time: new Date().toLocaleString(),
+        summary: 'Researchers achieve 30% efficiency in perovskite solar cells, marking significant progress in renewable energy technology.',
+        source: 'Science Daily',
+        url: '#',
+        impact: 'high'
     },
     {
         id: 'inn2',
         title: 'New Battery Technology Promises Faster Charging',
         category: 'innovation',
-        time: new Date().toLocaleString()
+        time: new Date().toLocaleString(),
+        summary: 'Innovative battery design enables 5-minute charging for electric vehicles, potentially revolutionizing the industry.',
+        source: 'Tech Innovation Review',
+        url: '#',
+        impact: 'high'
     },
     {
         id: 'inn3',
         title: 'AI-Powered Grid Management System Launched',
         category: 'innovation',
-        time: new Date().toLocaleString()
+        time: new Date().toLocaleString(),
+        summary: 'New AI system improves grid efficiency by 15% through real-time demand prediction and optimization.',
+        source: 'Smart Grid Today',
+        url: '#',
+        impact: 'high'
     }
 ]
 
@@ -117,10 +168,10 @@ const HeadlinesPage: React.FC = () => {
 
             // If no headlines found for the category, show default headlines
             if (filteredHeadlines.length === 0) {
-                if (selectedCategory === 'regulatory') {
-                    filteredHeadlines = sampleHeadlines.filter(headline => headline.category === 'regulatory')
-                } else if (selectedCategory === 'market-insights') {
-                    filteredHeadlines = sampleHeadlines.filter(headline => headline.category === 'market-insights')
+                if (selectedCategory === 'regulation') {
+                    filteredHeadlines = sampleHeadlines.filter(headline => headline.category === 'regulation')
+                } else if (selectedCategory === 'market') {
+                    filteredHeadlines = sampleHeadlines.filter(headline => headline.category === 'market')
                 } else if (selectedCategory === 'investment') {
                     filteredHeadlines = sampleHeadlines.filter(headline => headline.category === 'investment')
                 } else if (selectedCategory === 'innovation') {
