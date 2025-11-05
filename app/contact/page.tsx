@@ -167,6 +167,12 @@ export default function ContactPage() {
       const data = await response.json()
 
       if (!response.ok) {
+        // Handle rate limit errors specifically
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('Retry-After') || '15'
+          const minutes = Math.ceil(parseInt(retryAfter) / 60)
+          throw new Error(`Too many requests. Please try again in ${minutes} minute${minutes !== 1 ? 's' : ''}.`)
+        }
         throw new Error(data.error || 'Failed to send message')
       }
 
@@ -198,7 +204,7 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-teal-50/10 to-white">
       {/* Enhanced Header Section */}
-      <div className="relative bg-gradient-to-r from-teal-900 to-teal-800 py-24 overflow-hidden">
+      <div className="relative bg-gradient-to-r from-teal-900 to-teal-800 py-12 sm:py-16 md:py-24 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(20,184,166,0.2),transparent_70%)]" />
         <div className="container mx-auto px-4">
           <motion.div
@@ -217,7 +223,7 @@ export default function ContactPage() {
                 Global Network
               </span>
             </motion.div>
-            <h1 className="text-5xl font-bold text-white mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
               Let's Start a{" "}
               <span className="text-orange-400 relative">
                 Conversation
@@ -229,7 +235,7 @@ export default function ContactPage() {
                 />
               </span>
             </h1>
-            <p className="text-xl text-teal-50 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-teal-50 leading-relaxed">
               Connect with our team to explore energy trading opportunities and strategic partnerships
             </p>
           </motion.div>
@@ -251,7 +257,7 @@ export default function ContactPage() {
               }}
               className="md:col-span-2"
             >
-              <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-teal-200 
+              <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border-2 border-teal-200 
                 hover:border-orange-300 transition-all duration-300 relative overflow-hidden">
                 {/* Decorative gradient background */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-teal-50 to-orange-50 opacity-50 rounded-full blur-3xl -z-0" />
@@ -260,7 +266,7 @@ export default function ContactPage() {
                     <div className="p-2 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg">
                       <MessageSquare className="w-6 h-6 text-white" />
                     </div>
-                    <h2 className="text-2xl font-bold text-teal-900">Send us a Message</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold text-teal-900">Send us a Message</h2>
                   </div>
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Personal Information */}
@@ -390,9 +396,10 @@ export default function ContactPage() {
                       type="submit"
                       disabled={isSubmitting}
                       className="bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-400 
-                        hover:to-orange-500 text-white px-8 py-6 rounded-full shadow-lg 
+                        hover:to-orange-500 text-white px-6 sm:px-8 py-5 sm:py-6 rounded-full shadow-lg 
                         hover:shadow-xl transition-all duration-300 group w-full md:w-auto
-                        disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base
+                        min-h-[44px] touch-manipulation"
                     >
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">

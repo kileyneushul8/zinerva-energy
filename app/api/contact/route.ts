@@ -1,7 +1,102 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ConfidentialClientApplication } from '@azure/msal-node'
 
+// Rate limiting storage (in-memory)
+// In production, consider using Redis or a database for distributed rate limiting
+interface RateLimitEntry {
+  count: number
+  resetTime: number
+}
+
+const rateLimitStore = new Map<string, RateLimitEntry>()
+
+// Rate limiting configuration
+const RATE_LIMIT = {
+  maxRequests: 5, // Maximum requests per window
+  windowMs: 15 * 60 * 1000, // 15 minutes in milliseconds
+}
+
+// Clean up old entries every 5 minutes
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, entry] of rateLimitStore.entries()) {
+    if (now > entry.resetTime) {
+      rateLimitStore.delete(key)
+    }
+  }
+}, 5 * 60 * 1000)
+
+// Get client IP address
+function getClientIP(request: NextRequest): string {
+  const forwarded = request.headers.get('x-forwarded-for')
+  const realIP = request.headers.get('x-real-ip')
+  const ip = forwarded?.split(',')[0] || realIP || 'unknown'
+  return ip
+}
+
+// Rate limiting check
+function checkRateLimit(ip: string): { allowed: boolean; remaining: number; resetTime: number } {
+  const now = Date.now()
+  const entry = rateLimitStore.get(ip)
+
+  if (!entry || now > entry.resetTime) {
+    // New entry or expired window
+    rateLimitStore.set(ip, {
+      count: 1,
+      resetTime: now + RATE_LIMIT.windowMs,
+    })
+    return {
+      allowed: true,
+      remaining: RATE_LIMIT.maxRequests - 1,
+      resetTime: now + RATE_LIMIT.windowMs,
+    }
+  }
+
+  if (entry.count >= RATE_LIMIT.maxRequests) {
+    // Rate limit exceeded
+    return {
+      allowed: false,
+      remaining: 0,
+      resetTime: entry.resetTime,
+    }
+  }
+
+  // Increment count
+  entry.count++
+  rateLimitStore.set(ip, entry)
+
+  return {
+    allowed: true,
+    remaining: RATE_LIMIT.maxRequests - entry.count,
+    resetTime: entry.resetTime,
+  }
+}
+
 export async function POST(request: NextRequest) {
+  // Rate limiting check
+  const clientIP = getClientIP(request)
+  const rateLimit = checkRateLimit(clientIP)
+
+  if (!rateLimit.allowed) {
+    const resetTime = new Date(rateLimit.resetTime).toISOString()
+    return NextResponse.json(
+      {
+        error: 'Rate limit exceeded. Please try again later.',
+        resetTime,
+        retryAfter: Math.ceil((rateLimit.resetTime - Date.now()) / 1000),
+      },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': Math.ceil((rateLimit.resetTime - Date.now()) / 1000).toString(),
+          'X-RateLimit-Limit': RATE_LIMIT.maxRequests.toString(),
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': new Date(rateLimit.resetTime).toISOString(),
+        },
+      }
+    )
+  }
+
   try {
     const body = await request.json()
     const { name, email, company, position, country, phone, subject, message, preferredContact } = body
@@ -195,7 +290,14 @@ ${message}
 
     return NextResponse.json(
       { success: true, message: 'Email sent successfully' },
-      { status: 200 }
+      {
+        status: 200,
+        headers: {
+          'X-RateLimit-Limit': RATE_LIMIT.maxRequests.toString(),
+          'X-RateLimit-Remaining': Math.max(0, rateLimit.remaining - 1).toString(),
+          'X-RateLimit-Reset': new Date(rateLimit.resetTime).toISOString(),
+        },
+      }
     )
   } catch (error: any) {
     console.error('Contact form error:', error)
