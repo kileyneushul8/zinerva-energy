@@ -18,8 +18,52 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { PageHeader } from "@/components/page-header"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
+
+// Country codes with phone prefixes
+const countries = [
+  { code: 'US', name: 'United States', prefix: '+1' },
+  { code: 'CA', name: 'Canada', prefix: '+1' },
+  { code: 'GB', name: 'United Kingdom', prefix: '+44' },
+  { code: 'ES', name: 'Spain', prefix: '+34' },
+  { code: 'FR', name: 'France', prefix: '+33' },
+  { code: 'DE', name: 'Germany', prefix: '+49' },
+  { code: 'IT', name: 'Italy', prefix: '+39' },
+  { code: 'NL', name: 'Netherlands', prefix: '+31' },
+  { code: 'BE', name: 'Belgium', prefix: '+32' },
+  { code: 'CH', name: 'Switzerland', prefix: '+41' },
+  { code: 'AU', name: 'Australia', prefix: '+61' },
+  { code: 'NZ', name: 'New Zealand', prefix: '+64' },
+  { code: 'JP', name: 'Japan', prefix: '+81' },
+  { code: 'CN', name: 'China', prefix: '+86' },
+  { code: 'IN', name: 'India', prefix: '+91' },
+  { code: 'BR', name: 'Brazil', prefix: '+55' },
+  { code: 'MX', name: 'Mexico', prefix: '+52' },
+  { code: 'AR', name: 'Argentina', prefix: '+54' },
+  { code: 'ZA', name: 'South Africa', prefix: '+27' },
+  { code: 'AE', name: 'United Arab Emirates', prefix: '+971' },
+  { code: 'SA', name: 'Saudi Arabia', prefix: '+966' },
+  { code: 'SG', name: 'Singapore', prefix: '+65' },
+  { code: 'HK', name: 'Hong Kong', prefix: '+852' },
+  { code: 'KR', name: 'South Korea', prefix: '+82' },
+  { code: 'NO', name: 'Norway', prefix: '+47' },
+  { code: 'SE', name: 'Sweden', prefix: '+46' },
+  { code: 'DK', name: 'Denmark', prefix: '+45' },
+  { code: 'FI', name: 'Finland', prefix: '+358' },
+  { code: 'PL', name: 'Poland', prefix: '+48' },
+  { code: 'PT', name: 'Portugal', prefix: '+351' },
+  { code: 'GR', name: 'Greece', prefix: '+30' },
+  { code: 'IE', name: 'Ireland', prefix: '+353' },
+  { code: 'AT', name: 'Austria', prefix: '+43' },
+  { code: 'RU', name: 'Russia', prefix: '+7' },
+  { code: 'TR', name: 'Turkey', prefix: '+90' },
+  { code: 'IL', name: 'Israel', prefix: '+972' },
+  { code: 'EG', name: 'Egypt', prefix: '+20' },
+  { code: 'NG', name: 'Nigeria', prefix: '+234' },
+  { code: 'KE', name: 'Kenya', prefix: '+254' },
+  { code: 'OTHER', name: 'Other', prefix: '+' },
+]
 
 const contactInfo = [
   {
@@ -58,24 +102,66 @@ export default function ContactPage() {
     email: '',
     company: '',
     position: '',
+    country: '',
     phone: '',
     subject: '',
     message: '',
     preferredContact: 'email'
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  // Get phone prefix based on selected country
+  const getPhonePrefix = (countryCode: string) => {
+    const country = countries.find(c => c.code === countryCode)
+    return country ? country.prefix : '+'
+  }
+
+  // Format phone number with country prefix
+  const formatPhoneNumber = (countryCode: string, phoneNumber: string) => {
+    if (!countryCode || !phoneNumber) return phoneNumber
+    const prefix = getPhonePrefix(countryCode)
+    // Remove any existing prefix or spaces
+    const cleaned = phoneNumber.replace(/^\+?\d+\s*/, '').replace(/\s+/g, '')
+    return `${prefix} ${cleaned}`
+  }
+
+  // Handle phone number change
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    // Remove any existing prefix to avoid duplication
+    const cleaned = value.replace(/^\+\d+\s*/, '')
+    setFormData({ ...formData, phone: cleaned })
+  }
+
+  // Handle country change
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const countryCode = e.target.value
+    // If phone number exists, clean it (remove any existing prefix)
+    const cleanedPhone = formData.phone ? formData.phone.replace(/^\+\d+\s*/, '') : formData.phone
+    setFormData({ ...formData, country: countryCode, phone: cleanedPhone })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
     try {
+      // Format phone number with country prefix before sending
+      const selectedCountry = countries.find(c => c.code === formData.country)
+      const formattedData = {
+        ...formData,
+        country: selectedCountry ? selectedCountry.name : formData.country,
+        phone: formData.country && formData.phone 
+          ? formatPhoneNumber(formData.country, formData.phone)
+          : formData.phone
+      }
+
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formattedData),
       })
 
       const data = await response.json()
@@ -101,6 +187,7 @@ export default function ContactPage() {
         message: '', 
         company: '', 
         position: '', 
+        country: '',
         phone: '', 
         preferredContact: 'email' 
       })
@@ -227,30 +314,59 @@ export default function ContactPage() {
                       </div>
                     </div>
 
-                    {/* Contact Preference */}
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="text-sm font-semibold text-teal-900 mb-2 block">Phone</label>
+                  {/* Country Field */}
+                  <div>
+                    <label className="text-sm font-semibold text-teal-900 mb-2 block">Country <span className="text-orange-500">*</span></label>
+                    <select
+                      required
+                      value={formData.country}
+                      onChange={handleCountryChange}
+                      className="mt-2 w-full rounded-md border border-teal-300 bg-white px-3 py-2 text-sm text-teal-900 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-colors"
+                    >
+                      <option value="">Select a country</option>
+                      {countries.map((country) => (
+                        <option key={country.code} value={country.code}>
+                          {country.name} ({country.prefix})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Contact Preference */}
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-sm font-semibold text-teal-900 mb-2 block">Phone</label>
+                      <div className="relative mt-2">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-teal-700 font-medium text-sm">
+                          {formData.country ? getPhonePrefix(formData.country) : '+'}
+                        </div>
                         <Input
                           type="tel"
                           value={formData.phone}
-                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          className="mt-2 border-teal-300 focus:border-orange-500 focus:ring-orange-500/20 bg-white transition-colors"
-                          placeholder="(555) 123-4567"
+                          onChange={handlePhoneChange}
+                          className="pl-12 border-teal-300 focus:border-orange-500 focus:ring-orange-500/20 bg-white transition-colors"
+                          placeholder={formData.country ? "1234567890" : "Select country first"}
+                          disabled={!formData.country}
                         />
                       </div>
-                      <div>
-                        <label className="text-sm font-semibold text-teal-900 mb-2 block">Preferred Contact Method</label>
-                        <select
-                          value={formData.preferredContact}
-                          onChange={(e) => setFormData({ ...formData, preferredContact: e.target.value })}
-                          className="mt-2 w-full rounded-md border border-teal-300 bg-white px-3 py-2 text-sm text-teal-900 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-colors"
-                        >
-                          <option value="email">Email</option>
-                          <option value="phone">Phone</option>
-                        </select>
-                      </div>
+                      {formData.country && formData.phone && (
+                        <p className="mt-1 text-xs text-teal-600">
+                          Formatted: {formatPhoneNumber(formData.country, formData.phone)}
+                        </p>
+                      )}
                     </div>
+                    <div>
+                      <label className="text-sm font-semibold text-teal-900 mb-2 block">Preferred Contact Method</label>
+                      <select
+                        value={formData.preferredContact}
+                        onChange={(e) => setFormData({ ...formData, preferredContact: e.target.value })}
+                        className="mt-2 w-full rounded-md border border-teal-300 bg-white px-3 py-2 text-sm text-teal-900 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-colors"
+                      >
+                        <option value="email">Email</option>
+                        <option value="phone">Phone</option>
+                      </select>
+                    </div>
+                  </div>
 
                     <div>
                       <label className="text-sm font-semibold text-teal-900 mb-2 block">Subject <span className="text-orange-500">*</span></label>

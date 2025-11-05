@@ -4,10 +4,10 @@ import { ConfidentialClientApplication } from '@azure/msal-node'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, email, company, position, phone, subject, message, preferredContact } = body
+    const { name, email, company, position, country, phone, subject, message, preferredContact } = body
 
     // Validate required fields
-    if (!name || !email || !subject || !message) {
+    if (!name || !email || !subject || !message || !country) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -99,6 +99,10 @@ export async function POST(request: NextRequest) {
                 <div class="value">${position}</div>
               </div>
               ` : ''}
+              <div class="field">
+                <div class="label">Country:</div>
+                <div class="value">${country}</div>
+              </div>
               ${phone ? `
               <div class="field">
                 <div class="label">Phone:</div>
@@ -128,6 +132,7 @@ New Contact Form Submission
 
 Name: ${name}
 Email: ${email}
+Country: ${country}
 ${company ? `Company: ${company}` : ''}
 ${position ? `Position: ${position}` : ''}
 ${phone ? `Phone: ${phone}` : ''}
