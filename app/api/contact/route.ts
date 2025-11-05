@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Client } from '@microsoft/microsoft-graph-client'
-import { ClientCredentialProvider } from '@azure/msal-node'
+import { ConfidentialClientApplication } from '@azure/msal-node'
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,17 +37,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create client credential provider for authentication
-    const clientCredentialProvider = new ClientCredentialProvider({
-      clientId: CLIENT_ID,
-      clientSecret: CLIENT_SECRET,
-      tenantId: TENANT_ID,
+    // Create MSAL client for authentication
+    const msalClient = new ConfidentialClientApplication({
+      auth: {
+        clientId: CLIENT_ID,
+        clientSecret: CLIENT_SECRET,
+        authority: `https://login.microsoftonline.com/${TENANT_ID}`,
+      },
     })
 
-    // Create Graph client
-    const client = Client.initWithMiddleware({
-      authProvider: clientCredentialProvider,
+    // Get access token using client credentials flow
+    const tokenResponse = await msalClient.acquireTokenByClientCredential({
+      scopes: ['https://graph.microsoft.com/.default'],
     })
+
+    if (!tokenResponse || !tokenResponse.accessToken) {
+      throw new Error('Failed to acquire access token')
+    }
+
+    const accessToken = tokenResponse.accessToken
 
     // Format email content
     const emailHtml = `
@@ -163,8 +170,23 @@ ${message}
       },
     }
 
-    // Send the email
-    await client.api(`/users/${SENDER_EMAIL}/sendMail`).post(messagePayload)
+    // Send the email using Microsoft Graph API
+    const graphApiUrl = `https://graph.microsoft.com/v1.0/users/${SENDER_EMAIL}/sendMail`
+    
+    const response = await fetch(graphApiUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(messagePayload),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Graph API error:', response.status, errorText)
+      throw new Error(`Failed to send email: ${response.status} ${errorText}`)
+    }
 
     return NextResponse.json(
       { success: true, message: 'Email sent successfully' },
