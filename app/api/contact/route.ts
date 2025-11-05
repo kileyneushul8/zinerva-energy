@@ -45,8 +45,9 @@ export async function POST(request: NextRequest) {
         pass: SMTP_PASSWORD, // Your Microsoft app password
       },
       tls: {
-        ciphers: 'SSLv3',
+        rejectUnauthorized: false, // Allow self-signed certificates
       },
+      requireTLS: true
     })
 
     // Format email content
@@ -130,6 +131,9 @@ Message:
 ${message}
     `.trim()
 
+    // Verify connection first
+    await transporter.verify()
+
     // Send email using Microsoft SMTP
     const info = await transporter.sendMail({
       from: `Zinerva Contact Form <${SMTP_USER}>`,
@@ -144,10 +148,24 @@ ${message}
       { success: true, messageId: info.messageId },
       { status: 200 }
     )
-  } catch (error) {
+  } catch (error: any) {
     console.error('Contact form error:', error)
+    
+    // Provide more detailed error messages
+    let errorMessage = 'Internal server error'
+    
+    if (error.code === 'EAUTH') {
+      errorMessage = 'Authentication failed. Please check your email and password in Vercel environment variables.'
+    } else if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT') {
+      errorMessage = 'Connection failed. Please check your internet connection or SMTP settings.'
+    } else if (error.response) {
+      errorMessage = `SMTP error: ${error.response}`
+    } else if (error.message) {
+      errorMessage = error.message
+    }
+    
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     )
   }
