@@ -165,9 +165,6 @@ export default function ContactPage() {
       })
 
       const data = await response.json()
-      
-      // Log response for debugging
-      console.log('API Response:', { status: response.status, data })
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to send message')
@@ -192,7 +189,6 @@ export default function ContactPage() {
         preferredContact: 'email' 
       })
     } catch (error) {
-      console.error('Contact form error:', error)
       toast.error(error instanceof Error ? error.message : "Failed to send message. Please try again.")
     } finally {
       setIsSubmitting(false)

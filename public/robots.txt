@@ -1,0 +1,12 @@
+# robots.txt for Zinerva Energy
+
+User-agent: *
+Allow: /
+
+# Disallow admin/portal pages
+Disallow: /portal/
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://www.zinervacompany.com/sitemap.xml
+
