@@ -39,15 +39,15 @@ const contactInfo = [
     icon: Globe,
     title: "Global Presence",
     details: "Serving clients worldwide",
-    color: "text-blue-500",
-    bgColor: "bg-blue-50"
+    color: "text-teal-600",
+    bgColor: "bg-teal-50"
   },
   {
     icon: Clock,
     title: "Business Hours",
     details: "Mon-Fri: 9:00 AM - 6:00 PM EST",
-    color: "text-purple-500",
-    bgColor: "bg-purple-50"
+    color: "text-orange-600",
+    bgColor: "bg-orange-50"
   }
 ]
 
@@ -158,122 +158,135 @@ export default function ContactPage() {
               }}
               className="md:col-span-2"
             >
-              <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-teal-100 
-                hover:border-orange-200 transition-all duration-300">
-                <h2 className="text-2xl font-bold text-teal-900 mb-8">Send us a Message</h2>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Personal Information */}
-                  <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-teal-200 
+                hover:border-orange-300 transition-all duration-300 relative overflow-hidden">
+                {/* Decorative gradient background */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-teal-50 to-orange-50 opacity-50 rounded-full blur-3xl -z-0" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-8">
+                    <div className="p-2 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg">
+                      <MessageSquare className="w-6 h-6 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-teal-900">Send us a Message</h2>
+                  </div>
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Personal Information */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="text-sm font-semibold text-teal-900 mb-2 block">Name <span className="text-orange-500">*</span></label>
+                        <Input
+                          required
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          className="mt-2 border-teal-300 focus:border-orange-500 focus:ring-orange-500/20 bg-white transition-colors"
+                          placeholder="Your name"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-teal-900 mb-2 block">Email <span className="text-orange-500">*</span></label>
+                        <Input
+                          required
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          className="mt-2 border-teal-300 focus:border-orange-500 focus:ring-orange-500/20 bg-white transition-colors"
+                          placeholder="your.email@example.com"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Company Information */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="text-sm font-semibold text-teal-900 mb-2 block">Company</label>
+                        <Input
+                          value={formData.company}
+                          onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                          className="mt-2 border-teal-300 focus:border-orange-500 focus:ring-orange-500/20 bg-white transition-colors"
+                          placeholder="Your company name"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-teal-900 mb-2 block">Position</label>
+                        <Input
+                          value={formData.position}
+                          onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                          className="mt-2 border-teal-300 focus:border-orange-500 focus:ring-orange-500/20 bg-white transition-colors"
+                          placeholder="Your position"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Contact Preference */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="text-sm font-semibold text-teal-900 mb-2 block">Phone</label>
+                        <Input
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          className="mt-2 border-teal-300 focus:border-orange-500 focus:ring-orange-500/20 bg-white transition-colors"
+                          placeholder="(555) 123-4567"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-teal-900 mb-2 block">Preferred Contact Method</label>
+                        <select
+                          value={formData.preferredContact}
+                          onChange={(e) => setFormData({ ...formData, preferredContact: e.target.value })}
+                          className="mt-2 w-full rounded-md border border-teal-300 bg-white px-3 py-2 text-sm text-teal-900 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-colors"
+                        >
+                          <option value="email">Email</option>
+                          <option value="phone">Phone</option>
+                        </select>
+                      </div>
+                    </div>
+
                     <div>
-                      <label className="text-sm font-medium text-teal-900">Name</label>
+                      <label className="text-sm font-semibold text-teal-900 mb-2 block">Subject <span className="text-orange-500">*</span></label>
                       <Input
                         required
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="mt-2"
-                        placeholder="Your name"
+                        value={formData.subject}
+                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                        className="mt-2 border-teal-300 focus:border-orange-500 focus:ring-orange-500/20 bg-white transition-colors"
+                        placeholder="What is this regarding?"
                       />
                     </div>
+
                     <div>
-                      <label className="text-sm font-medium text-teal-900">Email</label>
-                      <Input
+                      <label className="text-sm font-semibold text-teal-900 mb-2 block">Message <span className="text-orange-500">*</span></label>
+                      <Textarea
                         required
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="mt-2"
-                        placeholder="Your email"
+                        value={formData.message}
+                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                        className="mt-2 h-32 border-teal-300 focus:border-orange-500 focus:ring-orange-500/20 bg-white transition-colors resize-none"
+                        placeholder="Tell us how we can help..."
                       />
                     </div>
-                  </div>
 
-                  {/* Company Information */}
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="text-sm font-medium text-teal-900">Company</label>
-                      <Input
-                        value={formData.company}
-                        onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                        className="mt-2"
-                        placeholder="Your company name"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-teal-900">Position</label>
-                      <Input
-                        value={formData.position}
-                        onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                        className="mt-2"
-                        placeholder="Your position"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Contact Preference */}
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="text-sm font-medium text-teal-900">Phone (Optional)</label>
-                      <Input
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="mt-2"
-                        placeholder="Your phone number"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-teal-900">Preferred Contact Method</label>
-                      <select
-                        value={formData.preferredContact}
-                        onChange={(e) => setFormData({ ...formData, preferredContact: e.target.value })}
-                        className="mt-2 w-full rounded-md border border-teal-200 bg-white px-3 py-2 text-sm"
-                      >
-                        <option value="email">Email</option>
-                        <option value="phone">Phone</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-teal-900">Subject</label>
-                    <Input
-                      required
-                      value={formData.subject}
-                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      className="mt-2"
-                      placeholder="Message subject"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-teal-900">Message</label>
-                    <Textarea
-                      required
-                      value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="mt-2 h-32"
-                      placeholder="Your message"
-                    />
-                  </div>
-
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-400 
-                      hover:to-orange-500 text-white px-8 py-6 rounded-full shadow-lg 
-                      hover:shadow-xl transition-all duration-300 group w-full md:w-auto"
-                  >
-                    {isSubmitting ? (
-                      "Sending..."
-                    ) : (
-                      <>
-                        <Send className="mr-2 h-5 w-5" />
-                        <span>Send Message</span>
-                        <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                      </>
-                    )}
-                  </Button>
-                </form>
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-400 
+                        hover:to-orange-500 text-white px-8 py-6 rounded-full shadow-lg 
+                        hover:shadow-xl transition-all duration-300 group w-full md:w-auto
+                        disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSubmitting ? (
+                        <span className="flex items-center gap-2">
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Sending...
+                        </span>
+                      ) : (
+                        <>
+                          <Send className="mr-2 h-5 w-5" />
+                          <span>Send Message</span>
+                          <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </div>
               </div>
             </motion.div>
 
@@ -291,17 +304,18 @@ export default function ContactPage() {
                     stiffness: 100
                   }}
                 >
-                  <Card className="bg-white/90 backdrop-blur-sm border-2 border-teal-100 
-                    hover:border-orange-200 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                  <Card className="bg-white/95 backdrop-blur-sm border-2 border-teal-200 
+                    hover:border-orange-300 shadow-lg hover:shadow-xl transition-all duration-300 group
+                    hover:bg-gradient-to-br hover:from-white hover:to-teal-50/50">
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
                         <div className={`p-3 rounded-lg ${info.bgColor} shrink-0
-                          group-hover:scale-110 transition-transform duration-300`}>
+                          group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
                           <info.icon className={`w-5 h-5 ${info.color}`} />
                         </div>
                         <div>
                           <h3 className="text-base font-semibold text-teal-900 mb-1">{info.title}</h3>
-                          <p className="text-sm text-teal-600 whitespace-pre-line">{info.details}</p>
+                          <p className="text-sm text-teal-700 whitespace-pre-line">{info.details}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -320,17 +334,18 @@ export default function ContactPage() {
                   stiffness: 100
                 }}
               >
-                <Card className="bg-white/90 backdrop-blur-sm border-2 border-teal-100 
-                  hover:border-orange-200 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                <Card className="bg-white/95 backdrop-blur-sm border-2 border-teal-200 
+                  hover:border-orange-300 shadow-lg hover:shadow-xl transition-all duration-300 group
+                  hover:bg-gradient-to-br hover:from-white hover:to-teal-50/50">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
-                      <div className="p-3 rounded-lg bg-blue-50 shrink-0
-                        group-hover:scale-110 transition-transform duration-300">
-                        <Network className="w-5 h-5 text-blue-500" />
+                      <div className="p-3 rounded-lg bg-teal-50 shrink-0
+                        group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                        <Network className="w-5 h-5 text-teal-600" />
                       </div>
                       <div>
                         <h3 className="text-base font-semibold text-teal-900 mb-1">Trading Operations</h3>
-                        <p className="text-sm text-teal-600">24/7 market monitoring and trading capabilities</p>
+                        <p className="text-sm text-teal-700">24/7 market monitoring and trading capabilities</p>
                       </div>
                     </div>
                   </CardContent>
