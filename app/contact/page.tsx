@@ -78,6 +78,9 @@ export default function ContactPage() {
       })
 
       const data = await response.json()
+      
+      // Log response for debugging
+      console.log('API Response:', { status: response.status, data })
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to send message')
