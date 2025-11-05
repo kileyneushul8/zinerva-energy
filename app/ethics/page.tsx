@@ -14,7 +14,7 @@ export default function EthicsPage() {
                     <Button
                         variant="default"
                         className="bg-teal-400 hover:bg-teal-500 text-white"
-                        onClick={() => window.location.href = 'mailto:account.management@zinervacompany.com'}
+                        onClick={() => window.location.href = 'mailto:admin@zinervacompany.com'}
                     >
                         Contact Ethics Committee
                         <ArrowUpRight className="ml-2 h-4 w-4" />

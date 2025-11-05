@@ -170,10 +170,10 @@ export default function PrivacyPolicyPage() {
                                     If you have any questions about this Privacy Policy or our data practices, please
                                     contact our Data Protection team at{" "}
                                     <a
-                                        href="mailto:account.management@zinervacompany.com"
+                                        href="mailto:admin@zinervacompany.com"
                                         className="text-orange-600 hover:text-orange-700"
                                     >
-                                        account.management@zinervacompany.com
+                                        admin@zinervacompany.com
                                     </a>
                                 </p>
                             </div>

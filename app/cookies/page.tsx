@@ -170,10 +170,10 @@ export default function CookiePolicyPage() {
                                     You can manage your cookie preferences through your browser settings. For questions
                                     about our cookie usage, please contact us at{" "}
                                     <a
-                                        href="mailto:account.management@zinervacompany.com"
+                                        href="mailto:admin@zinervacompany.com"
                                         className="text-orange-600 hover:text-orange-700"
                                     >
-                                        account.management@zinervacompany.com
+                                        admin@zinervacompany.com
                                     </a>
                                 </p>
                             </div>

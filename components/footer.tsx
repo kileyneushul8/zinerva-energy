@@ -79,10 +79,10 @@ export function Footer() {
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-orange-300 shrink-0" />
                 <a
-                  href="mailto:account.management@zinervacompany.com"
+                  href="mailto:admin@zinervacompany.com"
                   className="hover:text-orange-300 transition-colors whitespace-nowrap"
                 >
-                  account.management@zinervacompany.com
+                  admin@zinervacompany.com
                 </a>
               </div>
             </div>

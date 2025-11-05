@@ -29,7 +29,7 @@ export default function LeadershipPage() {
         }
     ]
 
-    const contactEmail = "account.management@zinervacompany.com"
+    const contactEmail = "admin@zinervacompany.com"
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 via-teal-50/10 to-white">
@@ -202,7 +202,7 @@ export default function LeadershipPage() {
                                                     <div className="flex justify-center">
                                                         <Button
                                                             className="bg-teal-600 hover:bg-teal-700 text-white"
-                                                            onClick={() => window.location.href = 'mailto:account.management@zinervacompany.com'}
+                                                            onClick={() => window.location.href = 'mailto:admin@zinervacompany.com'}
                                                         >
                                                             <Mail className="mr-2 h-5 w-5" />
                                                             Email

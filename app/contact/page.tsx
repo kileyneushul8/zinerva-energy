@@ -31,7 +31,7 @@ const contactInfo = [
   {
     icon: Mail,
     title: "Email",
-    details: "account.management@\nzinervacompany.com",
+    details: "admin@zinervacompany.com",
     color: "text-orange-500",
     bgColor: "bg-orange-50"
   },
@@ -69,15 +69,34 @@ export default function ContactPage() {
     setIsSubmitting(true)
 
     try {
-      const mailtoLink = `mailto:account.management@zinervacompany.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(
-        `From: ${formData.name} (${formData.email})\n\n${formData.message}`
-      )}`
-      window.location.href = mailtoLink
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
 
-      toast.success("Message sent successfully!")
-      setFormData({ name: '', email: '', subject: '', message: '', company: '', position: '', phone: '', preferredContact: 'email' })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message')
+      }
+
+      toast.success("Message sent successfully! We'll get back to you soon.")
+      setFormData({ 
+        name: '', 
+        email: '', 
+        subject: '', 
+        message: '', 
+        company: '', 
+        position: '', 
+        phone: '', 
+        preferredContact: 'email' 
+      })
     } catch (error) {
-      toast.error("Failed to send message. Please try again.")
+      console.error('Contact form error:', error)
+      toast.error(error instanceof Error ? error.message : "Failed to send message. Please try again.")
     } finally {
       setIsSubmitting(false)
     }
