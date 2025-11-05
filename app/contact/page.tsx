@@ -10,7 +10,8 @@ import {
   Clock,
   ArrowRight,
   MapPin,
-  Network
+  Network,
+  CheckCircle2
 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -86,7 +87,13 @@ export default function ContactPage() {
         throw new Error(data.error || 'Failed to send message')
       }
 
-      toast.success("Message sent successfully! We'll get back to you soon.")
+      // Show success message with custom styling
+      toast.success("Message sent successfully! We'll get back to you soon.", {
+        duration: 5000,
+        icon: <CheckCircle2 className="w-5 h-5 text-teal-600" />,
+        className: "bg-teal-50 border border-teal-200 text-teal-900",
+      })
+      
       setFormData({ 
         name: '', 
         email: '', 
