@@ -10,9 +10,11 @@
     "socket": "ts-node --project tsconfig.server.json server/socket-server.ts"
   },
   "dependencies": {
+    "@azure/msal-node": "^3.8.1",
     "@emotion/is-prop-valid": "latest",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^3.9.1",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-alert-dialog": "^1.1.4",
     "@radix-ui/react-aspect-ratio": "^1.1.1",

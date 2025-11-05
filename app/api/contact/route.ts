@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import nodemailer from 'nodemailer'
+import { Client } from '@microsoft/microsoft-graph-client'
+import { ClientCredentialProvider } from '@azure/msal-node'
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,31 +24,30 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get Microsoft SMTP credentials from environment variables
-    const SMTP_USER = process.env.SMTP_USER || process.env.MICROSOFT_EMAIL
-    const SMTP_PASSWORD = process.env.SMTP_PASSWORD || process.env.MICROSOFT_APP_PASSWORD
+    // Get Microsoft Graph API credentials from environment variables
+    const CLIENT_ID = process.env.MICROSOFT_CLIENT_ID
+    const CLIENT_SECRET = process.env.MICROSOFT_CLIENT_SECRET
+    const TENANT_ID = process.env.MICROSOFT_TENANT_ID
+    const SENDER_EMAIL = process.env.MICROSOFT_SENDER_EMAIL || 'admin@zinervacompany.com'
 
-    if (!SMTP_USER || !SMTP_PASSWORD) {
-      console.error('SMTP credentials not configured')
+    if (!CLIENT_ID || !CLIENT_SECRET || !TENANT_ID) {
+      console.error('Microsoft Graph API credentials not configured')
       return NextResponse.json(
-        { error: 'Email service not configured' },
+        { error: 'Email service not configured. Please set MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET, and MICROSOFT_TENANT_ID in Vercel environment variables.' },
         { status: 500 }
       )
     }
 
-    // Create nodemailer transporter for Microsoft 365
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.office365.com',
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: SMTP_USER, // Your Microsoft email (e.g., admin@zinervacompany.com)
-        pass: SMTP_PASSWORD, // Your Microsoft app password
-      },
-      tls: {
-        rejectUnauthorized: false, // Allow self-signed certificates
-      },
-      requireTLS: true
+    // Create client credential provider for authentication
+    const clientCredentialProvider = new ClientCredentialProvider({
+      clientId: CLIENT_ID,
+      clientSecret: CLIENT_SECRET,
+      tenantId: TENANT_ID,
+    })
+
+    // Create Graph client
+    const client = Client.initWithMiddleware({
+      authProvider: clientCredentialProvider,
     })
 
     // Format email content
@@ -131,27 +131,43 @@ Message:
 ${message}
     `.trim()
 
-    // Verify connection first (this will test authentication)
-    try {
-      await transporter.verify()
-      console.log('SMTP connection verified successfully')
-    } catch (verifyError: any) {
-      console.error('SMTP verification failed:', verifyError)
-      throw verifyError
+    // Send email using Microsoft Graph API
+    const messagePayload = {
+      message: {
+        subject: `Contact Form: ${subject}`,
+        body: {
+          contentType: 'HTML',
+          content: emailHtml,
+        },
+        from: {
+          emailAddress: {
+            address: SENDER_EMAIL,
+            name: 'Zinerva Contact Form',
+          },
+        },
+        toRecipients: [
+          {
+            emailAddress: {
+              address: 'admin@zinervacompany.com',
+            },
+          },
+        ],
+        replyTo: [
+          {
+            emailAddress: {
+              address: email,
+              name: name,
+            },
+          },
+        ],
+      },
     }
 
-    // Send email using Microsoft SMTP
-    const info = await transporter.sendMail({
-      from: `Zinerva Contact Form <${SMTP_USER}>`,
-      to: 'admin@zinervacompany.com',
-      replyTo: email,
-      subject: `Contact Form: ${subject}`,
-      html: emailHtml,
-      text: emailText,
-    })
+    // Send the email
+    await client.api(`/users/${SENDER_EMAIL}/sendMail`).post(messagePayload)
 
     return NextResponse.json(
-      { success: true, messageId: info.messageId },
+      { success: true, message: 'Email sent successfully' },
       { status: 200 }
     )
   } catch (error: any) {
@@ -160,12 +176,10 @@ ${message}
     // Provide more detailed error messages
     let errorMessage = 'Internal server error'
     
-    if (error.code === 'EAUTH') {
-      errorMessage = 'Authentication failed. Please check your email and password in Vercel environment variables.'
-    } else if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT') {
-      errorMessage = 'Connection failed. Please check your internet connection or SMTP settings.'
-    } else if (error.response) {
-      errorMessage = `SMTP error: ${error.response}`
+    if (error.code === 'InvalidAuthenticationToken') {
+      errorMessage = 'Authentication failed. Please check your Microsoft Graph API credentials in Vercel environment variables.'
+    } else if (error.code === 'Request_ResourceNotFound') {
+      errorMessage = 'Email account not found. Please check MICROSOFT_SENDER_EMAIL in Vercel environment variables.'
     } else if (error.message) {
       errorMessage = error.message
     }
