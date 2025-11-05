@@ -131,8 +131,14 @@ Message:
 ${message}
     `.trim()
 
-    // Verify connection first
-    await transporter.verify()
+    // Verify connection first (this will test authentication)
+    try {
+      await transporter.verify()
+      console.log('SMTP connection verified successfully')
+    } catch (verifyError: any) {
+      console.error('SMTP verification failed:', verifyError)
+      throw verifyError
+    }
 
     // Send email using Microsoft SMTP
     const info = await transporter.sendMail({
