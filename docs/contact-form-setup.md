@@ -26,13 +26,46 @@ RESEND_API_KEY=re_your_api_key_here
 
 For production (Vercel, etc.), add this as an environment variable in your deployment settings.
 
-## Domain Setup (Optional but Recommended)
+## Domain Setup (Required for Microsoft Email)
 
-To send emails from `noreply@zinervacompany.com` instead of Resend's default domain:
+Since your email is set up via Microsoft, you'll need to verify your domain in Resend to send emails from `noreply@zinervacompany.com`. This ensures better deliverability and emails come from your domain.
 
-1. Add your domain to Resend
-2. Verify domain ownership via DNS records
-3. Update the `from` field in `app/api/contact/route.ts` to use your verified domain
+### Steps to Verify Domain:
+
+1. **Add Domain to Resend:**
+   - Go to Resend Dashboard → **Domains**
+   - Click **Add Domain**
+   - Enter: `zinervacompany.com`
+   - Click **Add**
+
+2. **Get DNS Records from Resend:**
+   - Resend will provide you with DNS records to add
+   - You'll typically need:
+     - SPF record (TXT)
+     - DKIM record (TXT)
+     - DMARC record (TXT) - optional but recommended
+
+3. **Add DNS Records in Microsoft 365:**
+   - Go to Microsoft 365 Admin Center
+   - Navigate to **Settings** → **Domains**
+   - Select `zinervacompany.com`
+   - Click **DNS records** or **Manage DNS**
+   - Add the TXT records provided by Resend
+   - **Important:** Don't remove existing Microsoft DNS records - just add the new Resend records alongside them
+
+4. **Verify Domain:**
+   - Go back to Resend Dashboard
+   - Click **Verify** on your domain
+   - Wait a few minutes for DNS propagation
+   - Once verified, the domain status will show as "Verified"
+
+5. **Update API Route (Already Done):**
+   - The `from` field is already set to `noreply@zinervacompany.com` in `app/api/contact/route.ts`
+   - No code changes needed!
+
+### Alternative: Using Microsoft SMTP (If Domain Verification Fails)
+
+If you prefer to use Microsoft's SMTP directly instead of Resend, we can update the API route to use nodemailer with Microsoft Exchange SMTP. However, Resend is recommended for better deliverability and easier setup.
 
 ## How It Works
 

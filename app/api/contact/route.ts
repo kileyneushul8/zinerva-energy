@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import nodemailer from 'nodemailer'
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,22 +23,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Send email using Resend
-    // You'll need to install: npm install resend
-    // And set RESEND_API_KEY in your .env file
-    const RESEND_API_KEY = process.env.RESEND_API_KEY
+    // Get Microsoft SMTP credentials from environment variables
+    const SMTP_USER = process.env.SMTP_USER || process.env.MICROSOFT_EMAIL
+    const SMTP_PASSWORD = process.env.SMTP_PASSWORD || process.env.MICROSOFT_APP_PASSWORD
 
-    if (!RESEND_API_KEY) {
-      console.error('RESEND_API_KEY is not set')
+    if (!SMTP_USER || !SMTP_PASSWORD) {
+      console.error('SMTP credentials not configured')
       return NextResponse.json(
         { error: 'Email service not configured' },
         { status: 500 }
       )
     }
 
-    // Import Resend dynamically
-    const { Resend } = await import('resend')
-    const resend = new Resend(RESEND_API_KEY)
+    // Create nodemailer transporter for Microsoft 365
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.office365.com',
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: SMTP_USER, // Your Microsoft email (e.g., admin@zinervacompany.com)
+        pass: SMTP_PASSWORD, // Your Microsoft app password
+      },
+      tls: {
+        ciphers: 'SSLv3',
+      },
+    })
 
     // Format email content
     const emailHtml = `
@@ -120,26 +130,18 @@ Message:
 ${message}
     `.trim()
 
-    // Send email
-    const { data, error } = await resend.emails.send({
-      from: 'Zinerva Contact Form <noreply@zinervacompany.com>',
-      to: ['admin@zinervacompany.com'],
+    // Send email using Microsoft SMTP
+    const info = await transporter.sendMail({
+      from: `Zinerva Contact Form <${SMTP_USER}>`,
+      to: 'admin@zinervacompany.com',
       replyTo: email,
       subject: `Contact Form: ${subject}`,
       html: emailHtml,
       text: emailText,
     })
 
-    if (error) {
-      console.error('Resend error:', error)
-      return NextResponse.json(
-        { error: 'Failed to send email' },
-        { status: 500 }
-      )
-    }
-
     return NextResponse.json(
-      { success: true, messageId: data?.id },
+      { success: true, messageId: info.messageId },
       { status: 200 }
     )
   } catch (error) {
@@ -150,4 +152,3 @@ ${message}
     )
   }
 }
-
