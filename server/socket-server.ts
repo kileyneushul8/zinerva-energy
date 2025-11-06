@@ -45,7 +45,9 @@ const io = new Server(httpServer, {
 })
 
 io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Client connected:', socket.id)
+  }
   
   socket.emit('status', { connected: true })
   
@@ -55,10 +57,13 @@ io.on('connection', (socket) => {
   })
   
   socket.on('disconnect', (reason) => {
-    console.log('Client disconnected:', socket.id, reason)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Client disconnected:', socket.id, reason)
+    }
   })
 
   socket.on('error', (error) => {
+    // Keep error logging for production
     console.error('Socket error:', error)
   })
 
@@ -76,7 +81,9 @@ io.on('connection', (socket) => {
 })
 
 httpServer.listen(PORT, () => {
-  console.log(`Socket.IO server running on port ${PORT}`)
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`Socket.IO server running on port ${PORT}`)
+  }
 })
 
 export default io 

@@ -20,15 +20,20 @@ export const io = new Server(httpServer, {
 
 // Add connection handler
 io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Client connected:', socket.id)
+  }
   
   socket.emit('status', { connected: true })
   
   socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Client disconnected:', socket.id)
+    }
   })
 
   socket.on('error', (error) => {
+    // Keep error logging for production
     console.error('Socket error:', error)
   })
 })
@@ -36,7 +41,9 @@ io.on('connection', (socket) => {
 const port = parseInt(process.env.SOCKET_PORT || '3001', 10)
 
 httpServer.listen(port, () => {
-  console.log(`Socket.IO server running on port ${port}`)
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`Socket.IO server running on port ${port}`)
+  }
 })
 
 export default io 

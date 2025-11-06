@@ -620,10 +620,11 @@ export default function GlobalNetworkContent() {
               {/* Rotation Control */}
               <motion.button
                 className="absolute top-8 left-8 z-10 bg-white/90 backdrop-blur-sm p-2 
-                  rounded-lg border border-teal-200 shadow-sm"
+                  rounded-lg border border-teal-200 shadow-sm focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsRotating(!isRotating)}
+                aria-label={isRotating ? "Pause globe rotation" : "Start globe rotation"}
               >
                 <motion.div
                   animate={{ rotate: isRotating ? 360 : 0 }}

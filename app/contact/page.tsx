@@ -109,6 +109,24 @@ export default function ContactPage() {
     preferredContact: 'email'
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [csrfToken, setCsrfToken] = useState<string | null>(null)
+
+  // Fetch CSRF token on mount
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await fetch('/api/csrf')
+        if (response.ok) {
+          const data = await response.json()
+          setCsrfToken(data.token)
+        }
+      } catch (error) {
+        // CSRF token fetch failed, but we'll still try to submit
+        console.error('Failed to fetch CSRF token:', error)
+      }
+    }
+    fetchCsrfToken()
+  }, [])
   
   // Get phone prefix based on selected country
   const getPhonePrefix = (countryCode: string) => {
@@ -160,6 +178,7 @@ export default function ContactPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
         },
         body: JSON.stringify(formattedData),
       })
@@ -167,6 +186,20 @@ export default function ContactPage() {
       const data = await response.json()
 
       if (!response.ok) {
+        // Handle CSRF errors
+        if (response.status === 403) {
+          // Refresh CSRF token and retry
+          try {
+            const csrfResponse = await fetch('/api/csrf')
+            if (csrfResponse.ok) {
+              const csrfData = await csrfResponse.json()
+              setCsrfToken(csrfData.token)
+              throw new Error('Security token expired. Please try again.')
+            }
+          } catch (error) {
+            throw new Error('Security token expired. Please refresh the page and try again.')
+          }
+        }
         // Handle rate limit errors specifically
         if (response.status === 429) {
           const retryAfter = response.headers.get('Retry-After') || '15'
@@ -420,11 +453,13 @@ export default function ContactPage() {
                     <Button
                       type="submit"
                       disabled={isSubmitting}
+                      aria-label={isSubmitting ? "Submitting message..." : "Submit contact form"}
+                      aria-busy={isSubmitting}
                       className="bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-400 
                         hover:to-orange-500 text-white px-6 sm:px-8 py-5 sm:py-6 rounded-full shadow-lg 
                         hover:shadow-xl transition-all duration-300 group w-full md:w-auto
                         disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base
-                        min-h-[44px] touch-manipulation"
+                        min-h-[44px] touch-manipulation focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
                     >
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">

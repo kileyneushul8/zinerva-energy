@@ -20,6 +20,12 @@ export class ErrorBoundary extends React.Component<Props, State> {
     }
 
     componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+        // Log error to error reporting service
+        if (process.env.NODE_ENV === 'production') {
+            // Error monitoring will be handled by Sentry when installed
+            // import { captureException } from '@/lib/error-monitoring'
+            // captureException(error, { errorInfo })
+        }
         console.error('Error caught by boundary:', error, errorInfo)
     }
 

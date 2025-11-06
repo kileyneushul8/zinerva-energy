@@ -13,8 +13,11 @@ export class BloombergWebSocket implements WebSocketProvider {
         try {
             // In a real implementation, this would connect to Bloomberg's WebSocket API
             // For now, we'll just simulate the connection
-            console.log('Bloomberg WebSocket connected')
+            if (process.env.NODE_ENV === 'development') {
+                console.log('Bloomberg WebSocket connected')
+            }
         } catch (error) {
+            // Keep error logging for production
             console.error('Bloomberg WebSocket connection error:', error)
         }
     }

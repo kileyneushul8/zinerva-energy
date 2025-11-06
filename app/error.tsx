@@ -13,7 +13,12 @@ export default function Error({
   reset: () => void
 }) {
   useEffect(() => {
-    // Log error to error reporting service in production
+    // Log error to error reporting service
+    if (process.env.NODE_ENV === 'production') {
+      // Error monitoring will be handled by Sentry when installed
+      // import { captureException } from '@/lib/error-monitoring'
+      // captureException(error, { page: window.location.pathname })
+    }
     console.error("Application error:", error)
   }, [error])
 

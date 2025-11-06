@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ConfidentialClientApplication } from '@azure/msal-node'
+import { validateCsrfToken } from '@/lib/csrf'
 
 // Rate limiting storage (in-memory)
 // In production, consider using Redis or a database for distributed rate limiting
@@ -73,6 +74,15 @@ function checkRateLimit(ip: string): { allowed: boolean; remaining: number; rese
 }
 
 export async function POST(request: NextRequest) {
+  // CSRF protection
+  const isValidCsrf = validateCsrfToken(request)
+  if (!isValidCsrf) {
+    return NextResponse.json(
+      { error: 'Invalid CSRF token. Please refresh the page and try again.' },
+      { status: 403 }
+    )
+  }
+
   // Rate limiting check
   const clientIP = getClientIP(request)
   const rateLimit = checkRateLimit(clientIP)
