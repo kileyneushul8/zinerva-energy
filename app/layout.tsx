@@ -8,6 +8,7 @@ import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { ClientProviders } from "@/components/client-providers"
 import { Analytics } from "@/components/analytics"
+import { StructuredData } from "@/components/structured-data"
 import { metadata } from "./metadata"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -58,6 +59,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </head>
       <body className={`${inter.className} h-full leading-relaxed`}>
+        <StructuredData />
         <Analytics />
         <ClientProviders>
           <div className="min-h-screen flex flex-col">

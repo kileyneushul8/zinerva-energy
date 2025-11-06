@@ -201,8 +201,33 @@ export default function ContactPage() {
     }
   }
 
+  const contactPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "name": "Contact Us - Zinerva Energy",
+    "description": "Contact Zinerva Energy to explore energy trading opportunities and strategic partnerships",
+    "url": "https://www.zinervacompany.com/contact",
+    "mainEntity": {
+      "@type": "Organization",
+      "name": "Zinerva Energy",
+      "email": "admin@zinervacompany.com",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+1-555-0000",
+        "contactType": "Customer Service",
+        "email": "admin@zinervacompany.com",
+        "areaServed": "Worldwide",
+        "availableLanguage": ["en"]
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-teal-50/10 to-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(contactPageSchema) }}
+      />
       {/* Enhanced Header Section */}
       <div className="relative bg-gradient-to-r from-teal-900 to-teal-800 py-12 sm:py-16 md:py-24 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(20,184,166,0.2),transparent_70%)]" />
