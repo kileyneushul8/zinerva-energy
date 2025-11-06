@@ -6,6 +6,7 @@ import { Metadata } from "next"
 
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
+import { Breadcrumbs } from "@/components/breadcrumbs"
 import { ClientProviders } from "@/components/client-providers"
 import { Analytics } from "@/components/analytics"
 import { StructuredData } from "@/components/structured-data"
@@ -64,6 +65,7 @@ export default function RootLayout({
         <ClientProviders>
           <div className="min-h-screen flex flex-col">
             <Navigation />
+            <Breadcrumbs />
             <main className="flex-grow">
               {children}
             </main>

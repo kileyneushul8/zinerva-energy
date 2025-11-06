@@ -1782,8 +1782,11 @@ export default function MarketOverviewPage() {
 
                 {/* Chart */}
                 {isLoading ? (
-                  <div className="h-[500px] flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600" />
+                  <div className="h-[500px] flex items-center justify-center bg-white rounded-lg shadow-sm border border-teal-100">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-teal-200 border-t-teal-600" />
+                      <p className="text-sm text-teal-600">Loading market data...</p>
+                    </div>
                   </div>
                 ) : (
                   <InteractiveChart
